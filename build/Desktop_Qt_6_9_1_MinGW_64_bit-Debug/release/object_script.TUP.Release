@@ -1,0 +1,13 @@
+release/MultiTaskAnalyticsWindow.o
+release/SingleTaskAnalyticsWindow.o
+release/TaskEditorWindow.o
+release/TaskSelectorWindow.o
+release/TaskTimerWindow.o
+release/main.o
+release/mainwindow.o
+release/moc_MultiTaskAnalyticsWindow.o
+release/moc_SingleTaskAnalyticsWindow.o
+release/moc_TaskEditorWindow.o
+release/moc_TaskSelectorWindow.o
+release/moc_TaskTimerWindow.o
+release/moc_mainwindow.o

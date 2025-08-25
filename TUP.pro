@@ -9,10 +9,20 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    MultiTaskAnalyticsWindow.cpp \
+    SingleTaskAnalyticsWindow.cpp \
+    TaskEditorWindow.cpp \
+    TaskSelectorWindow.cpp \
+    TaskTimerWindow.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    MultiTaskAnalyticsWindow.h \
+    SingleTaskAnalyticsWindow.h \
+    TaskEditorWindow.h \
+    TaskSelectorWindow.h \
+    TaskTimerWindow.h \
     mainwindow.h
 
 FORMS += \

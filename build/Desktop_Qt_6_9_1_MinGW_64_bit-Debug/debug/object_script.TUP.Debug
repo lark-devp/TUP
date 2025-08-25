@@ -1,0 +1,13 @@
+debug/MultiTaskAnalyticsWindow.o
+debug/SingleTaskAnalyticsWindow.o
+debug/TaskEditorWindow.o
+debug/TaskSelectorWindow.o
+debug/TaskTimerWindow.o
+debug/main.o
+debug/mainwindow.o
+debug/moc_MultiTaskAnalyticsWindow.o
+debug/moc_SingleTaskAnalyticsWindow.o
+debug/moc_TaskEditorWindow.o
+debug/moc_TaskSelectorWindow.o
+debug/moc_TaskTimerWindow.o
+debug/moc_mainwindow.o
