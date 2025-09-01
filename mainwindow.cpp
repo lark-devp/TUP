@@ -26,7 +26,9 @@ void MainWindow::setupUI() {
     setCentralWidget (stack);
     stack->setCurrentWidget(taskSelectorWindow);
     setWindowTitle("Task Tracker");
-    resize (800, 600);
+    resize (500, 500);
+
+
 }
 
 void MainWindow::connectSignals() {

@@ -11,4 +11,6 @@ TaskEditorWindow::TaskEditorWindow(QWidget *parent) : QWidget(parent) {
 
     layout->addWidget(new QPushButton("Редактировать задачу"));
     layout->addWidget(backBtn);
+
+
 }

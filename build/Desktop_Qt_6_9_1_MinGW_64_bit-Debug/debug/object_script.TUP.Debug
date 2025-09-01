@@ -5,6 +5,7 @@ debug/TaskSelectorWindow.o
 debug/TaskTimerWindow.o
 debug/main.o
 debug/mainwindow.o
+debug/qrc_resource.o
 debug/moc_MultiTaskAnalyticsWindow.o
 debug/moc_SingleTaskAnalyticsWindow.o
 debug/moc_TaskEditorWindow.o
