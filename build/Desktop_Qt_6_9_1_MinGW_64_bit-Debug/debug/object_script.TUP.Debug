@@ -3,8 +3,11 @@ debug/SingleTaskAnalyticsWindow.o
 debug/TaskEditorWindow.o
 debug/TaskSelectorWindow.o
 debug/TaskTimerWindow.o
+debug/DBManager.o
 debug/main.o
 debug/mainwindow.o
+debug/Task.o
+debug/TaskRepository.o
 debug/qrc_resource.o
 debug/moc_MultiTaskAnalyticsWindow.o
 debug/moc_SingleTaskAnalyticsWindow.o

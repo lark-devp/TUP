@@ -3,8 +3,11 @@ release/SingleTaskAnalyticsWindow.o
 release/TaskEditorWindow.o
 release/TaskSelectorWindow.o
 release/TaskTimerWindow.o
+release/DBManager.o
 release/main.o
 release/mainwindow.o
+release/Task.o
+release/TaskRepository.o
 release/qrc_resource.o
 release/moc_MultiTaskAnalyticsWindow.o
 release/moc_SingleTaskAnalyticsWindow.o

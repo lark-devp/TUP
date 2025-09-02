@@ -1,5 +1,5 @@
 QT       += core gui
-
+QT += sql
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
@@ -14,8 +14,11 @@ SOURCES += \
     TaskEditorWindow.cpp \
     TaskSelectorWindow.cpp \
     TaskTimerWindow.cpp \
+    db/DBManager.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    models/Task.cpp \
+    repository/TaskRepository.cpp
 
 HEADERS += \
     MultiTaskAnalyticsWindow.h \
@@ -23,7 +26,12 @@ HEADERS += \
     TaskEditorWindow.h \
     TaskSelectorWindow.h \
     TaskTimerWindow.h \
-    mainwindow.h
+    db/DBManager.h \
+    mainwindow.h \
+    models/Task.h \
+    models/TimeEntry.h \
+    models/User.h \
+    repository/TaskRepository.h
 
 FORMS += \
     mainwindow.ui
