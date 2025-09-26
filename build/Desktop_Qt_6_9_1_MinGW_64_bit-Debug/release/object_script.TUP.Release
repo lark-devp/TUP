@@ -1,0 +1,11 @@
+release/main.o
+release/mainwindow.o
+release/HorizontalNavigationBar.o
+release/moc_mainwindow.o
+release/moc_INavigationBar.o
+release/moc_IReportView.o
+release/moc_ISyncPageView.o
+release/moc_ITaskEditView.o
+release/moc_ITasksListPageView.o
+release/moc_ITimerPageView.o
+release/moc_HorizontalNavigationBar.o

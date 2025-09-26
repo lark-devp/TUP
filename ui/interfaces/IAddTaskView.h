@@ -1,0 +1,4 @@
+#ifndef IADDTASKVIEW_H
+#define IADDTASKVIEW_H
+
+#endif // IADDTASKVIEW_H

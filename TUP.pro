@@ -10,10 +10,20 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    app/mainwindow.cpp
 
 HEADERS += \
-    mainwindow.h
+    app/mainwindow.h \
+    calendar/ICalendarService.h \
+    db/IDatabaseService.h \
+    ui/interfaces/IAddTaskView.h \
+    ui/interfaces/IAllTasksStatisticsView.h \
+    ui/interfaces/ISingleTaskStatisticsView.h \
+    ui/interfaces/ISynchronizationView.h \
+    ui/interfaces/ITaskSelectionView.h \
+    ui/interfaces/ITimerView.h \
+    ui/interfaces/IUIFactory.h \
+    ui/interfaces/IView.h
 
 FORMS += \
     mainwindow.ui
