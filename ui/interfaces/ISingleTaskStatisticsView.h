@@ -3,17 +3,20 @@
 #include "IView.h"
 #include <QObject>
 #include <QString>
-#include <QVariantMap> // Для гибкой передачи данных для графиков
+#include <QVariantMap>
 #include <QDate>
 
 /**
  * @brief Интерфейс для окна статистики по одной задаче.
  */
-class ISingleTaskStatisticsView : public IView
+class ISingleTaskStatisticsView :  public IView
 {
     Q_OBJECT
 
 public:
+    // Этот конструктор будет принимать 'parent' и передавать его дальше в IView.
+    explicit ISingleTaskStatisticsView(QWidget * parent = nullptr) : IView(parent) {}
+
     ~ISingleTaskStatisticsView() override = default;
 
     // Методы для управления видом

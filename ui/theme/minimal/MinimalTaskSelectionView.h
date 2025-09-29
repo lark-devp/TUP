@@ -25,6 +25,7 @@ public:
     void displayTasks(const QVector<TaskDisplayData>& tasks) override;
     void showLoading(bool isLoading) override;
     void showError(const QString& message) override;
+    void setupConnections() override;
 
 private slots:
     // Внутренний слот для реакции на выбор элемента в списке

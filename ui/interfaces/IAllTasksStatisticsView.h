@@ -13,6 +13,9 @@ class IAllTasksStatisticsView : public IView
     Q_OBJECT
 
 public:
+    // Этот конструктор будет принимать 'parent' и передавать его дальше в IView.
+    explicit IAllTasksStatisticsView(QWidget * parent = nullptr) : IView(parent) {}
+
     ~IAllTasksStatisticsView() override = default;
 
     // Методы для управления видом

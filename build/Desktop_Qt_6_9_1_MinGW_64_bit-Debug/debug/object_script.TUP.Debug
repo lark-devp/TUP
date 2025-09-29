@@ -1,7 +1,10 @@
+debug/ApplicationController.o
 debug/main.o
 debug/mainwindow.o
 debug/MinimalTaskSelectionView.o
+debug/MinimalTimerView.o
 debug/MinimalUIFactory.o
+debug/moc_ApplicationController.o
 debug/moc_mainwindow.o
 debug/moc_ICalendarService.o
 debug/moc_IDatabaseService.o
@@ -12,3 +15,4 @@ debug/moc_ISynchronizationView.o
 debug/moc_ITaskSelectionView.o
 debug/moc_ITimerView.o
 debug/moc_MinimalTaskSelectionView.o
+debug/moc_MinimalTimerView.o

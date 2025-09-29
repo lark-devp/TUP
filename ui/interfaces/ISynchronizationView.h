@@ -12,6 +12,9 @@ class ISynchronizationView : public IView
     Q_OBJECT
 
 public:
+    // Этот конструктор будет принимать 'parent' и передавать его дальше в IView.
+    explicit ISynchronizationView(QWidget * parent = nullptr) : IView(parent) {}
+
     ~ISynchronizationView() override = default;
 
     // Методы для управления видом

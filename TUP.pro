@@ -9,12 +9,15 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    app/ApplicationController.cpp \
     main.cpp \
     app/mainwindow.cpp \
     ui/theme/minimal/MinimalTaskSelectionView.cpp \
+    ui/theme/minimal/MinimalTimerView.cpp \
     ui/theme/minimal/MinimalUIFactory.cpp
 
 HEADERS += \
+    app/ApplicationController.h \
     app/mainwindow.h \
     calendar/ICalendarService.h \
     db/IDatabaseService.h \
@@ -27,6 +30,7 @@ HEADERS += \
     ui/interfaces/IUIFactory.h \
     ui/interfaces/IView.h \
     ui/theme/minimal/MinimalTaskSelectionView.h \
+    ui/theme/minimal/MinimalTimerView.h \
     ui/theme/minimal/MinimalUIFactory.h
 
 FORMS += \

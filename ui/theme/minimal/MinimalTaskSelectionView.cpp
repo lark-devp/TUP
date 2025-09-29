@@ -209,3 +209,23 @@ void MinimalTaskSelectionView::onShowStatsClicked()
         emit statisticsRequestedForTask(taskId);
     }
 }
+void MinimalTaskSelectionView::setupConnections()
+{
+    // Предположим, у вас есть кнопка m_startButton и список m_taskListWidget
+    connect(m_startTimerButton, &QPushButton::clicked, this, [this](){
+        // 1. Получаем выбранный элемент из списка
+        QListWidgetItem* selectedItem = m_listWidget->currentItem();
+
+        if (selectedItem) {
+            // 2. Извлекаем ID задачи (мы его сохраняли ранее через setData)
+            QString taskId = selectedItem->data(Qt::UserRole).toString();
+
+            // 3. ИСПУСКАЕМ СИГНАЛ ИНТЕРФЕЙСА
+            // Окно не знает, кто его слушает. Оно просто кричит: "Выбрана задача для таймера!"
+            emit taskSelectedForTimer(taskId);
+        } else {
+            // Показать сообщение, что нужно выбрать задачу
+            showError("Пожалуйста, выберите задачу из списка.");
+        }
+    });
+}

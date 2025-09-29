@@ -2,6 +2,7 @@
 
 // Подключаем заголовочные файлы конкретных реализаций окон
 #include "ui/theme/minimal/MinimalTaskSelectionView.h"
+#include "ui/theme/minimal/MinimalTimerView.h"
 // #include "MinimalistTimerView.h" // Подключите, когда создадите
 // ... и так далее
 
@@ -17,7 +18,7 @@ std::unique_ptr<ITaskSelectionView> MinimalUIFactory::createTaskListWindow()
 std::unique_ptr<ITimerView> MinimalUIFactory::createTimerWindow()
 {
     // Пока возвращаем nullptr, т.к. класс MinimalistTimerView еще не создан
-    return nullptr;
+    return std::make_unique<MinimalTimerView>();
 }
 
 std::unique_ptr<IAddTaskView> MinimalUIFactory::createAddTaskWindow()
