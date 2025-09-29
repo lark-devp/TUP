@@ -5,6 +5,7 @@
 #include "ui/interfaces/IUIFactory.h"
 #include "ui/interfaces/ITaskSelectionView.h"
 #include "ui/interfaces/ITimerView.h"
+#include "ui/interfaces/ISingleTaskStatisticsView.h"
 
 class ApplicationController : public QObject
 {
@@ -17,11 +18,12 @@ public:
     void start();
 
 private slots:
-    // Сюда мы будем подключать сигнал taskSelectedForTimer из окна выбора задач
-    void onTaskSelectedForTimer(const QString& taskId);
 
-    // Сюда мы будем подключать сигнал closeRequested из окна таймера
+    void onTaskSelectedForTimer(const QString& taskId);
+    void onStatisticsRequestedForTask(const QString& taskId);
+
     void onTimerClosed();
+    void onStatisticsClosed();
 
 private:
     // Контроллер владеет фабрикой
@@ -30,4 +32,5 @@ private:
     // Контроллер хранит указатели на текущие активные окна
     std::unique_ptr<ITaskSelectionView> m_taskSelectionView;
     std::unique_ptr<ITimerView> m_timerView;
+    std::unique_ptr<ISingleTaskStatisticsView> m_statisticsView;
 };

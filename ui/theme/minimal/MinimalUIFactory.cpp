@@ -3,6 +3,7 @@
 // Подключаем заголовочные файлы конкретных реализаций окон
 #include "ui/theme/minimal/MinimalTaskSelectionView.h"
 #include "ui/theme/minimal/MinimalTimerView.h"
+#include "ui/theme/minimal/MinimalSingleTaskStatisticsView.h"
 // #include "MinimalistTimerView.h" // Подключите, когда создадите
 // ... и так далее
 
@@ -28,7 +29,7 @@ std::unique_ptr<IAddTaskView> MinimalUIFactory::createAddTaskWindow()
 
 std::unique_ptr<ISingleTaskStatisticsView> MinimalUIFactory::createSingleTaskStatisticsWindow()
 {
-    return nullptr;
+    return std::make_unique<MinimalSingleTaskStatisticsView>();
 }
 
 std::unique_ptr<IAllTasksStatisticsView> MinimalUIFactory::createAllTasksStatisticsWindow()

@@ -228,4 +228,15 @@ void MinimalTaskSelectionView::setupConnections()
             showError("Пожалуйста, выберите задачу из списка.");
         }
     });
+
+    connect(m_statsButton, &QPushButton::clicked, this, [this](){
+        QListWidgetItem* selectedItem = m_listWidget->currentItem();
+        if (selectedItem) {
+            QString taskId = selectedItem->data(Qt::UserRole).toString();
+            // ИСПУСКАЕМ НОВЫЙ СИГНАЛ
+            emit statisticsRequestedForTask(taskId);
+        } else {
+            showError("Пожалуйста, выберите задачу из списка.");
+        }
+    });
 }

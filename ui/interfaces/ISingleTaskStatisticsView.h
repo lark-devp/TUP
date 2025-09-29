@@ -28,4 +28,5 @@ signals:
     // Сигналы о действиях пользователя
     void dateRangeChanged(const QDate& from, const QDate& to);
     void closeRequested();
+    void taskSelectedForStatistics(const QString& taskId);
 };

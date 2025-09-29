@@ -23,6 +23,8 @@ void ApplicationController::start()
     connect(m_taskSelectionView.get(), &ITaskSelectionView::taskSelectedForTimer,
             this, &ApplicationController::onTaskSelectedForTimer);
 
+    connect(m_taskSelectionView.get(), &ITaskSelectionView::statisticsRequestedForTask,
+            this, &ApplicationController::onStatisticsRequestedForTask);
     // 3. Показываем окно
     m_taskSelectionView->showView();
 
@@ -67,5 +69,42 @@ void ApplicationController::onTimerClosed()
     m_timerView.reset(); // Освобождаем память
 
     // 2. Снова показываем окно списка задач
+    m_taskSelectionView->showView();
+}
+
+void ApplicationController::onStatisticsRequestedForTask(const QString& taskId)
+{
+    qDebug() << "Переход к статистике для задачи:" << taskId;
+
+    // 1. Скрываем главное окно
+    m_taskSelectionView->hideView();
+
+    // 2. Создаем окно статистики через фабрику
+    m_statisticsView = m_factory->createSingleTaskStatisticsWindow();
+
+    // 3. Настраиваем новое окно (например, устанавливаем заголовок)
+    m_statisticsView->setTaskTitle("Статистика по задаче " + taskId);
+    // Здесь в будущем будет загрузка и отображение данных
+    // m_statisticsView->displayStatistics(...);
+
+    // 4. Подключаем сигнал о закрытии, чтобы вернуться назад
+    connect(m_statisticsView.get(), &ISingleTaskStatisticsView::closeRequested,
+            this, &ApplicationController::onStatisticsClosed);
+
+    // 5. Показываем окно статистики
+    m_statisticsView->showView();
+}
+
+// Этот слот вызовется, когда пользователь закроет окно статистики
+void ApplicationController::onStatisticsClosed()
+{
+    qDebug() << "Возврат к списку задач из статистики";
+    // 1. Скрываем и уничтожаем окно статистики
+    if (m_statisticsView) {
+        m_statisticsView->hideView();
+        m_statisticsView.reset();
+    }
+
+    // 2. Снова показываем главное окно
     m_taskSelectionView->showView();
 }
