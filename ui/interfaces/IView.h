@@ -9,6 +9,7 @@
 class IView : public QWidget
 {
 public:
+     explicit IView(QWidget* parent = nullptr) : QWidget(parent) {}
     virtual ~IView() = default;
 
     /**

@@ -10,7 +10,9 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    app/mainwindow.cpp
+    app/mainwindow.cpp \
+    ui/theme/minimal/MinimalTaskSelectionView.cpp \
+    ui/theme/minimal/MinimalUIFactory.cpp
 
 HEADERS += \
     app/mainwindow.h \
@@ -23,7 +25,9 @@ HEADERS += \
     ui/interfaces/ITaskSelectionView.h \
     ui/interfaces/ITimerView.h \
     ui/interfaces/IUIFactory.h \
-    ui/interfaces/IView.h
+    ui/interfaces/IView.h \
+    ui/theme/minimal/MinimalTaskSelectionView.h \
+    ui/theme/minimal/MinimalUIFactory.h
 
 FORMS += \
     mainwindow.ui
