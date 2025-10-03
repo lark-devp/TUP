@@ -135,3 +135,43 @@ bool PostgresDatabaseService::addTask(const QString& title, const QString& descr
     qDebug() << "Задача '" << title << "' успешно добавлена для пользователя" << userId;
     return true;
 }
+
+QString PostgresDatabaseService::getTaskTitle(int taskId)
+{
+    QSqlQuery query;
+    query.prepare(R"(SELECT title FROM "Task" WHERE task_id = :task_id)");
+    query.bindValue(":task_id", taskId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка получения названия задачи:" << query.lastError().text();
+        return QString();
+    }
+
+    if (query.next()) {
+        return query.value("title").toString();
+    }
+
+    return QString(); // Возвращаем пустую строку, если задача не найдена
+}
+
+
+bool PostgresDatabaseService::addTimeTrackingEntry(int taskId, const QDateTime& startTime, const QDateTime& endTime)
+{
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        INSERT INTO "TimeTracking" (task_id, start_time, end_time)
+        VALUES (:task_id, :start_time, :end_time)
+    )");
+    query.bindValue(":task_id", taskId);
+    query.bindValue(":start_time", startTime);
+    query.bindValue(":end_time", endTime);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка сохранения сессии времени:" << query.lastError().text();
+        emit errorOccurred("Не удалось сохранить сессию времени в базу данных.");
+        return false;
+    }
+
+    qDebug() << "Сессия для задачи" << taskId << "успешно сохранена.";
+    return true;
+}

@@ -86,29 +86,84 @@ void ApplicationController::showMainWindow(const QVector<TaskDisplayData>& tasks
 
 
 // Этот слот вызовется, когда пользователь нажмет "Старт" в окне выбора задач
+// Этот слот вызывается, когда пользователь нажимает "Старт" в окне выбора задач
 void ApplicationController::onTaskSelectedForTimer(const QString& taskId)
 {
     qDebug() << "Переход к таймеру для задачи:" << taskId;
 
-    // 1. Скрываем текущее окно
+    // 1. Сохраняем ID текущей задачи
+    m_currentTimingTaskId = taskId.toInt();
+
+    // 2. Скрываем окно выбора задач
     m_taskSelectionView->hideView();
 
-    // 2. Создаем НОВОЕ окно (окно таймера) через фабрику
+    // 3. Создаем окно таймера
     m_timerView = m_factory->createTimerWindow();
 
-    // 3. Настраиваем новое окно
-    // Здесь вам пригодится taskId, чтобы, например, получить название задачи из базы
-    m_timerView->setTaskTitle("Название для задачи " + taskId);
-    m_timerView->updateDisplayedTime("00:00:00");
+    // 4. Настраиваем окно
+    QString title = m_dbService->getTaskTitle(m_currentTimingTaskId);
+    m_timerView->setTaskTitle(title.isEmpty() ? "Задача " + taskId : title);
+    m_timerView->updateDisplayedTime("00:00:00"); // Начинаем с нуля
 
-    // 4. Подключаем сигналы от НОВОГО окна
-    // Например, чтобы вернуться назад при закрытии
-    connect(m_timerView.get(), &ITimerView::closeRequested,
-            this, &ApplicationController::onTimerClosed);
+    // 5. Подключаем сигналы от окна таймера к нашим новым слотам
+    connect(m_timerView.get(), &ITimerView::stopClicked, this, &ApplicationController::onTimerStop);
+    connect(m_timerView.get(), &ITimerView::closeRequested, this, &ApplicationController::onTimerClosed);
 
-    // 5. Показываем новое окно
+    // 6. Показываем окно
     m_timerView->showView();
+
+    // --- 7. ЗАПУСКАЕМ ЛОГИКУ ТАЙМЕРА ---
+    m_elapsedSeconds = 0;
+    m_sessionStartTime = QDateTime::currentDateTime();
+    m_timer = std::make_unique<QTimer>(this);
+    connect(m_timer.get(), &QTimer::timeout, this, &ApplicationController::onTimerTick);
+    m_timer->start(1000); // Запускаем таймер с интервалом в 1 секунду
 }
+
+// Слот, вызываемый каждую секунду по сигналу от QTimer
+void ApplicationController::onTimerTick()
+{
+    m_elapsedSeconds++;
+    qint64 hours = m_elapsedSeconds / 3600;
+    qint64 minutes = (m_elapsedSeconds % 3600) / 60;
+    qint64 seconds = m_elapsedSeconds % 60;
+
+    // Форматируем строку в виде HH:mm:ss
+    QString timeString = QString("%1:%2:%3")
+                             .arg(hours, 2, 10, QChar('0'))
+                             .arg(minutes, 2, 10, QChar('0'))
+                             .arg(seconds, 2, 10, QChar('0'));
+
+    if (m_timerView) {
+        m_timerView->updateDisplayedTime(timeString);
+    }
+}
+
+// Слот, вызываемый при нажатии кнопки "Стоп"
+void ApplicationController::onTimerStop()
+{
+    qDebug() << "Таймер остановлен. Сохранение сессии...";
+
+    // 1. Останавливаем таймер
+    if (m_timer) {
+        m_timer->stop();
+    }
+
+    // 2. Сохраняем запись в базу данных
+    QDateTime endTime = QDateTime::currentDateTime();
+    bool success = m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
+
+    if (success) {
+        qDebug() << "Сессия успешно сохранена.";
+    } else {
+        qCritical() << "Не удалось сохранить сессию!";
+        // Здесь можно показать пользователю сообщение об ошибке, если нужно
+    }
+
+    // 3. Закрываем окно таймера и возвращаемся к списку задач
+    onTimerClosed();
+}
+
 
 // Этот слот вызовется, когда пользователь закроет окно таймера
 void ApplicationController::onTimerClosed()

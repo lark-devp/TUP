@@ -22,7 +22,7 @@ public:
     // Из ITimerView
     void setTaskTitle(const QString& title) override;
     void updateDisplayedTime(const QString& timeString) override;
-    void setTimerControlsEnabled(bool canPause, bool canStop) override;
+    void setTimerControlsEnabled(bool canStop) override;
 
 protected:
     // Переопределяем событие закрытия окна для отправки сигнала
@@ -32,6 +32,5 @@ private:
     // Указатели на UI-элементы
     QLabel* m_taskTitleLabel;
     QLabel* m_timeDisplayLabel;
-    QPushButton* m_pauseButton;
     QPushButton* m_stopButton;
 };

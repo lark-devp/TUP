@@ -2,6 +2,8 @@
 
 #include <QObject>
 #include <memory>
+#include <QTimer>
+#include <QDateTime>
 #include "ui/interfaces/IUIFactory.h"
 #include "ui/interfaces/ITaskSelectionView.h"
 #include "ui/interfaces/ITimerView.h"
@@ -13,6 +15,8 @@
 class ApplicationController : public QObject
 {
     Q_OBJECT
+
+
 public:
     // Контроллер принимает во владение Фабрику
     explicit ApplicationController(std::unique_ptr<IUIFactory> factory, std::unique_ptr<IDatabaseService> dbService, QObject *parent = nullptr);
@@ -37,6 +41,8 @@ private slots:
     void onAddTaskSaved(const QString& title, const QString& description);
     void onAddTaskCancelled();
 
+    void onTimerStop();
+    void onTimerTick();
 
 private:
     /**
@@ -48,6 +54,13 @@ private:
     void refreshTaskList();
 
     int m_currentUserId;
+
+    // Поля для управления сессией таймера
+    std::unique_ptr<QTimer> m_timer;
+    QDateTime m_sessionStartTime;
+    qint64 m_elapsedSeconds; // Прошедшие секунды с начала сессии
+    int m_currentTimingTaskId;
+
     // Контроллер владеет фабрикой
     std::unique_ptr<IUIFactory> m_factory;
     std::unique_ptr<IDatabaseService> m_dbService;

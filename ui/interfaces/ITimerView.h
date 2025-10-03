@@ -22,12 +22,10 @@ public:
     // Методы для управления видом
     virtual void setTaskTitle(const QString& title) = 0;
     virtual void updateDisplayedTime(const QString& timeString) = 0;
-    virtual void setTimerControlsEnabled(bool canPause, bool canStop) = 0;
+    virtual void setTimerControlsEnabled(bool canStop) = 0;
 
 signals:
     // Сигналы о действиях пользователя
-    void startClicked();
-    void pauseClicked();
     void stopClicked();
     void closeRequested();
 };

@@ -56,7 +56,9 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         "onAddTaskSaved",
         "title",
         "description",
-        "onAddTaskCancelled"
+        "onAddTaskCancelled",
+        "onTimerStop",
+        "onTimerTick"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -92,6 +94,10 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         }}),
         // Slot 'onAddTaskCancelled'
         QtMocHelpers::SlotData<void()>(18, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onTimerStop'
+        QtMocHelpers::SlotData<void()>(19, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onTimerTick'
+        QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -127,6 +133,8 @@ void ApplicationController::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 9: _t->onSynchronizationClosed(); break;
         case 10: _t->onAddTaskSaved((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 11: _t->onAddTaskCancelled(); break;
+        case 12: _t->onTimerStop(); break;
+        case 13: _t->onTimerTick(); break;
         default: ;
         }
     }
@@ -151,14 +159,14 @@ int ApplicationController::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 12)
+        if (_id < 14)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 12;
+        _id -= 14;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 12)
+        if (_id < 14)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 12;
+        _id -= 14;
     }
     return _id;
 }

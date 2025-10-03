@@ -18,6 +18,9 @@ public:
 
     bool addTask(const QString& title, const QString& description, int userId) override;
 
+    QString getTaskTitle(int taskId) override;
+    bool addTimeTrackingEntry(int taskId, const QDateTime& startTime, const QDateTime& endTime) override;
+
 private:
     QSqlDatabase m_db; // <-- 2. Добавляем объект для хранения соединения
 };

@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QString>
 #include <QVariantMap>
+#include <QDateTime>
 #include "ui/interfaces/ITaskSelectionView.h"
 
 /**
@@ -51,6 +52,21 @@ public:
      * @return true в случае успеха, иначе false.
      */
     virtual bool addTask(const QString& title, const QString& description, int userId) = 0;
+    /**
+     * @brief Получает название задачи по её ID.
+     * @param taskId Уникальный идентификатор задачи.
+     * @return Название задачи или пустая строка, если не найдена.
+     */
+    virtual QString getTaskTitle(int taskId) = 0;
+
+    /**
+     * @brief Добавляет запись о сессии трекинга времени в базу данных.
+     * @param taskId ID задачи, к которой относится запись.
+     * @param startTime Время начала сессии.
+     * @param endTime Время окончания сессии.
+     * @return true в случае успеха, иначе false.
+     */
+    virtual bool addTimeTrackingEntry(int taskId, const QDateTime& startTime, const QDateTime& endTime) = 0;
 
 signals:
     void connectionStatusChanged(bool isConnected);

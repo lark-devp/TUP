@@ -55,7 +55,6 @@ MinimalTimerView::MinimalTimerView(QWidget *parent)
     m_taskTitleLabel = new QLabel("Название задачи", this);
     m_timeDisplayLabel = new QLabel("00:00:00", this);
 
-    m_pauseButton = new QPushButton("⏸️ Пауза", this);
     m_stopButton = new QPushButton("⏹️ Стоп", this);
 
 
@@ -67,7 +66,7 @@ MinimalTimerView::MinimalTimerView(QWidget *parent)
     m_timeDisplayLabel->setAlignment(Qt::AlignCenter);
 
     // Применяем общий стиль и эффекты ко всем кнопкам
-    for (auto* button : {m_pauseButton, m_stopButton}) {
+    for (auto* button : { m_stopButton}) {
         button->setStyleSheet(buttonStyle);
         button->setCursor(Qt::PointingHandCursor);
 
@@ -86,7 +85,6 @@ MinimalTimerView::MinimalTimerView(QWidget *parent)
 
     auto buttonLayout = new QHBoxLayout();
     buttonLayout->setSpacing(15);
-    buttonLayout->addWidget(m_pauseButton);
     buttonLayout->addWidget(m_stopButton);
 
     mainLayout->addWidget(m_taskTitleLabel);
@@ -98,8 +96,7 @@ MinimalTimerView::MinimalTimerView(QWidget *parent)
     setMinimumSize(450, 600);
 
 
-    // --- 5. Соединение сигналов ---
-    connect(m_pauseButton, &QPushButton::clicked, this, &ITimerView::pauseClicked);
+
     connect(m_stopButton, &QPushButton::clicked, this, &ITimerView::stopClicked);
 }
 
@@ -121,9 +118,8 @@ void MinimalTimerView::updateDisplayedTime(const QString& timeString)
     m_timeDisplayLabel->setText(timeString);
 }
 
-void MinimalTimerView::setTimerControlsEnabled(bool canPause, bool canStop)
+void MinimalTimerView::setTimerControlsEnabled(bool canStop)
 {
-    m_pauseButton->setEnabled(canPause);
     m_stopButton->setEnabled(canStop);
 }
 
@@ -134,3 +130,4 @@ void MinimalTimerView::closeEvent(QCloseEvent *event)
     // Вызываем реализацию базового класса, чтобы окно действительно закрылось
     ITimerView::closeEvent(event);
 }
+

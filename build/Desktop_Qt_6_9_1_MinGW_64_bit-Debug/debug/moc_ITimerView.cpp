@@ -39,22 +39,16 @@ template <> constexpr inline auto ITimerView::qt_create_metaobjectdata<qt_meta_t
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
         "ITimerView",
-        "startClicked",
-        "",
-        "pauseClicked",
         "stopClicked",
+        "",
         "closeRequested"
     };
 
     QtMocHelpers::UintData qt_methods {
-        // Signal 'startClicked'
-        QtMocHelpers::SignalData<void()>(1, 2, QMC::AccessPublic, QMetaType::Void),
-        // Signal 'pauseClicked'
-        QtMocHelpers::SignalData<void()>(3, 2, QMC::AccessPublic, QMetaType::Void),
         // Signal 'stopClicked'
-        QtMocHelpers::SignalData<void()>(4, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SignalData<void()>(1, 2, QMC::AccessPublic, QMetaType::Void),
         // Signal 'closeRequested'
-        QtMocHelpers::SignalData<void()>(5, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SignalData<void()>(3, 2, QMC::AccessPublic, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -78,21 +72,15 @@ void ITimerView::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
     auto *_t = static_cast<ITimerView *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->startClicked(); break;
-        case 1: _t->pauseClicked(); break;
-        case 2: _t->stopClicked(); break;
-        case 3: _t->closeRequested(); break;
+        case 0: _t->stopClicked(); break;
+        case 1: _t->closeRequested(); break;
         default: ;
         }
     }
     if (_c == QMetaObject::IndexOfMethod) {
-        if (QtMocHelpers::indexOfMethod<void (ITimerView::*)()>(_a, &ITimerView::startClicked, 0))
+        if (QtMocHelpers::indexOfMethod<void (ITimerView::*)()>(_a, &ITimerView::stopClicked, 0))
             return;
-        if (QtMocHelpers::indexOfMethod<void (ITimerView::*)()>(_a, &ITimerView::pauseClicked, 1))
-            return;
-        if (QtMocHelpers::indexOfMethod<void (ITimerView::*)()>(_a, &ITimerView::stopClicked, 2))
-            return;
-        if (QtMocHelpers::indexOfMethod<void (ITimerView::*)()>(_a, &ITimerView::closeRequested, 3))
+        if (QtMocHelpers::indexOfMethod<void (ITimerView::*)()>(_a, &ITimerView::closeRequested, 1))
             return;
     }
 }
@@ -116,39 +104,27 @@ int ITimerView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 2;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 4)
+        if (_id < 2)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 4;
+        _id -= 2;
     }
     return _id;
 }
 
 // SIGNAL 0
-void ITimerView::startClicked()
+void ITimerView::stopClicked()
 {
     QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
 }
 
 // SIGNAL 1
-void ITimerView::pauseClicked()
-{
-    QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
-}
-
-// SIGNAL 2
-void ITimerView::stopClicked()
-{
-    QMetaObject::activate(this, &staticMetaObject, 2, nullptr);
-}
-
-// SIGNAL 3
 void ITimerView::closeRequested()
 {
-    QMetaObject::activate(this, &staticMetaObject, 3, nullptr);
+    QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
 }
 QT_WARNING_POP
