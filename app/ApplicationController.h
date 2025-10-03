@@ -6,6 +6,7 @@
 #include "ui/interfaces/ITaskSelectionView.h"
 #include "ui/interfaces/ITimerView.h"
 #include "ui/interfaces/ISingleTaskStatisticsView.h"
+#include "ui/interfaces/IAddTaskView.h"
 
 class ApplicationController : public QObject
 {
@@ -23,14 +24,18 @@ private slots:
     void onStatisticsRequestedForTask(const QString& taskId);
     void onAllTasksStatisticsRequested();
     void onSynchronizationRequested();
+    void onAddTaskRequested();
 
     //слоты при закрытии окон
     void onTimerClosed();
     void onStatisticsClosed();
     void onAllTasksStatisticsClosed();
     void onSynchronizationClosed();
+    void onAddTaskSaved(const QString& title, const QString& description);
+    void onAddTaskCancelled();
 
 private:
+    void returnToTaskSelection();
     // Контроллер владеет фабрикой
     std::unique_ptr<IUIFactory> m_factory;
 
@@ -40,4 +45,5 @@ private:
     std::unique_ptr<ISingleTaskStatisticsView> m_statisticsView;
     std::unique_ptr<IAllTasksStatisticsView> m_allTasksStatisticsView;
     std::unique_ptr<ISynchronizationView> m_synchronizationView;
+    std::unique_ptr<IAddTaskView> m_addTaskView;
 };

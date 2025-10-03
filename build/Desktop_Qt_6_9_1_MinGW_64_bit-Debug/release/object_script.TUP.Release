@@ -1,6 +1,7 @@
 release/ApplicationController.o
 release/main.o
 release/mainwindow.o
+release/MinimalAddTaskView.o
 release/MinimalAllTasksStatisticsView.o
 release/MinimalSingleTaskStatisticsView.o
 release/MinimalSynchronizationView.o
@@ -17,6 +18,7 @@ release/moc_ISingleTaskStatisticsView.o
 release/moc_ISynchronizationView.o
 release/moc_ITaskSelectionView.o
 release/moc_ITimerView.o
+release/moc_MinimalAddTaskView.o
 release/moc_MinimalAllTasksStatisticsView.o
 release/moc_MinimalSingleTaskStatisticsView.o
 release/moc_MinimalSynchronizationView.o

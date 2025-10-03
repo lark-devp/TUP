@@ -12,6 +12,7 @@ SOURCES += \
     app/ApplicationController.cpp \
     main.cpp \
     app/mainwindow.cpp \
+    ui/theme/minimal/MinimalAddTaskView.cpp \
     ui/theme/minimal/MinimalAllTasksStatisticsView.cpp \
     ui/theme/minimal/MinimalSingleTaskStatisticsView.cpp \
     ui/theme/minimal/MinimalSynchronizationView.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     ui/interfaces/ITimerView.h \
     ui/interfaces/IUIFactory.h \
     ui/interfaces/IView.h \
+    ui/theme/minimal/MinimalAddTaskView.h \
     ui/theme/minimal/MinimalAllTasksStatisticsView.h \
     ui/theme/minimal/MinimalSingleTaskStatisticsView.h \
     ui/theme/minimal/MinimalSynchronizationView.h \

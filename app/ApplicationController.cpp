@@ -29,6 +29,8 @@ void ApplicationController::start()
             this, &ApplicationController::onAllTasksStatisticsRequested);
      connect(m_taskSelectionView.get(), &ITaskSelectionView::synchronizationRequested,
             this, &ApplicationController::onSynchronizationRequested);
+    connect(m_taskSelectionView.get(), &ITaskSelectionView::addTaskRequested,
+             this, &ApplicationController::onAddTaskRequested);
     // 3. Показываем окно
     m_taskSelectionView->showView();
 
@@ -36,6 +38,13 @@ void ApplicationController::start()
     QVector<TaskDisplayData> mockTasks;
     mockTasks.push_back({"id_1", "Задача 1"});
     mockTasks.push_back({"id_2", "Задача 2"});
+    mockTasks.push_back({"id_2", "Задача 3"});
+    mockTasks.push_back({"id_2", "Задача 4"});
+    mockTasks.push_back({"id_2", "Задача 5"});
+    mockTasks.push_back({"id_2", "Задача 6"});
+    mockTasks.push_back({"id_2", "Задача 7"});
+    mockTasks.push_back({"id_2", "Задача 8"});
+    mockTasks.push_back({"id_2", "Задача 9"});
     m_taskSelectionView->displayTasks(mockTasks);
 }
 
@@ -193,4 +202,57 @@ void ApplicationController::onSynchronizationClosed()
 
     // 2. Снова показываем главное окно
     m_taskSelectionView->showView();
+}
+// Этот слот вызовется, когда пользователь нажмет "Добавить"
+void ApplicationController::onAddTaskRequested()
+{
+    qDebug() << "Переход к окну добавления задачи";
+
+    // 1. Скрываем главное окно
+    m_taskSelectionView->hideView();
+
+    // 2. Создаем окно добавления задачи через фабрику
+    m_addTaskView = m_factory->createAddTaskWindow();
+    m_addTaskView->clearForm(); // Очищаем форму на случай, если она использовалась ранее
+
+    // 3. Подключаем ОБА сигнала о завершении работы
+    connect(m_addTaskView.get(), &IAddTaskView::saveTaskRequested, this, &ApplicationController::onAddTaskSaved);
+    connect(m_addTaskView.get(), &IAddTaskView::cancelRequested, this, &ApplicationController::onAddTaskCancelled);
+
+    // 4. Показываем новое окно
+    m_addTaskView->showView();
+}
+
+// Слот для реакции на УСПЕШНОЕ добавление
+void ApplicationController::onAddTaskSaved(const QString& title, const QString& description)
+{
+    qDebug() << "Задача будет сохранена: " << title << " - " << description;
+    //
+    // В БУДУЩЕМ: Здесь будет код для сохранения задачи в базу данных
+    // IDataBaseService->saveTask(...);
+    //
+    returnToTaskSelection();
+}
+
+// Слот для реакции на ОТМЕНУ
+void ApplicationController::onAddTaskCancelled()
+{
+    qDebug() << "Добавление задачи отменено";
+    returnToTaskSelection();
+}
+
+// Вспомогательный метод, чтобы не дублировать код возврата
+void ApplicationController::returnToTaskSelection()
+{
+    // 1. Скрываем и уничтожаем окно добавления
+    if (m_addTaskView) {
+        m_addTaskView->hideView();
+        m_addTaskView.reset();
+    }
+
+    // 2. Снова показываем главное окно
+    m_taskSelectionView->showView();
+
+    // В БУДУЩЕМ: После добавления новой задачи хорошо бы обновить список
+    // emit m_taskSelectionView->refreshRequested();
 }

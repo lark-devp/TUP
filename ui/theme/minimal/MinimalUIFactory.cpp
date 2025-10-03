@@ -6,6 +6,7 @@
 #include "ui/theme/minimal/MinimalSingleTaskStatisticsView.h"
 #include "ui/theme/minimal/MinimalAllTasksStatisticsView.h"
 #include "ui/theme/minimal/MinimalSynchronizationView.h"
+#include "ui/theme/minimal/MinimalAddTaskView.h"
 
 std::unique_ptr<ITaskSelectionView> MinimalUIFactory::createTaskListWindow()
 {
@@ -24,7 +25,7 @@ std::unique_ptr<ITimerView> MinimalUIFactory::createTimerWindow()
 
 std::unique_ptr<IAddTaskView> MinimalUIFactory::createAddTaskWindow()
 {
-    return nullptr;
+    return std::make_unique<MinimalAddTaskView>();
 }
 
 std::unique_ptr<ISingleTaskStatisticsView> MinimalUIFactory::createSingleTaskStatisticsWindow()

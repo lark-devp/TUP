@@ -244,4 +244,7 @@ void MinimalTaskSelectionView::setupConnections()
 
     connect(m_syncButton, &QPushButton::clicked,
             this, &MinimalTaskSelectionView::synchronizationRequested);
+
+    connect(m_addTaskButton, &QPushButton::clicked,
+            this, &MinimalTaskSelectionView::addTaskRequested);
 }
