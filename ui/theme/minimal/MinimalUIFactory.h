@@ -12,6 +12,7 @@ public:
     ~MinimalUIFactory() override = default;
 
     // Реализуем методы создания окон из интерфейса IUIFactory
+    std::unique_ptr<IAuthorizationView> createAuthorizationWindow() override;
     std::unique_ptr<ITaskSelectionView> createTaskListWindow() override;
     std::unique_ptr<ITimerView> createTimerWindow() override;
     std::unique_ptr<IAddTaskView> createAddTaskWindow() override;

@@ -9,6 +9,7 @@
 #include "ISingleTaskStatisticsView.h"
 #include "IAllTasksStatisticsView.h"
 #include "ISynchronizationView.h"
+#include "IAuthorizationView.h"
 
 /**
  * @brief Интерфейс Абстрактной фабрики для создания UI-компонентов.
@@ -19,7 +20,7 @@ class IUIFactory
 {
 public:
     virtual ~IUIFactory() = default;
-
+    virtual std::unique_ptr<IAuthorizationView> createAuthorizationWindow() = 0;
     virtual std::unique_ptr<ITaskSelectionView> createTaskListWindow() = 0;
     virtual std::unique_ptr<ITimerView> createTimerWindow() = 0;
     virtual std::unique_ptr<IAddTaskView> createAddTaskWindow() = 0;

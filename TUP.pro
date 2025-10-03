@@ -14,6 +14,7 @@ SOURCES += \
     app/mainwindow.cpp \
     ui/theme/minimal/MinimalAddTaskView.cpp \
     ui/theme/minimal/MinimalAllTasksStatisticsView.cpp \
+    ui/theme/minimal/MinimalAuthorizationView.cpp \
     ui/theme/minimal/MinimalSingleTaskStatisticsView.cpp \
     ui/theme/minimal/MinimalSynchronizationView.cpp \
     ui/theme/minimal/MinimalTaskSelectionView.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
     db/IDatabaseService.h \
     ui/interfaces/IAddTaskView.h \
     ui/interfaces/IAllTasksStatisticsView.h \
+    ui/interfaces/IAuthorizationView.h \
     ui/interfaces/ISingleTaskStatisticsView.h \
     ui/interfaces/ISynchronizationView.h \
     ui/interfaces/ITaskSelectionView.h \
@@ -35,6 +37,7 @@ HEADERS += \
     ui/interfaces/IView.h \
     ui/theme/minimal/MinimalAddTaskView.h \
     ui/theme/minimal/MinimalAllTasksStatisticsView.h \
+    ui/theme/minimal/MinimalAuthorizationView.h \
     ui/theme/minimal/MinimalSingleTaskStatisticsView.h \
     ui/theme/minimal/MinimalSynchronizationView.h \
     ui/theme/minimal/MinimalTaskSelectionView.h \

@@ -39,8 +39,11 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
         "ApplicationController",
-        "onTaskSelectedForTimer",
+        "onLoginRequested",
         "",
+        "username",
+        "password",
+        "onTaskSelectedForTimer",
         "taskId",
         "onStatisticsRequestedForTask",
         "onAllTasksStatisticsRequested",
@@ -57,34 +60,38 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
     };
 
     QtMocHelpers::UintData qt_methods {
+        // Slot 'onLoginRequested'
+        QtMocHelpers::SlotData<void(const QString &, const QString &)>(1, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 3 }, { QMetaType::QString, 4 },
+        }}),
         // Slot 'onTaskSelectedForTimer'
-        QtMocHelpers::SlotData<void(const QString &)>(1, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 3 },
+        QtMocHelpers::SlotData<void(const QString &)>(5, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 6 },
         }}),
         // Slot 'onStatisticsRequestedForTask'
-        QtMocHelpers::SlotData<void(const QString &)>(4, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 3 },
+        QtMocHelpers::SlotData<void(const QString &)>(7, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 6 },
         }}),
         // Slot 'onAllTasksStatisticsRequested'
-        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onSynchronizationRequested'
-        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onAddTaskRequested'
-        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onTimerClosed'
         QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onStatisticsClosed'
+        // Slot 'onSynchronizationRequested'
         QtMocHelpers::SlotData<void()>(9, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onAllTasksStatisticsClosed'
+        // Slot 'onAddTaskRequested'
         QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onSynchronizationClosed'
+        // Slot 'onTimerClosed'
         QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onStatisticsClosed'
+        QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onAllTasksStatisticsClosed'
+        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onSynchronizationClosed'
+        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onAddTaskSaved'
-        QtMocHelpers::SlotData<void(const QString &, const QString &)>(12, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 13 }, { QMetaType::QString, 14 },
+        QtMocHelpers::SlotData<void(const QString &, const QString &)>(15, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 16 }, { QMetaType::QString, 17 },
         }}),
         // Slot 'onAddTaskCancelled'
-        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(18, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -108,17 +115,18 @@ void ApplicationController::qt_static_metacall(QObject *_o, QMetaObject::Call _c
     auto *_t = static_cast<ApplicationController *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->onTaskSelectedForTimer((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 1: _t->onStatisticsRequestedForTask((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 2: _t->onAllTasksStatisticsRequested(); break;
-        case 3: _t->onSynchronizationRequested(); break;
-        case 4: _t->onAddTaskRequested(); break;
-        case 5: _t->onTimerClosed(); break;
-        case 6: _t->onStatisticsClosed(); break;
-        case 7: _t->onAllTasksStatisticsClosed(); break;
-        case 8: _t->onSynchronizationClosed(); break;
-        case 9: _t->onAddTaskSaved((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 10: _t->onAddTaskCancelled(); break;
+        case 0: _t->onLoginRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 1: _t->onTaskSelectedForTimer((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 2: _t->onStatisticsRequestedForTask((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 3: _t->onAllTasksStatisticsRequested(); break;
+        case 4: _t->onSynchronizationRequested(); break;
+        case 5: _t->onAddTaskRequested(); break;
+        case 6: _t->onTimerClosed(); break;
+        case 7: _t->onStatisticsClosed(); break;
+        case 8: _t->onAllTasksStatisticsClosed(); break;
+        case 9: _t->onSynchronizationClosed(); break;
+        case 10: _t->onAddTaskSaved((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 11: _t->onAddTaskCancelled(); break;
         default: ;
         }
     }
@@ -143,14 +151,14 @@ int ApplicationController::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 11)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 11;
+        _id -= 12;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 11)
+        if (_id < 12)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 11;
+        _id -= 12;
     }
     return _id;
 }

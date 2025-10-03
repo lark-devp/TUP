@@ -10,43 +10,79 @@ ApplicationController::ApplicationController(std::unique_ptr<IUIFactory> factory
 
 void ApplicationController::start()
 {
-    // 1. Используем фабрику для создания ПЕРВОГО окна
-    m_taskSelectionView = m_factory->createTaskListWindow();
+    // 1. Создаем окно авторизации через фабрику
+    m_authorizationView = m_factory->createAuthorizationWindow();
 
-    if (!m_taskSelectionView) {
-        qCritical() << "Не удалось создать главное окно!";
+    if (!m_authorizationView) {
+        qCritical() << "Критическая ошибка: не удалось создать окно авторизации!";
         return;
     }
 
-    // 2. ПОДКЛЮЧАЕМ СИГНАЛЫ от этого окна к слотам Контроллера
-    // Это САМЫЙ ВАЖНЫЙ момент. Контроллер подписывается на события.
-    connect(m_taskSelectionView.get(), &ITaskSelectionView::taskSelectedForTimer,
-            this, &ApplicationController::onTaskSelectedForTimer);
+    // 2. Подписываемся на главный сигнал от окна авторизации
+    connect(m_authorizationView.get(), &IAuthorizationView::loginRequested,
+            this, &ApplicationController::onLoginRequested);
 
-    connect(m_taskSelectionView.get(), &ITaskSelectionView::statisticsRequestedForTask,
-            this, &ApplicationController::onStatisticsRequestedForTask);
-    connect(m_taskSelectionView.get(), &ITaskSelectionView::allTasksStatisticsRequested,
-            this, &ApplicationController::onAllTasksStatisticsRequested);
-     connect(m_taskSelectionView.get(), &ITaskSelectionView::synchronizationRequested,
-            this, &ApplicationController::onSynchronizationRequested);
-    connect(m_taskSelectionView.get(), &ITaskSelectionView::addTaskRequested,
-             this, &ApplicationController::onAddTaskRequested);
-    // 3. Показываем окно
-    m_taskSelectionView->showView();
-
-    // Для теста можно загрузить данные
-    QVector<TaskDisplayData> mockTasks;
-    mockTasks.push_back({"id_1", "Задача 1"});
-    mockTasks.push_back({"id_2", "Задача 2"});
-    mockTasks.push_back({"id_2", "Задача 3"});
-    mockTasks.push_back({"id_2", "Задача 4"});
-    mockTasks.push_back({"id_2", "Задача 5"});
-    mockTasks.push_back({"id_2", "Задача 6"});
-    mockTasks.push_back({"id_2", "Задача 7"});
-    mockTasks.push_back({"id_2", "Задача 8"});
-    mockTasks.push_back({"id_2", "Задача 9"});
-    m_taskSelectionView->displayTasks(mockTasks);
+    // 3. Показываем окно авторизации
+    m_authorizationView->showView();
 }
+
+/**
+ * @brief Этот слот вызывается, когда пользователь нажимает "Войти".
+ * Здесь происходит вся логика аутентификации.
+ */
+void ApplicationController::onLoginRequested(const QString& username, const QString& password)
+{
+    qDebug() << "Попытка входа с именем пользователя:" << username;
+
+    // 1. Говорим окну, чтобы оно показало состояние загрузки
+    m_authorizationView->showLoading(true);
+
+    // 2. ИМИТАЦИЯ ПРОВЕРКИ ДАННЫХ
+    // В настоящем приложении здесь будет асинхронный вызов к IDatabaseService
+    // или к специальному сервису аутентификации.
+    if (username == "1" && password == "1") {
+        qDebug() << "Аутентификация успешна!";
+
+        // 3. Успех! Уничтожаем окно входа и показываем главное окно.
+        m_authorizationView->hideView();
+        m_authorizationView.reset(); // Полностью удаляем объект окна авторизации
+
+        showMainWindow(); // Вызываем метод, который запустит основное приложение
+    } else {
+        qDebug() << "Ошибка аутентификации!";
+
+        // 4. Ошибка! Сообщаем об этом окну.
+        m_authorizationView->showLoading(false); // Убираем состояние загрузки
+        m_authorizationView->showError("Неверное имя пользователя или пароль");
+    }
+}
+
+/**
+ * @brief Этот метод инкапсулирует всю логику создания и настройки главного окна.
+ * Мы вынесли его из start(), чтобы можно было вызвать после успешного логина.
+ */
+void ApplicationController::showMainWindow()
+{
+    // Этот код был раньше в методе start()
+    m_taskSelectionView = m_factory->createTaskListWindow();
+    if (!m_taskSelectionView) {
+        qCritical() << "Критическая ошибка: не удалось создать главное окно!";
+        return;
+    }
+
+    // Подключаем ВСЕ сигналы от главного окна, как и раньше
+    connect(m_taskSelectionView.get(), &ITaskSelectionView::taskSelectedForTimer, this, &ApplicationController::onTaskSelectedForTimer);
+    connect(m_taskSelectionView.get(), &ITaskSelectionView::statisticsRequestedForTask, this, &ApplicationController::onStatisticsRequestedForTask);
+    connect(m_taskSelectionView.get(), &ITaskSelectionView::allTasksStatisticsRequested, this, &ApplicationController::onAllTasksStatisticsRequested);
+    connect(m_taskSelectionView.get(), &ITaskSelectionView::synchronizationRequested, this, &ApplicationController::onSynchronizationRequested);
+    connect(m_taskSelectionView.get(), &ITaskSelectionView::addTaskRequested, this, &ApplicationController::onAddTaskRequested);
+    connect(m_authorizationView.get(), &IAuthorizationView::loginRequested,
+            this, &ApplicationController::onLoginRequested);
+    // Показываем главное окно
+    m_taskSelectionView->showView();
+}
+
+
 
 // Этот слот вызовется, когда пользователь нажмет "Старт" в окне выбора задач
 void ApplicationController::onTaskSelectedForTimer(const QString& taskId)

@@ -7,6 +7,7 @@
 #include "ui/interfaces/ITimerView.h"
 #include "ui/interfaces/ISingleTaskStatisticsView.h"
 #include "ui/interfaces/IAddTaskView.h"
+#include "ui/interfaces/IAuthorizationView.h"
 
 class ApplicationController : public QObject
 {
@@ -19,6 +20,7 @@ public:
     void start();
 
 private slots:
+    void onLoginRequested(const QString& username, const QString& password);
 
     void onTaskSelectedForTimer(const QString& taskId);
     void onStatisticsRequestedForTask(const QString& taskId);
@@ -35,11 +37,17 @@ private slots:
     void onAddTaskCancelled();
 
 private:
+    /**
+     * @brief Создает, настраивает и показывает главное окно приложения (список задач).
+     * Вызывается после успешной авторизации.
+     */
+    void showMainWindow();
     void returnToTaskSelection();
     // Контроллер владеет фабрикой
     std::unique_ptr<IUIFactory> m_factory;
 
     // Контроллер хранит указатели на текущие активные окна
+    std::unique_ptr<IAuthorizationView> m_authorizationView;
     std::unique_ptr<ITaskSelectionView> m_taskSelectionView;
     std::unique_ptr<ITimerView> m_timerView;
     std::unique_ptr<ISingleTaskStatisticsView> m_statisticsView;

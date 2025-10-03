@@ -7,7 +7,12 @@
 #include "ui/theme/minimal/MinimalAllTasksStatisticsView.h"
 #include "ui/theme/minimal/MinimalSynchronizationView.h"
 #include "ui/theme/minimal/MinimalAddTaskView.h"
+#include "ui/theme/minimal/MinimalAuthorizationView.h"
 
+std::unique_ptr<IAuthorizationView> MinimalUIFactory::createAuthorizationWindow()
+{
+    return std::make_unique<MinimalAuthorizationView>();
+}
 std::unique_ptr<ITaskSelectionView> MinimalUIFactory::createTaskListWindow()
 {
     // Фабрика создает конкретный объект и возвращает указатель на его интерфейс
