@@ -2,9 +2,10 @@
 #include <QDebug>
 #include <QVector>
 
-ApplicationController::ApplicationController(std::unique_ptr<IUIFactory> factory, QObject *parent)
+ApplicationController::ApplicationController(std::unique_ptr<IUIFactory> factory,std::unique_ptr<IDatabaseService> dbService, QObject *parent)
     : QObject(parent)
     , m_factory(std::move(factory)) // Забираем владение фабрикой
+    , m_dbService(std::move(dbService))
 {
 }
 
@@ -32,36 +33,34 @@ void ApplicationController::start()
  */
 void ApplicationController::onLoginRequested(const QString& username, const QString& password)
 {
-    qDebug() << "Попытка входа с именем пользователя:" << username;
-
-    // 1. Говорим окну, чтобы оно показало состояние загрузки
+    qDebug() << "Попытка входа через БД для пользователя:" << username;
     m_authorizationView->showLoading(true);
 
-    // 2. ИМИТАЦИЯ ПРОВЕРКИ ДАННЫХ
-    // В настоящем приложении здесь будет асинхронный вызов к IDatabaseService
-    // или к специальному сервису аутентификации.
-    if (username == "1" && password == "1") {
-        qDebug() << "Аутентификация успешна!";
+    // ----- ЗАМЕНЯЕМ СТАРУЮ ЛОГИКУ -----
+    QVariantMap userData = m_dbService->authenticateUser(username, password);
 
-        // 3. Успех! Уничтожаем окно входа и показываем главное окно.
+    if (!userData.isEmpty()) {
+        qDebug() << "Аутентификация в БД успешна!";
+        m_currentUserId = userData["user_id"].toInt(); // Сохраняем ID пользователя
+
+        // Получаем задачи для этого пользователя
+        QVector<TaskDisplayData> tasks = m_dbService->getTasksForUser(m_currentUserId);
+
+        // Переходим на главный экран и ПЕРЕДАЕМ ему полученные задачи
         m_authorizationView->hideView();
-        m_authorizationView.reset(); // Полностью удаляем объект окна авторизации
-
-        showMainWindow(); // Вызываем метод, который запустит основное приложение
+        m_authorizationView.reset();
+        showMainWindow(tasks); // Вызываем метод с задачами
     } else {
-        qDebug() << "Ошибка аутентификации!";
-
-        // 4. Ошибка! Сообщаем об этом окну.
-        m_authorizationView->showLoading(false); // Убираем состояние загрузки
+        qDebug() << "Ошибка аутентификации в БД!";
+        m_authorizationView->showLoading(false);
         m_authorizationView->showError("Неверное имя пользователя или пароль");
     }
 }
-
 /**
  * @brief Этот метод инкапсулирует всю логику создания и настройки главного окна.
  * Мы вынесли его из start(), чтобы можно было вызвать после успешного логина.
  */
-void ApplicationController::showMainWindow()
+void ApplicationController::showMainWindow(const QVector<TaskDisplayData>& tasks)
 {
     // Этот код был раньше в методе start()
     m_taskSelectionView = m_factory->createTaskListWindow();
@@ -78,6 +77,8 @@ void ApplicationController::showMainWindow()
     connect(m_taskSelectionView.get(), &ITaskSelectionView::addTaskRequested, this, &ApplicationController::onAddTaskRequested);
     connect(m_authorizationView.get(), &IAuthorizationView::loginRequested,
             this, &ApplicationController::onLoginRequested);
+
+    m_taskSelectionView->displayTasks(tasks);
     // Показываем главное окно
     m_taskSelectionView->showView();
 }

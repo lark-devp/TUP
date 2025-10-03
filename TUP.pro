@@ -1,6 +1,5 @@
 QT       += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql
 
 CONFIG += c++17
 
@@ -10,6 +9,7 @@ CONFIG += c++17
 
 SOURCES += \
     app/ApplicationController.cpp \
+    db/PostgresDatabaseService.cpp \
     main.cpp \
     app/mainwindow.cpp \
     ui/theme/minimal/MinimalAddTaskView.cpp \
@@ -26,6 +26,7 @@ HEADERS += \
     app/mainwindow.h \
     calendar/ICalendarService.h \
     db/IDatabaseService.h \
+    db/PostgresDatabaseService.h \
     ui/interfaces/IAddTaskView.h \
     ui/interfaces/IAllTasksStatisticsView.h \
     ui/interfaces/IAuthorizationView.h \

@@ -2,22 +2,24 @@
 #include <memory>
 #include "ui/theme/minimal/MinimalUIFactory.h"
 #include "app/ApplicationController.h" // Подключаем наш новый контроллер
+#include "db/PostgresDatabaseService.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    // 1. Создаем нужную фабрику
+    auto dbService = std::make_unique<PostgresDatabaseService>();
+    if (!dbService->connectToSource()) { // Метод connectToSource() вы должны реализовать
+        qCritical() << "Не удалось подключиться к базе данных!";
+        return -1;
+    }
+
     auto uiFactory = std::make_unique<MinimalUIFactory>();
 
-    // 2. Создаем Контроллер и передаем ему фабрику
-    ApplicationController controller(std::move(uiFactory));
 
-    // 3. Запускаем логику приложения
+    ApplicationController controller(std::move(uiFactory), std::move(dbService));
+
     controller.start();
 
-    // Приложение работает, пока не закроются все окна.
-    // Поскольку ApplicationController создан на стеке в main,
-    // он будет жить до конца работы app.exec().
     return app.exec();
 }

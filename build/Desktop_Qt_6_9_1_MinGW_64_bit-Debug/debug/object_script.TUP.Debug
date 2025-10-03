@@ -1,4 +1,5 @@
 debug/ApplicationController.o
+debug/PostgresDatabaseService.o
 debug/main.o
 debug/mainwindow.o
 debug/MinimalAddTaskView.o
@@ -13,6 +14,7 @@ debug/moc_ApplicationController.o
 debug/moc_mainwindow.o
 debug/moc_ICalendarService.o
 debug/moc_IDatabaseService.o
+debug/moc_PostgresDatabaseService.o
 debug/moc_IAddTaskView.o
 debug/moc_IAllTasksStatisticsView.o
 debug/moc_IAuthorizationView.o

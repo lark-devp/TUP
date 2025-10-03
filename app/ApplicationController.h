@@ -8,17 +8,18 @@
 #include "ui/interfaces/ISingleTaskStatisticsView.h"
 #include "ui/interfaces/IAddTaskView.h"
 #include "ui/interfaces/IAuthorizationView.h"
+#include "db/IDatabaseService.h"
 
 class ApplicationController : public QObject
 {
     Q_OBJECT
 public:
     // Контроллер принимает во владение Фабрику
-    explicit ApplicationController(std::unique_ptr<IUIFactory> factory, QObject *parent = nullptr);
+    explicit ApplicationController(std::unique_ptr<IUIFactory> factory, std::unique_ptr<IDatabaseService> dbService, QObject *parent = nullptr);
 
     // Метод для запуска приложения (показа первого окна)
     void start();
-
+    void showMainWindow(const QVector<TaskDisplayData>& tasks);
 private slots:
     void onLoginRequested(const QString& username, const QString& password);
 
@@ -41,10 +42,13 @@ private:
      * @brief Создает, настраивает и показывает главное окно приложения (список задач).
      * Вызывается после успешной авторизации.
      */
-    void showMainWindow();
+
     void returnToTaskSelection();
+
+    int m_currentUserId;
     // Контроллер владеет фабрикой
     std::unique_ptr<IUIFactory> m_factory;
+    std::unique_ptr<IDatabaseService> m_dbService;
 
     // Контроллер хранит указатели на текущие активные окна
     std::unique_ptr<IAuthorizationView> m_authorizationView;
@@ -54,4 +58,5 @@ private:
     std::unique_ptr<IAllTasksStatisticsView> m_allTasksStatisticsView;
     std::unique_ptr<ISynchronizationView> m_synchronizationView;
     std::unique_ptr<IAddTaskView> m_addTaskView;
+
 };
