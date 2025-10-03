@@ -16,10 +16,7 @@ public:
     QVariantMap authenticateUser(const QString& username, const QString& password) override;
     QVector<TaskDisplayData> getTasksForUser(int userId) override;
 
-    // Этот метод вам не понадобится, так как мы будем использовать
-    // именованное соединение, но для полноты картины можно его оставить.
-    bool saveData(const QString&, const QString&, const QVariantMap&) override { return false; }
-    QVariantMap loadData(const QString&, const QString&) override { return QVariantMap(); }
+    bool addTask(const QString& title, const QString& description, int userId) override;
 
 private:
     QSqlDatabase m_db; // <-- 2. Добавляем объект для хранения соединения

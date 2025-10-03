@@ -263,13 +263,35 @@ void ApplicationController::onAddTaskRequested()
 // Слот для реакции на УСПЕШНОЕ добавление
 void ApplicationController::onAddTaskSaved(const QString& title, const QString& description)
 {
-    qDebug() << "Задача будет сохранена: " << title << " - " << description;
-    //
-    // В БУДУЩЕМ: Здесь будет код для сохранения задачи в базу данных
-    // IDataBaseService->saveTask(...);
-    //
-    returnToTaskSelection();
+    qDebug() << "Попытка сохранения задачи: " << title;
+
+    // 1. Простая валидация: проверяем, что заголовок не пустой
+    if (title.trimmed().isEmpty()) {
+        if (m_addTaskView) {
+            m_addTaskView->showValidationError("Название задачи не может быть пустым.");
+        }
+        return; // Прерываем выполнение, не закрывая окно
+    }
+
+    // 2. Вызов сервиса базы данных для сохранения задачи
+    bool success = m_dbService->addTask(title, description, m_currentUserId);
+
+    // 3. Обработка результата
+    if (success) {
+        qDebug() << "Задача успешно сохранена в БД.";
+        // Обновляем список задач в главном окне
+        refreshTaskList();
+        // Возвращаемся к главному окну
+        returnToTaskSelection();
+    } else {
+        qCritical() << "Не удалось сохранить задачу в БД.";
+        // Показываем ошибку в том же окне добавления задачи
+        if (m_addTaskView) {
+            m_addTaskView->showValidationError("Произошла ошибка при сохранении задачи. Попробуйте снова или проверьте логи.");
+        }
+    }
 }
+
 
 // Слот для реакции на ОТМЕНУ
 void ApplicationController::onAddTaskCancelled()
@@ -288,8 +310,17 @@ void ApplicationController::returnToTaskSelection()
     }
 
     // 2. Снова показываем главное окно
-    m_taskSelectionView->showView();
-
-    // В БУДУЩЕМ: После добавления новой задачи хорошо бы обновить список
-    // emit m_taskSelectionView->refreshRequested();
+    if (m_taskSelectionView) {
+        m_taskSelectionView->showView();
+    }
+}
+void ApplicationController::refreshTaskList()
+{
+    if (m_taskSelectionView) {
+        qDebug() << "Обновление списка задач для пользователя" << m_currentUserId;
+        // 1. Запрашиваем обновленный список задач из БД
+        QVector<TaskDisplayData> tasks = m_dbService->getTasksForUser(m_currentUserId);
+        // 2. Отображаем его в окне выбора задач
+        m_taskSelectionView->displayTasks(tasks);
+    }
 }

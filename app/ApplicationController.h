@@ -37,6 +37,7 @@ private slots:
     void onAddTaskSaved(const QString& title, const QString& description);
     void onAddTaskCancelled();
 
+
 private:
     /**
      * @brief Создает, настраивает и показывает главное окно приложения (список задач).
@@ -44,6 +45,7 @@ private:
      */
 
     void returnToTaskSelection();
+    void refreshTaskList();
 
     int m_currentUserId;
     // Контроллер владеет фабрикой

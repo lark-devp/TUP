@@ -62,36 +62,8 @@ void PostgresDatabaseService::disconnectFromSource()
     m_db.close();
     qDebug() << "Соединение с базой данных закрыто.";
 }
-/*
-bool PostgresDatabaseService::saveUser(const QString& userId, const QVariantMap& data)
-{
-    QSqlQuery query(m_db);
-    // Добавляем поле "password_hash" в INSERT и UPDATE
-    query.prepare(
-        "INSERT INTO \"User\" (user_id, username, password_hash, email, tweek_token) "
-        "VALUES (:user_id, :username, :password_hash, :email, :tweek_token) "
-        "ON CONFLICT (user_id) DO UPDATE SET "
-        "username = EXCLUDED.username, "
-        "password_hash = EXCLUDED.password_hash, " // <<== ДОБАВЛЕНО
-        "email = EXCLUDED.email, "
-        "tweek_token = EXCLUDED.tweek_token;"
-        );
 
-    query.bindValue(":user_id", userId.toInt());
-    query.bindValue(":username", data.value("username"));
-    query.bindValue(":password_hash", data.value("password_hash")); // <<== ДОБАВЛЕНО
-    query.bindValue(":email", data.value("email"));
-    query.bindValue(":tweek_token", data.value("tweek_token"));
 
-    if (!query.exec()) {
-        qWarning() << "Ошибка сохранения User:" << query.lastError().text();
-        emit errorOccurred(query.lastError().text());
-        return false;
-    }
-    return true;
-}
-*/
-// Метод loadUser(const QString& userId) остается БЕЗ ИЗМЕНЕНИЙ.
 // Он будет автоматически загружать новое поле password_hash благодаря "SELECT *".
 QVariantMap PostgresDatabaseService::authenticateUser(const QString& username, const QString& password)
 {
@@ -145,4 +117,21 @@ QVector<TaskDisplayData> PostgresDatabaseService::getTasksForUser(int userId)
 
     qDebug() << "Найдено" << tasks.count() << "задач для пользователя" << userId;
     return tasks;
+}
+bool PostgresDatabaseService::addTask(const QString& title, const QString& description, int userId)
+{
+    QSqlQuery query(m_db);
+    query.prepare(R"(INSERT INTO "Task" (user_id, title, description) VALUES (:user_id, :title, :description))");
+    query.bindValue(":user_id", userId);
+    query.bindValue(":title", title);
+    query.bindValue(":description", description);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка добавления задачи:" << query.lastError().text();
+        emit errorOccurred("Не удалось сохранить задачу в базу данных.");
+        return false;
+    }
+
+    qDebug() << "Задача '" << title << "' успешно добавлена для пользователя" << userId;
+    return true;
 }

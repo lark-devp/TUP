@@ -43,23 +43,14 @@ public:
      * @brief Отключается от источника данных.
      */
     virtual void disconnectFromSource() = 0;
-
     /**
-     * @brief Сохраняет данные в указанную коллекцию/таблицу.
-     * @param collection Название коллекции или таблицы.
-     * @param documentId Уникальный идентификатор записи.
-     * @param data Данные для сохранения в формате ключ-значение.
+     * @brief Добавляет новую задачу для указанного пользователя.
+     * @param title Название задачи.
+     * @param description Описание задачи.
+     * @param userId ID пользователя, которому принадлежит задача.
      * @return true в случае успеха, иначе false.
      */
-    virtual bool saveData(const QString& collection, const QString& documentId, const QVariantMap& data) = 0;
-
-    /**
-     * @brief Загружает данные из указанной коллекции/таблицы.
-     * @param collection Название коллекции или таблицы.
-     * @param documentId Уникальный идентификатор записи.
-     * @return Загруженные данные. Если запись не найдена, возвращает пустой QVariantMap.
-     */
-    virtual QVariantMap loadData(const QString& collection, const QString& documentId) = 0;
+    virtual bool addTask(const QString& title, const QString& description, int userId) = 0;
 
 signals:
     void connectionStatusChanged(bool isConnected);
