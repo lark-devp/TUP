@@ -25,6 +25,10 @@ void ApplicationController::start()
 
     connect(m_taskSelectionView.get(), &ITaskSelectionView::statisticsRequestedForTask,
             this, &ApplicationController::onStatisticsRequestedForTask);
+    connect(m_taskSelectionView.get(), &ITaskSelectionView::allTasksStatisticsRequested,
+            this, &ApplicationController::onAllTasksStatisticsRequested);
+     connect(m_taskSelectionView.get(), &ITaskSelectionView::synchronizationRequested,
+            this, &ApplicationController::onSynchronizationRequested);
     // 3. Показываем окно
     m_taskSelectionView->showView();
 
@@ -103,6 +107,88 @@ void ApplicationController::onStatisticsClosed()
     if (m_statisticsView) {
         m_statisticsView->hideView();
         m_statisticsView.reset();
+    }
+
+    // 2. Снова показываем главное окно
+    m_taskSelectionView->showView();
+}
+
+void ApplicationController::onAllTasksStatisticsRequested()
+{
+    qDebug() << "Переход к общей статистике по всем задачам";
+
+    // 1. Скрываем главное окно
+    m_taskSelectionView->hideView();
+
+    // 2. Создаем окно общей статистики через фабрику
+    m_allTasksStatisticsView = m_factory->createAllTasksStatisticsWindow();
+
+    // 3. Настраиваем новое окно (если нужно)
+    // В будущем здесь будет загрузка и отображение данных
+    // m_allTasksStatisticsView->displayOverallStatistics(...);
+
+    // 4. Подключаем сигнал о закрытии, чтобы вернуться назад
+    connect(m_allTasksStatisticsView.get(), &IAllTasksStatisticsView::closeRequested,
+            this, &ApplicationController::onAllTasksStatisticsClosed);
+
+    // 5. Показываем новое окно
+    m_allTasksStatisticsView->showView();
+}
+
+// Этот слот вызовется, когда пользователь закроет окно общей статистики
+void ApplicationController::onAllTasksStatisticsClosed()
+{
+    qDebug() << "Возврат к списку задач из общей статистики";
+
+    // 1. Скрываем и уничтожаем окно статистики
+    if (m_allTasksStatisticsView) {
+        m_allTasksStatisticsView->hideView();
+        m_allTasksStatisticsView.reset();
+    }
+
+    // 2. Снова показываем главное окно
+    m_taskSelectionView->showView();
+}
+// Этот слот вызовется, когда пользователь нажмет "Синхронизация"
+void ApplicationController::onSynchronizationRequested()
+{
+    qDebug() << "Переход к окну синхронизации";
+
+    // 1. Скрываем главное окно
+    m_taskSelectionView->hideView();
+
+    // 2. Создаем окно синхронизации через фабрику
+    m_synchronizationView = m_factory->createSynchronizationWindow();
+
+    // 3. Подключаем сигнал о закрытии, чтобы вернуться назад
+    connect(m_synchronizationView.get(), &ISynchronizationView::closeRequested,
+            this, &ApplicationController::onSynchronizationClosed);
+
+    // 4. Показываем новое окно
+    m_synchronizationView->showView();
+
+    // 5. ЗАПУСКАЕМ ПРОЦЕСС СИНХРОНИЗАЦИИ
+    // Это ключевой момент. Контроллер управляет процессом
+    // и передает обновления в "глупое" окно.
+    // В будущем здесь будет вызов ICalendarService.
+    // А пока давайте сымитируем процесс:
+    m_synchronizationView->logMessage("Начинаем синхронизацию...");
+    m_synchronizationView->setProgress(10);
+    // ... здесь будет реальная работа ...
+    m_synchronizationView->logMessage("Синхронизация успешно завершена.");
+    m_synchronizationView->setProgress(100);
+    m_synchronizationView->setCloseButtonEnabled(true); // Разрешаем закрыть окно
+}
+
+// Этот слот вызовется, когда пользователь закроет окно синхронизации
+void ApplicationController::onSynchronizationClosed()
+{
+    qDebug() << "Возврат к списку задач из окна синхронизации";
+
+    // 1. Скрываем и уничтожаем окно
+    if (m_synchronizationView) {
+        m_synchronizationView->hideView();
+        m_synchronizationView.reset();
     }
 
     // 2. Снова показываем главное окно

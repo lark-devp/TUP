@@ -4,8 +4,8 @@
 #include "ui/theme/minimal/MinimalTaskSelectionView.h"
 #include "ui/theme/minimal/MinimalTimerView.h"
 #include "ui/theme/minimal/MinimalSingleTaskStatisticsView.h"
-// #include "MinimalistTimerView.h" // Подключите, когда создадите
-// ... и так далее
+#include "ui/theme/minimal/MinimalAllTasksStatisticsView.h"
+#include "ui/theme/minimal/MinimalSynchronizationView.h"
 
 std::unique_ptr<ITaskSelectionView> MinimalUIFactory::createTaskListWindow()
 {
@@ -34,11 +34,11 @@ std::unique_ptr<ISingleTaskStatisticsView> MinimalUIFactory::createSingleTaskSta
 
 std::unique_ptr<IAllTasksStatisticsView> MinimalUIFactory::createAllTasksStatisticsWindow()
 {
-    return nullptr;
+    return std::make_unique<MinimalAllTasksStatisticsView>();
 }
 
 std::unique_ptr<ISynchronizationView> MinimalUIFactory::createSynchronizationWindow()
 {
-    return nullptr;
+    return std::make_unique<MinimalSynchronizationView>();
 }
 

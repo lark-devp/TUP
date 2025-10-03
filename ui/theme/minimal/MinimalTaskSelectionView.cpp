@@ -239,4 +239,9 @@ void MinimalTaskSelectionView::setupConnections()
             showError("Пожалуйста, выберите задачу из списка.");
         }
     });
+    connect(m_allStatsButton, &QPushButton::clicked,
+            this, &MinimalTaskSelectionView::allTasksStatisticsRequested);
+
+    connect(m_syncButton, &QPushButton::clicked,
+            this, &MinimalTaskSelectionView::synchronizationRequested);
 }

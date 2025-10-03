@@ -21,9 +21,14 @@ private slots:
 
     void onTaskSelectedForTimer(const QString& taskId);
     void onStatisticsRequestedForTask(const QString& taskId);
+    void onAllTasksStatisticsRequested();
+    void onSynchronizationRequested();
 
+    //слоты при закрытии окон
     void onTimerClosed();
     void onStatisticsClosed();
+    void onAllTasksStatisticsClosed();
+    void onSynchronizationClosed();
 
 private:
     // Контроллер владеет фабрикой
@@ -33,4 +38,6 @@ private:
     std::unique_ptr<ITaskSelectionView> m_taskSelectionView;
     std::unique_ptr<ITimerView> m_timerView;
     std::unique_ptr<ISingleTaskStatisticsView> m_statisticsView;
+    std::unique_ptr<IAllTasksStatisticsView> m_allTasksStatisticsView;
+    std::unique_ptr<ISynchronizationView> m_synchronizationView;
 };
