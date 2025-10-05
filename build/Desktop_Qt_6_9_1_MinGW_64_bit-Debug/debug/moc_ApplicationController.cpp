@@ -58,7 +58,9 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         "description",
         "onAddTaskCancelled",
         "onTimerStop",
-        "onTimerTick"
+        "onTimerTick",
+        "onWeekChangeForStatisticsRequested",
+        "weekStartDate"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -98,6 +100,10 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         QtMocHelpers::SlotData<void()>(19, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onTimerTick'
         QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onWeekChangeForStatisticsRequested'
+        QtMocHelpers::SlotData<void(const QDate &)>(21, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QDate, 22 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -135,6 +141,7 @@ void ApplicationController::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 11: _t->onAddTaskCancelled(); break;
         case 12: _t->onTimerStop(); break;
         case 13: _t->onTimerTick(); break;
+        case 14: _t->onWeekChangeForStatisticsRequested((*reinterpret_cast< std::add_pointer_t<QDate>>(_a[1]))); break;
         default: ;
         }
     }
@@ -159,14 +166,14 @@ int ApplicationController::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 14)
+        if (_id < 15)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 14;
+        _id -= 15;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 14)
+        if (_id < 15)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 14;
+        _id -= 15;
     }
     return _id;
 }

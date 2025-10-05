@@ -44,6 +44,8 @@ private slots:
     void onTimerStop();
     void onTimerTick();
 
+    void onWeekChangeForStatisticsRequested(const QDate& weekStartDate);
+
 private:
     /**
      * @brief Создает, настраивает и показывает главное окно приложения (список задач).
@@ -52,7 +54,7 @@ private:
 
     void returnToTaskSelection();
     void refreshTaskList();
-
+    void loadAndDisplayWeeklyStats();
     int m_currentUserId;
 
     // Поля для управления сессией таймера
@@ -60,6 +62,10 @@ private:
     QDateTime m_sessionStartTime;
     qint64 m_elapsedSeconds; // Прошедшие секунды с начала сессии
     int m_currentTimingTaskId;
+
+    // Поля для хранения контекста окна статистики
+    int m_currentStatisticsTaskId;
+    QDate m_currentStatisticsWeekStart;
 
     // Контроллер владеет фабрикой
     std::unique_ptr<IUIFactory> m_factory;

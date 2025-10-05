@@ -1,10 +1,11 @@
 #include "ApplicationController.h"
 #include <QDebug>
 #include <QVector>
+#include <QDate>
 
 ApplicationController::ApplicationController(std::unique_ptr<IUIFactory> factory,std::unique_ptr<IDatabaseService> dbService, QObject *parent)
     : QObject(parent)
-    , m_factory(std::move(factory)) // Забираем владение фабрикой
+    , m_factory(std::move(factory))
     , m_dbService(std::move(dbService))
 {
 }
@@ -180,25 +181,62 @@ void ApplicationController::onTimerClosed()
 void ApplicationController::onStatisticsRequestedForTask(const QString& taskId)
 {
     qDebug() << "Переход к статистике для задачи:" << taskId;
-
-    // 1. Скрываем главное окно
     m_taskSelectionView->hideView();
 
-    // 2. Создаем окно статистики через фабрику
     m_statisticsView = m_factory->createSingleTaskStatisticsWindow();
 
-    // 3. Настраиваем новое окно (например, устанавливаем заголовок)
-    m_statisticsView->setTaskTitle("Статистика по задаче " + taskId);
-    // Здесь в будущем будет загрузка и отображение данных
-    // m_statisticsView->displayStatistics(...);
+    m_currentStatisticsTaskId = taskId.toInt();
 
-    // 4. Подключаем сигнал о закрытии, чтобы вернуться назад
+    m_statisticsView->setTaskTitle("Статистика по задаче " + taskId);
+
     connect(m_statisticsView.get(), &ISingleTaskStatisticsView::closeRequested,
             this, &ApplicationController::onStatisticsClosed);
+    connect(m_statisticsView.get(), &ISingleTaskStatisticsView::weekChanged,
+            this, &ApplicationController::onWeekChangeForStatisticsRequested);
 
-    // 5. Показываем окно статистики
     m_statisticsView->showView();
+
+    // --- ИЗМЕНЕНИЕ: ЯВНЫЙ ВЫЗОВ ПЕРВОЙ ЗАГРУЗКИ ---
+    // Устанавливаем начальную неделю (понедельник текущей недели) и загружаем данные
+    QDate today = QDate::currentDate();
+    onWeekChangeForStatisticsRequested(today.addDays(-(today.dayOfWeek() - 1)));
 }
+
+
+// Новый слот для обработки смены недели
+void ApplicationController::onWeekChangeForStatisticsRequested(const QDate& weekStartDate)
+{
+    m_currentStatisticsWeekStart = weekStartDate;
+    loadAndDisplayWeeklyStats();
+}
+
+// Новый вспомогательный метод, чтобы не дублировать код
+void ApplicationController::loadAndDisplayWeeklyStats()
+{
+    if (!m_statisticsView || m_currentStatisticsTaskId <= 0) {
+        return;
+    }
+
+    qDebug() << "Загрузка статистики для задачи" << m_currentStatisticsTaskId
+             << "на неделю, начиная с" << m_currentStatisticsWeekStart.toString("yyyy-MM-dd");
+
+    m_statisticsView->showLoading(true);
+
+    // 1. Получаем данные из БД
+    QVector<qint64> weeklyData = m_dbService->getWeeklyTaskStats(m_currentStatisticsTaskId, m_currentStatisticsWeekStart);
+
+    // 2. Формируем красивую строку с диапазоном дат для заголовка
+    QDate weekEndDate = m_currentStatisticsWeekStart.addDays(6);
+    QString weekRangeLabel = QString("%1 - %2")
+                                 .arg(m_currentStatisticsWeekStart.toString("dd MMM"))
+                                 .arg(weekEndDate.toString("dd MMM yyyy"));
+
+    // 3. Передаем данные в окно
+    m_statisticsView->displayWeeklyChart(weeklyData, weekRangeLabel);
+
+    m_statisticsView->showLoading(false);
+}
+
 
 // Этот слот вызовется, когда пользователь закроет окно статистики
 void ApplicationController::onStatisticsClosed()

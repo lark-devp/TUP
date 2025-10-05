@@ -39,13 +39,16 @@ template <> constexpr inline auto MinimalSingleTaskStatisticsView::qt_create_met
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
         "MinimalSingleTaskStatisticsView",
-        "onDateWidgetsChanged",
-        ""
+        "onPrevWeekClicked",
+        "",
+        "onNextWeekClicked"
     };
 
     QtMocHelpers::UintData qt_methods {
-        // Slot 'onDateWidgetsChanged'
+        // Slot 'onPrevWeekClicked'
         QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onNextWeekClicked'
+        QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -69,7 +72,8 @@ void MinimalSingleTaskStatisticsView::qt_static_metacall(QObject *_o, QMetaObjec
     auto *_t = static_cast<MinimalSingleTaskStatisticsView *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->onDateWidgetsChanged(); break;
+        case 0: _t->onPrevWeekClicked(); break;
+        case 1: _t->onNextWeekClicked(); break;
         default: ;
         }
     }
@@ -95,14 +99,14 @@ int MinimalSingleTaskStatisticsView::qt_metacall(QMetaObject::Call _c, int _id, 
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 2;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 1)
+        if (_id < 2)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 1;
+        _id -= 2;
     }
     return _id;
 }

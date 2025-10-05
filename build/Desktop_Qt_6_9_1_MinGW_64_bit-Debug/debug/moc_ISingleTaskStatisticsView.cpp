@@ -39,26 +39,19 @@ template <> constexpr inline auto ISingleTaskStatisticsView::qt_create_metaobjec
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
         "ISingleTaskStatisticsView",
-        "dateRangeChanged",
+        "weekChanged",
         "",
-        "from",
-        "to",
-        "closeRequested",
-        "taskSelectedForStatistics",
-        "taskId"
+        "weekStartDate",
+        "closeRequested"
     };
 
     QtMocHelpers::UintData qt_methods {
-        // Signal 'dateRangeChanged'
-        QtMocHelpers::SignalData<void(const QDate &, const QDate &)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::QDate, 3 }, { QMetaType::QDate, 4 },
+        // Signal 'weekChanged'
+        QtMocHelpers::SignalData<void(const QDate &)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QDate, 3 },
         }}),
         // Signal 'closeRequested'
-        QtMocHelpers::SignalData<void()>(5, 2, QMC::AccessPublic, QMetaType::Void),
-        // Signal 'taskSelectedForStatistics'
-        QtMocHelpers::SignalData<void(const QString &)>(6, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::QString, 7 },
-        }}),
+        QtMocHelpers::SignalData<void()>(4, 2, QMC::AccessPublic, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -82,18 +75,15 @@ void ISingleTaskStatisticsView::qt_static_metacall(QObject *_o, QMetaObject::Cal
     auto *_t = static_cast<ISingleTaskStatisticsView *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->dateRangeChanged((*reinterpret_cast< std::add_pointer_t<QDate>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QDate>>(_a[2]))); break;
+        case 0: _t->weekChanged((*reinterpret_cast< std::add_pointer_t<QDate>>(_a[1]))); break;
         case 1: _t->closeRequested(); break;
-        case 2: _t->taskSelectedForStatistics((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         default: ;
         }
     }
     if (_c == QMetaObject::IndexOfMethod) {
-        if (QtMocHelpers::indexOfMethod<void (ISingleTaskStatisticsView::*)(const QDate & , const QDate & )>(_a, &ISingleTaskStatisticsView::dateRangeChanged, 0))
+        if (QtMocHelpers::indexOfMethod<void (ISingleTaskStatisticsView::*)(const QDate & )>(_a, &ISingleTaskStatisticsView::weekChanged, 0))
             return;
         if (QtMocHelpers::indexOfMethod<void (ISingleTaskStatisticsView::*)()>(_a, &ISingleTaskStatisticsView::closeRequested, 1))
-            return;
-        if (QtMocHelpers::indexOfMethod<void (ISingleTaskStatisticsView::*)(const QString & )>(_a, &ISingleTaskStatisticsView::taskSelectedForStatistics, 2))
             return;
     }
 }
@@ -117,33 +107,27 @@ int ISingleTaskStatisticsView::qt_metacall(QMetaObject::Call _c, int _id, void *
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 3)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 3;
+        _id -= 2;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 3)
+        if (_id < 2)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 3;
+        _id -= 2;
     }
     return _id;
 }
 
 // SIGNAL 0
-void ISingleTaskStatisticsView::dateRangeChanged(const QDate & _t1, const QDate & _t2)
+void ISingleTaskStatisticsView::weekChanged(const QDate & _t1)
 {
-    QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1, _t2);
+    QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1);
 }
 
 // SIGNAL 1
 void ISingleTaskStatisticsView::closeRequested()
 {
     QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
-}
-
-// SIGNAL 2
-void ISingleTaskStatisticsView::taskSelectedForStatistics(const QString & _t1)
-{
-    QMetaObject::activate<void>(this, &staticMetaObject, 2, nullptr, _t1);
 }
 QT_WARNING_POP

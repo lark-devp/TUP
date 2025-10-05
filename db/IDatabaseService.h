@@ -67,6 +67,13 @@ public:
      * @return true в случае успеха, иначе false.
      */
     virtual bool addTimeTrackingEntry(int taskId, const QDateTime& startTime, const QDateTime& endTime) = 0;
+    /**
+     * @brief Получает статистику по задаче за неделю, сгруппированную по дням.
+     * @param taskId ID задачи.
+     * @param weekStartDate Дата понедельника нужной недели.
+     * @return Вектор из 7 элементов (qint64), где каждый элемент - сумма минут для дня недели (Пн-Вс).
+     */
+    virtual QVector<qint64> getWeeklyTaskStats(int taskId, const QDate& weekStartDate) = 0;
 
 signals:
     void connectionStatusChanged(bool isConnected);

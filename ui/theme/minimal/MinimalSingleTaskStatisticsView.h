@@ -1,19 +1,14 @@
 #pragma once
 
-#include "ui/interfaces/ISingleTaskStatisticsView.h" // Убедитесь, что путь к вашему интерфейсу корректен
+#include "ui/interfaces/ISingleTaskStatisticsView.h"
+#include "BarChartView.h" // Подключаем наш новый виджет
 
-// Предварительные объявления классов Qt
 class QLabel;
-class QDateEdit;
 class QTableView;
 class QStandardItemModel;
 class QVBoxLayout;
-class QCloseEvent;
-class QWidget;
+class QPushButton;
 
-/**
- * @brief Класс минималистичной реализации окна статистики по одной задаче.
- */
 class MinimalSingleTaskStatisticsView : public ISingleTaskStatisticsView
 {
     Q_OBJECT
@@ -22,33 +17,35 @@ public:
     explicit MinimalSingleTaskStatisticsView(QWidget *parent = nullptr);
     ~MinimalSingleTaskStatisticsView() override = default;
 
-    // --- РЕАЛИЗАЦИЯ МЕТОДОВ ИНТЕРФЕЙСОВ ---
-
-    // Из IView
+    // --- Реализация методов интерфейса IView ---
     QWidget* getWidget() override;
 
-    // Из ISingleTaskStatisticsView
+    // --- Реализация методов интерфейса ISingleTaskStatisticsView ---
     void setTaskTitle(const QString& title) override;
-    void displayStatistics(const QVariantMap& statsData) override;
+    void displayWeeklyChart(const QVector<qint64>& weeklyData, const QString& weekRangeLabel) override;
     void showLoading(bool isLoading) override;
 
 protected:
-    // Переопределяем событие закрытия окна для отправки сигнала
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
-    // Внутренний слот для реакции на изменение дат в UI
-    void onDateWidgetsChanged();
+    // Слоты для кнопок навигации
+    void onPrevWeekClicked();
+    void onNextWeekClicked();
 
 private:
-    // --- UI-элементы ---
-    QLabel* m_taskTitleLabel;
-    QDateEdit* m_fromDateEdit;
-    QDateEdit* m_toDateEdit;
-    QTableView* m_statisticsView;
-    QStandardItemModel* m_statisticsModel;
-    QLabel* m_loadingLabel; // Простой виджет для индикации загрузки
-
-    // --- Компоновка ---
+    // UI Элементы
     QVBoxLayout* m_mainLayout;
+    QLabel* m_taskTitleLabel;
+    QLabel* m_loadingLabel;
+
+
+    // Новые элементы для диаграммы и навигации
+    BarChartView* m_chartView;
+    QLabel* m_weekRangeLabel;
+    QPushButton* m_prevWeekButton;
+    QPushButton* m_nextWeekButton;
+
+    // Храним дату начала текущей недели
+    QDate m_currentWeekStart;
 };

@@ -175,3 +175,42 @@ bool PostgresDatabaseService::addTimeTrackingEntry(int taskId, const QDateTime& 
     qDebug() << "Сессия для задачи" << taskId << "успешно сохранена.";
     return true;
 }
+
+QVector<qint64> PostgresDatabaseService::getWeeklyTaskStats(int taskId, const QDate& weekStartDate)
+{
+    // Инициализируем вектор семью нулями (для Пн, Вт, ..., Вс)
+    QVector<qint64> weeklyMinutes(7, 0);
+
+    QSqlQuery query(m_db);
+    // EXTRACT(ISODOW FROM start_time) в PostgreSQL возвращает день недели (1=Пн, 7=Вс)
+    query.prepare(R"(
+        SELECT
+            EXTRACT(ISODOW FROM start_time) as day_of_week,
+            SUM(EXTRACT(EPOCH FROM (end_time - start_time))/60)::INT as total_minutes
+        FROM "TimeTracking"
+        WHERE
+            task_id = :task_id AND
+            start_time >= :start_date AND
+            start_time < :end_date
+        GROUP BY day_of_week
+    )");
+
+    query.bindValue(":task_id", taskId);
+    query.bindValue(":start_date", QDate(weekStartDate));
+    query.bindValue(":end_date", QDate(weekStartDate.addDays(7))); // Конец недели (следующий понедельник)
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка получения недельной статистики:" << query.lastError().text();
+        return weeklyMinutes; // Возвращаем пустой вектор в случае ошибки
+    }
+
+    while (query.next()) {
+        int dayOfWeek = query.value("day_of_week").toInt(); // 1-7
+        qint64 minutes = query.value("total_minutes").toLongLong();
+        if (dayOfWeek >= 1 && dayOfWeek <= 7) {
+            weeklyMinutes[dayOfWeek - 1] = minutes; // Записываем в нужный индекс (0-6)
+        }
+    }
+
+    return weeklyMinutes;
+}
