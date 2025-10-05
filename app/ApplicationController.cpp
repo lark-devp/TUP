@@ -255,24 +255,27 @@ void ApplicationController::onStatisticsClosed()
 void ApplicationController::onAllTasksStatisticsRequested()
 {
     qDebug() << "Переход к общей статистике по всем задачам";
-
-    // 1. Скрываем главное окно
     m_taskSelectionView->hideView();
 
-    // 2. Создаем окно общей статистики через фабрику
     m_allTasksStatisticsView = m_factory->createAllTasksStatisticsWindow();
 
-    // 3. Настраиваем новое окно (если нужно)
-    // В будущем здесь будет загрузка и отображение данных
-    // m_allTasksStatisticsView->displayOverallStatistics(...);
-
-    // 4. Подключаем сигнал о закрытии, чтобы вернуться назад
     connect(m_allTasksStatisticsView.get(), &IAllTasksStatisticsView::closeRequested,
             this, &ApplicationController::onAllTasksStatisticsClosed);
 
-    // 5. Показываем новое окно
     m_allTasksStatisticsView->showView();
+
+    // --- НОВАЯ ЛОГИКА ЗАГРУЗКИ ДАННЫХ ---
+    m_allTasksStatisticsView->showLoading(true);
+
+    // 1. Запрашиваем данные у сервиса БД
+    QVector<TaskTimeSummary> summaries = m_dbService->getTaskTimeSummaries(m_currentUserId);
+
+    // 2. Отображаем их в окне
+    m_allTasksStatisticsView->displayTaskSummaries(summaries);
+
+    m_allTasksStatisticsView->showLoading(false);
 }
+
 
 // Этот слот вызовется, когда пользователь закроет окно общей статистики
 void ApplicationController::onAllTasksStatisticsClosed()

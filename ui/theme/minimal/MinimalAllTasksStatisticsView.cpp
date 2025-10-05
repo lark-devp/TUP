@@ -28,20 +28,6 @@ MinimalAllTasksStatisticsView::MinimalAllTasksStatisticsView(QWidget *parent)
         color: #333;
     )";
 
-    // Стиль для виджетов выбора даты
-    const QString dateEditStyle = R"(
-        QDateEdit {
-            border: 1px solid #dcdcdc;
-            border-radius: 8px;
-            padding: 8px;
-            background-color: #ffffff;
-            font-size: 14px;
-        }
-        QDateEdit::up-button, QDateEdit::down-button {
-            width: 20px;
-        }
-    )";
-
     // Стиль для таблицы
     const QString tableViewStyle = R"(
         QTableView {
@@ -83,22 +69,11 @@ MinimalAllTasksStatisticsView::MinimalAllTasksStatisticsView(QWidget *parent)
         }
     )";
 
-
-    // --- 2. Создание виджетов ---
-    m_titleLabel = new QLabel("Общая статистика", this);
-
-    m_fromDateEdit = new QDateEdit(this);
-    m_fromDateEdit->setDate(QDate::currentDate().addMonths(-1)); // По умолчанию - месяц назад
-    m_fromDateEdit->setCalendarPopup(true);
-
-    m_toDateEdit = new QDateEdit(this);
-    m_toDateEdit->setDate(QDate::currentDate()); // По умолчанию - сегодня
-    m_toDateEdit->setCalendarPopup(true);
-
-    m_applyButton = new QPushButton("Применить", this);
+    // --- 1. Создание виджетов ---
+    m_titleLabel = new QLabel("Общее время по задачам", this);
     m_closeButton = new QPushButton("Закрыть", this);
 
-    // Виджет-заглушка для экрана загрузки
+    // Экран загрузки
     auto loadingWidget = new QWidget(this);
     auto loadingLayout = new QVBoxLayout(loadingWidget);
     auto loadingLabel = new QLabel("Загрузка данных...", loadingWidget);
@@ -107,111 +82,81 @@ MinimalAllTasksStatisticsView::MinimalAllTasksStatisticsView(QWidget *parent)
 
     // Таблица для статистики
     m_statsTableView = new QTableView(this);
-    m_model = new QStandardItemModel(0, 2, this); // 0 строк, 2 колонки
-    m_model->setHorizontalHeaderLabels({"Параметр", "Значение"});
+    m_model = new QStandardItemModel(0, 2, this);
+    // НОВЫЕ ЗАГОЛОВКИ
+    m_model->setHorizontalHeaderLabels({"Задача", "Затраченное время"});
     m_statsTableView->setModel(m_model);
 
     m_stackedWidget = new QStackedWidget(this);
     m_stackedWidget->addWidget(m_statsTableView);
     m_stackedWidget->addWidget(loadingWidget);
 
-
-    // --- 3. Применение стилей и эффектов ---
+    // --- 2. Применение стилей ---
     m_titleLabel->setStyleSheet(titleStyle);
-    m_fromDateEdit->setStyleSheet(dateEditStyle);
-    m_toDateEdit->setStyleSheet(dateEditStyle);
     m_statsTableView->setStyleSheet(tableViewStyle);
-    m_applyButton->setStyleSheet(buttonStyle);
     m_closeButton->setStyleSheet(buttonStyle);
+    m_closeButton->setCursor(Qt::PointingHandCursor);
 
-    // Настройка внешнего вида таблицы
+    // Настройка таблицы
     m_statsTableView->verticalHeader()->hide();
-    m_statsTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_statsTableView->horizontalHeader()->setStretchLastSection(true);
-    m_statsTableView->setEditTriggers(QAbstractItemView::NoEditTriggers); // Запрет редактирования
-    m_statsTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_statsTableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_statsTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_statsTableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    m_statsTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    // Добавляем тень и курсор к кнопкам
-    for (auto* button : {m_applyButton, m_closeButton}) {
-        button->setCursor(Qt::PointingHandCursor);
-        auto shadow = new QGraphicsDropShadowEffect(this);
-        shadow->setBlurRadius(15);
-        shadow->setOffset(0, 3);
-        shadow->setColor(QColor(0, 0, 0, 80));
-        button->setGraphicsEffect(shadow);
-    }
-
-
-    // --- 4. Компоновка ---
+    // --- 3. Компоновка ---
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(20);
     mainLayout->setContentsMargins(30, 30, 30, 30);
 
-    // Горизонтальный layout для фильтра дат
-    auto dateFilterLayout = new QHBoxLayout();
-    dateFilterLayout->setSpacing(10);
-    dateFilterLayout->addWidget(new QLabel("С:", this));
-    dateFilterLayout->addWidget(m_fromDateEdit);
-    dateFilterLayout->addSpacing(15);
-    dateFilterLayout->addWidget(new QLabel("По:", this));
-    dateFilterLayout->addWidget(m_toDateEdit);
-    dateFilterLayout->addStretch(); // Растягиваем, чтобы кнопка была справа
-    dateFilterLayout->addWidget(m_applyButton);
-
     mainLayout->addWidget(m_titleLabel, 0, Qt::AlignHCenter);
-    mainLayout->addLayout(dateFilterLayout);
-    mainLayout->addWidget(m_stackedWidget);
+    mainLayout->addWidget(m_stackedWidget); // Добавляем виджет-переключатель
     mainLayout->addWidget(m_closeButton, 0, Qt::AlignRight);
 
     setLayout(mainLayout);
     setWindowTitle("Общая статистика");
     setMinimumSize(500, 450);
 
-
-    // --- 5. Соединение сигналов и слотов ---
-    connect(m_applyButton, &QPushButton::clicked, this, &MinimalAllTasksStatisticsView::onApplyDateRangeClicked);
-    // Нажатие на кнопку "Закрыть" напрямую генерирует сигнал интерфейса
+    // --- 4. Соединение сигналов ---
     connect(m_closeButton, &QPushButton::clicked, this, &IAllTasksStatisticsView::closeRequested);
 }
 
-QWidget* MinimalAllTasksStatisticsView::getWidget()
-{
-    return this;
-}
+QWidget* MinimalAllTasksStatisticsView::getWidget() { return this; }
 
-void MinimalAllTasksStatisticsView::displayOverallStatistics(const QVariantMap& statsData)
+// НОВАЯ РЕАЛИЗАЦИЯ
+void MinimalAllTasksStatisticsView::displayTaskSummaries(const QVector<TaskTimeSummary>& summaries)
 {
-    // Очищаем модель перед заполнением новыми данными
     m_model->removeRows(0, m_model->rowCount());
 
-    // Итерируемся по карте и добавляем строки в таблицу
-    for (auto it = statsData.constBegin(); it != statsData.constEnd(); ++it) {
-        auto keyItem = new QStandardItem(it.key());
-        auto valueItem = new QStandardItem(it.value().toString());
+    if (summaries.isEmpty()) {
+        // Можно добавить сообщение, если нет данных
+        auto titleItem = new QStandardItem("Нет данных для отображения");
+        m_model->appendRow(titleItem);
+        return;
+    }
 
-        // Для красивого выравнивания
-        valueItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-
-        m_model->appendRow({keyItem, valueItem});
+    for (const auto& summary : summaries) {
+        auto titleItem = new QStandardItem(summary.title);
+        auto timeItem = new QStandardItem(formatMinutes(summary.totalMinutes));
+        timeItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        m_model->appendRow({titleItem, timeItem});
     }
 }
 
 void MinimalAllTasksStatisticsView::showLoading(bool isLoading)
 {
     if (isLoading) {
-        m_stackedWidget->setCurrentIndex(1); // Показываем виджет загрузки
+        m_stackedWidget->setCurrentIndex(1); // Показываем загрузку
     } else {
         m_stackedWidget->setCurrentIndex(0); // Показываем таблицу
     }
 }
 
-void MinimalAllTasksStatisticsView::onApplyDateRangeClicked()
+QString MinimalAllTasksStatisticsView::formatMinutes(qint64 totalMinutes)
 {
-    const QDate from = m_fromDateEdit->date();
-    const QDate to = m_toDateEdit->date();
-
-    // Генерируем сигнал интерфейса, чтобы сообщить презентеру/контроллеру
-    // о том, что пользователь запросил обновление данных.
-    emit dateRangeChanged(from, to);
+    if (totalMinutes < 60) {
+        return QString::number(totalMinutes) + " мин.";
+    }
+    qint64 hours = totalMinutes / 60;
+    qint64 minutes = totalMinutes % 60;
+    return QString("%1 ч %2 мин.").arg(hours).arg(minutes);
 }

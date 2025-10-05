@@ -214,3 +214,39 @@ QVector<qint64> PostgresDatabaseService::getWeeklyTaskStats(int taskId, const QD
 
     return weeklyMinutes;
 }
+QVector<TaskTimeSummary> PostgresDatabaseService::getTaskTimeSummaries(int userId)
+{
+    QVector<TaskTimeSummary> summaries;
+    QSqlQuery query(m_db);
+
+    // Этот запрос соединяет задачи с записями времени,
+    // фильтрует по пользователю, группирует по каждой задаче
+    // и суммирует сгенерированное поле duration_minutes.
+    query.prepare(R"(
+        SELECT
+            T.title,
+            SUM(TT.duration_minutes) as total_minutes
+        FROM "Task" T
+        LEFT JOIN "TimeTracking" TT ON T.task_id = TT.task_id
+        WHERE T.user_id = :user_id
+        GROUP BY T.task_id, T.title
+        HAVING SUM(TT.duration_minutes) IS NOT NULL -- Показываем только задачи, где есть записи времени
+        ORDER BY total_minutes DESC
+    )");
+    query.bindValue(":user_id", userId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка получения сводной статистики по задачам:" << query.lastError().text();
+        return summaries;
+    }
+
+    while (query.next()) {
+        TaskTimeSummary summary;
+        summary.title = query.value("title").toString();
+        summary.totalMinutes = query.value("total_minutes").toLongLong();
+        summaries.append(summary);
+    }
+
+    qDebug() << "Найдено" << summaries.count() << "задач с записью времени для пользователя" << userId;
+    return summaries;
+}

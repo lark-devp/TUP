@@ -5,6 +5,7 @@
 #include <QVariantMap>
 #include <QDateTime>
 #include "ui/interfaces/ITaskSelectionView.h"
+#include "ui/interfaces/IAllTasksStatisticsView.h"
 
 /**
  * @brief Интерфейс для абстракции взаимодействия с базой данных.
@@ -74,6 +75,7 @@ public:
      * @return Вектор из 7 элементов (qint64), где каждый элемент - сумма минут для дня недели (Пн-Вс).
      */
     virtual QVector<qint64> getWeeklyTaskStats(int taskId, const QDate& weekStartDate) = 0;
+    virtual QVector<TaskTimeSummary> getTaskTimeSummaries(int userId) = 0;
 
 signals:
     void connectionStatusChanged(bool isConnected);

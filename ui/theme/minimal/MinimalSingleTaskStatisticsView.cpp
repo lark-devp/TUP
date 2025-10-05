@@ -28,11 +28,10 @@ MinimalSingleTaskStatisticsView::MinimalSingleTaskStatisticsView(QWidget *parent
     m_weekRangeLabel = new QLabel("Текущая неделя", this);
     m_weekRangeLabel->setAlignment(Qt::AlignCenter);
     m_weekRangeLabel->setStyleSheet("font-weight: bold;");
+    m_taskTitleLabel->setStyleSheet(titleStyle);
 
     // --- Наш кастомный виджет диаграммы ---
     m_chartView = new BarChartView(this);
-
-
 
 
     // --- 3. Компоновка ---
