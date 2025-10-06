@@ -13,6 +13,7 @@
 #include "db/IDatabaseService.h"
 #include "calendar/ITweekApiService.h"
 
+
 class ApplicationController : public QObject
 {
     Q_OBJECT
@@ -51,6 +52,14 @@ private slots:
     void onTweekAuthSuccess(const QString& idToken, const QString& refreshToken);
     void onTweekAuthFailed(const QString& error);
 
+    void onCalendarsFetchSuccess(const QVector<TweekCalendar>& calendars);
+    void onCalendarsFetchFailed(const QString& error);
+
+    void onTasksFetchSuccess(const QVector<TweekTask>& tasks);
+    void onTasksFetchFailed(const QString& error);
+
+    void onSyncTasksSelected(const QVector<TweekTask>& selectedTasks);
+
 private:
     /**
      * @brief Создает, настраивает и показывает главное окно приложения (список задач).
@@ -85,5 +94,6 @@ private:
     std::unique_ptr<ISynchronizationView> m_synchronizationView;
     std::unique_ptr<IAddTaskView> m_addTaskView;
     std::unique_ptr<ITweekApiService> m_tweekApiService;
+    std::optional<TweekTokens> m_currentTweekTokens;
 
 };

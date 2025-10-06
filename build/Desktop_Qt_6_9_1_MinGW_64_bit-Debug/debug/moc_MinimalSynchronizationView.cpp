@@ -40,12 +40,18 @@ template <> constexpr inline auto MinimalSynchronizationView::qt_create_metaobje
     QtMocHelpers::StringRefStorage qt_stringData {
         "MinimalSynchronizationView",
         "onConnectClicked",
-        ""
+        "",
+        "onGetTasksClicked",
+        "onConfirmClicked"
     };
 
     QtMocHelpers::UintData qt_methods {
         // Slot 'onConnectClicked'
         QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onGetTasksClicked'
+        QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onConfirmClicked'
+        QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -70,6 +76,8 @@ void MinimalSynchronizationView::qt_static_metacall(QObject *_o, QMetaObject::Ca
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->onConnectClicked(); break;
+        case 1: _t->onGetTasksClicked(); break;
+        case 2: _t->onConfirmClicked(); break;
         default: ;
         }
     }
@@ -95,14 +103,14 @@ int MinimalSynchronizationView::qt_metacall(QMetaObject::Call _c, int _id, void 
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 3;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 1)
+        if (_id < 3)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 1;
+        _id -= 3;
     }
     return _id;
 }

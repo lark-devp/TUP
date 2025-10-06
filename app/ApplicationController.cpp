@@ -77,8 +77,6 @@ void ApplicationController::showMainWindow(const QVector<TaskDisplayData>& tasks
     connect(m_taskSelectionView.get(), &ITaskSelectionView::allTasksStatisticsRequested, this, &ApplicationController::onAllTasksStatisticsRequested);
     connect(m_taskSelectionView.get(), &ITaskSelectionView::synchronizationRequested, this, &ApplicationController::onSynchronizationRequested);
     connect(m_taskSelectionView.get(), &ITaskSelectionView::addTaskRequested, this, &ApplicationController::onAddTaskRequested);
-    connect(m_authorizationView.get(), &IAuthorizationView::loginRequested,
-            this, &ApplicationController::onLoginRequested);
 
     m_taskSelectionView->displayTasks(tasks);
     // Показываем главное окно
@@ -292,28 +290,56 @@ void ApplicationController::onAllTasksStatisticsClosed()
     // 2. Снова показываем главное окно
     m_taskSelectionView->showView();
 }
-// Этот слот вызовется, когда пользователь нажмет "Синхронизация"
 void ApplicationController::onSynchronizationRequested()
 {
-    qDebug() << "Переход к окну подключения Tweek";
+    qDebug() << "Переход к окну синхронизации";
     m_taskSelectionView->hideView();
-
     m_synchronizationView = m_factory->createSynchronizationWindow();
 
-    // Подключаемся к сигналам от окна
+    // --- ОБЩИЕ СИГНАЛЫ ---
     connect(m_synchronizationView.get(), &ISynchronizationView::closeRequested,
             this, &ApplicationController::onSynchronizationClosed);
     connect(m_synchronizationView.get(), &ISynchronizationView::connectRequested,
             this, &ApplicationController::onTweekConnectRequested);
 
-    m_synchronizationView->showView();
+    // --- СИГНАЛЫ ДЛЯ СЦЕНАРИЯ СИНХРОНИЗАЦИИ (SYNC) ---
+    connect(m_synchronizationView.get(), &ISynchronizationView::tasksRequested,
+            [this](const QString& calendarId){
+                if (m_currentTweekTokens) {
+                    m_tweekApiService->fetchTodayTasks(m_currentTweekTokens->idToken, calendarId);
+                }
+            });
+    connect(m_synchronizationView.get(), &ISynchronizationView::tasksSelected,
+            this, &ApplicationController::onSyncTasksSelected);
+
+    // --- ПОДПИСЫВАЕМСЯ НА РЕЗУЛЬТАТЫ ОТ API-СЕРВИСА ---
+    connect(m_tweekApiService.get(), &ITweekApiService::authenticationSuccess, this, &ApplicationController::onTweekAuthSuccess, Qt::UniqueConnection);
+    connect(m_tweekApiService.get(), &ITweekApiService::authenticationFailed, this, &ApplicationController::onTweekAuthFailed, Qt::UniqueConnection);
+    connect(m_tweekApiService.get(), &ITweekApiService::calendarsFetchSuccess, this, &ApplicationController::onCalendarsFetchSuccess, Qt::UniqueConnection);
+    connect(m_tweekApiService.get(), &ITweekApiService::calendarsFetchFailed, this, &ApplicationController::onCalendarsFetchFailed, Qt::UniqueConnection);
+    connect(m_tweekApiService.get(), &ITweekApiService::tasksFetchSuccess, this, &ApplicationController::onTasksFetchSuccess, Qt::UniqueConnection);
+    connect(m_tweekApiService.get(), &ITweekApiService::tasksFetchFailed, this, &ApplicationController::onTasksFetchFailed, Qt::UniqueConnection);
+
+    // --- ГЛАВНАЯ ЛОГИКА ВЫБОРА СЦЕНАРИЯ ---
+    auto savedTokens = m_dbService->getTweekTokens(m_currentUserId);
+    if (savedTokens && !savedTokens->refreshToken.isEmpty()) {
+        qDebug() << "Найдены сохраненные токены Tweek. Обновление...";
+        m_synchronizationView->showView();
+        m_synchronizationView->showState(ISynchronizationView::ViewState::Sync);
+        m_synchronizationView->updateStatus("Обновление сессии...");
+        m_synchronizationView->setControlsEnabled(false);
+        m_tweekApiService->refreshToken(savedTokens->refreshToken);
+    } else {
+        qDebug() << "Токены Tweek не найдены, требуется вход.";
+        m_synchronizationView->showView();
+        m_synchronizationView->showState(ISynchronizationView::ViewState::Login);
+    }
 }
 void ApplicationController::onTweekConnectRequested(const QString& email, const QString& password)
 {
     if (!m_synchronizationView) return;
 
     // Подготавливаем UI к процессу
-    m_synchronizationView->setCloseButtonEnabled(false);
     m_synchronizationView->updateStatus("Аутентификация...");
     m_synchronizationView->logMessage("Отправка учетных данных...");
     m_synchronizationView->setProgress(25);
@@ -324,41 +350,12 @@ void ApplicationController::onTweekConnectRequested(const QString& email, const 
     connect(m_tweekApiService.get(), &ITweekApiService::authenticationFailed,
             this, &ApplicationController::onTweekAuthFailed, Qt::UniqueConnection);
 
-    // Запускаем процесс
     m_tweekApiService->authenticate(email, password);
 }
 
-void ApplicationController::onTweekAuthSuccess(const QString& idToken, const QString& refreshToken)
-{
-    if (!m_synchronizationView) return;
 
-    m_synchronizationView->logMessage("Учетные данные верны. Сохранение токенов...");
-    m_synchronizationView->setProgress(75);
 
-    bool saved = m_dbService->saveTweekTokens(m_currentUserId, idToken, refreshToken);
 
-    if (saved) {
-        m_synchronizationView->logMessage("Токены успешно сохранены в базе данных!");
-        m_synchronizationView->updateStatus("Подключение успешно завершено!");
-        m_synchronizationView->setProgress(100);
-    } else {
-        m_synchronizationView->logMessage("Критическая ошибка: не удалось сохранить токены в БД.");
-        m_synchronizationView->updateStatus("Ошибка сохранения.");
-        m_synchronizationView->setProgress(0);
-    }
-    m_synchronizationView->setCloseButtonEnabled(true);
-}
-
-void ApplicationController::onTweekAuthFailed(const QString& error)
-{
-    if (!m_synchronizationView) return;
-
-    m_synchronizationView->logMessage("Ошибка: " + error);
-    m_synchronizationView->updateStatus("Не удалось подключиться.");
-    m_synchronizationView->setProgress(0);
-    m_synchronizationView->setCloseButtonEnabled(true);
-    // Можно разблокировать кнопку "Подключить" для повторной попытки
-}
 
 // Этот слот вызовется, когда пользователь закроет окно синхронизации
 void ApplicationController::onSynchronizationClosed()
@@ -457,4 +454,83 @@ void ApplicationController::refreshTaskList()
         // 2. Отображаем его в окне выбора задач
         m_taskSelectionView->displayTasks(tasks);
     }
+}
+
+void ApplicationController::onTweekAuthSuccess(const QString& idToken, const QString& refreshToken)
+{
+    qDebug() << "Аутентификация/обновление токена Tweek успешно.";
+
+    // 1. Сохраняем свежие токены в БД и в текущую сессию
+    m_dbService->saveTweekTokens(m_currentUserId, idToken, refreshToken);
+    m_currentTweekTokens = TweekTokens{idToken, refreshToken};
+
+    // Проверяем, что окно синхронизации все еще открыто
+    if (!m_synchronizationView) return;
+
+    // 2. Переключаем UI в режим синхронизации (если он еще не там)
+    m_synchronizationView->showState(ISynchronizationView::ViewState::Sync);
+    m_synchronizationView->logMessage("Аутентификация успешна. Загрузка календарей...");
+    m_synchronizationView->updateStatus("Загрузка календарей...");
+    m_synchronizationView->setControlsEnabled(false); // Держим UI заблокированным
+
+    // 3. ИНИЦИИРУЕМ ЗАГРУЗКУ КАЛЕНДАРЕЙ, ИСПОЛЬЗУЯ СВЕЖИЙ ТОКЕН
+    m_tweekApiService->fetchCalendars(m_currentTweekTokens->idToken);
+}
+
+// Слот ошибки теперь должен просто разблокировать контролы
+void ApplicationController::onTweekAuthFailed(const QString& error)
+{
+    if (!m_synchronizationView) return;
+    m_synchronizationView->logMessage("Ошибка: " + error);
+    m_synchronizationView->updateStatus("Не удалось подключиться.");
+    m_synchronizationView->setProgress(0);
+    m_synchronizationView->setControlsEnabled(true);
+}
+
+// Новые слоты для обработки результатов от Tweek API
+void ApplicationController::onCalendarsFetchSuccess(const QVector<TweekCalendar>& calendars) {
+    if (!m_synchronizationView) return;
+    m_synchronizationView->displayCalendars(calendars);
+    m_synchronizationView->setControlsEnabled(true);
+    m_synchronizationView->updateStatus("Календари загружены. Выберите задачи.");
+}
+
+void ApplicationController::onCalendarsFetchFailed(const QString& error) {
+    if (!m_synchronizationView) return;
+    m_synchronizationView->logMessage("Ошибка загрузки календарей: " + error);
+    m_synchronizationView->setControlsEnabled(true);
+    m_synchronizationView->updateStatus("Ошибка загрузки календарей.");
+}
+
+void ApplicationController::onTasksFetchSuccess(const QVector<TweekTask>& tasks) {
+    if (!m_synchronizationView) return;
+    m_synchronizationView->displayTasks(tasks);
+    m_synchronizationView->setControlsEnabled(true);
+    m_synchronizationView->updateStatus("Задачи загружены. Выберите нужные и подтвердите.");
+}
+
+void ApplicationController::onTasksFetchFailed(const QString& error) {
+    if (!m_synchronizationView) return;
+    m_synchronizationView->logMessage("Ошибка загрузки задач: " + error);
+    m_synchronizationView->setControlsEnabled(true);
+    m_synchronizationView->updateStatus("Ошибка загрузки задач.");
+}
+
+// Слот для сохранения выбранных задач в БД
+void ApplicationController::onSyncTasksSelected(const QVector<TweekTask>& selectedTasks) {
+    if (!m_synchronizationView) return;
+
+    int successCount = 0;
+    for (const auto& task : selectedTasks) {
+        if (m_dbService->addTask(task.title, task.description, m_currentUserId)) {
+            successCount++;
+        }
+    }
+
+    m_synchronizationView->logMessage(QString("Успешно добавлено %1 из %2 задач.").arg(successCount).arg(selectedTasks.size()));
+    m_synchronizationView->updateStatus("Задачи добавлены.");
+    m_synchronizationView->setControlsEnabled(true);
+
+    // Обновляем список задач на главном экране
+    refreshTaskList();
 }

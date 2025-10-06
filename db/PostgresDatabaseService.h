@@ -24,6 +24,8 @@ public:
     QVector<TaskTimeSummary> getTaskTimeSummaries(int userId) override;
 
     bool saveTweekTokens(int userId, const QString& idToken, const QString& refreshToken) override;
+    bool hasTweekTokens(int userId) override;
+    std::optional<TweekTokens> getTweekTokens(int userId) override;
 
 private:
     QSqlDatabase m_db; // <-- 2. Добавляем объект для хранения соединения

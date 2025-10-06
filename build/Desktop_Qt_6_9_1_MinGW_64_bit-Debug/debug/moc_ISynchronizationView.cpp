@@ -8,6 +8,7 @@
 
 #include "../../../ui/interfaces/ISynchronizationView.h"
 #include <QtCore/qmetatype.h>
+#include <QtCore/QList>
 
 #include <QtCore/qtmochelpers.h>
 
@@ -43,7 +44,13 @@ template <> constexpr inline auto ISynchronizationView::qt_create_metaobjectdata
         "",
         "connectRequested",
         "email",
-        "password"
+        "password",
+        "calendarsRequested",
+        "tasksRequested",
+        "calendarId",
+        "tasksSelected",
+        "QList<TweekTask>",
+        "selectedTasks"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -52,6 +59,16 @@ template <> constexpr inline auto ISynchronizationView::qt_create_metaobjectdata
         // Signal 'connectRequested'
         QtMocHelpers::SignalData<void(const QString &, const QString &)>(3, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 4 }, { QMetaType::QString, 5 },
+        }}),
+        // Signal 'calendarsRequested'
+        QtMocHelpers::SignalData<void()>(6, 2, QMC::AccessPublic, QMetaType::Void),
+        // Signal 'tasksRequested'
+        QtMocHelpers::SignalData<void(const QString &)>(7, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 8 },
+        }}),
+        // Signal 'tasksSelected'
+        QtMocHelpers::SignalData<void(const QVector<TweekTask> &)>(9, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 10, 11 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -78,6 +95,9 @@ void ISynchronizationView::qt_static_metacall(QObject *_o, QMetaObject::Call _c,
         switch (_id) {
         case 0: _t->closeRequested(); break;
         case 1: _t->connectRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 2: _t->calendarsRequested(); break;
+        case 3: _t->tasksRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 4: _t->tasksSelected((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
         default: ;
         }
     }
@@ -85,6 +105,12 @@ void ISynchronizationView::qt_static_metacall(QObject *_o, QMetaObject::Call _c,
         if (QtMocHelpers::indexOfMethod<void (ISynchronizationView::*)()>(_a, &ISynchronizationView::closeRequested, 0))
             return;
         if (QtMocHelpers::indexOfMethod<void (ISynchronizationView::*)(const QString & , const QString & )>(_a, &ISynchronizationView::connectRequested, 1))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ISynchronizationView::*)()>(_a, &ISynchronizationView::calendarsRequested, 2))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ISynchronizationView::*)(const QString & )>(_a, &ISynchronizationView::tasksRequested, 3))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ISynchronizationView::*)(const QVector<TweekTask> & )>(_a, &ISynchronizationView::tasksSelected, 4))
             return;
     }
 }
@@ -108,14 +134,14 @@ int ISynchronizationView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 5;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 2)
+        if (_id < 5)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 2;
+        _id -= 5;
     }
     return _id;
 }
@@ -130,5 +156,23 @@ void ISynchronizationView::closeRequested()
 void ISynchronizationView::connectRequested(const QString & _t1, const QString & _t2)
 {
     QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2);
+}
+
+// SIGNAL 2
+void ISynchronizationView::calendarsRequested()
+{
+    QMetaObject::activate(this, &staticMetaObject, 2, nullptr);
+}
+
+// SIGNAL 3
+void ISynchronizationView::tasksRequested(const QString & _t1)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 3, nullptr, _t1);
+}
+
+// SIGNAL 4
+void ISynchronizationView::tasksSelected(const QVector<TweekTask> & _t1)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 4, nullptr, _t1);
 }
 QT_WARNING_POP

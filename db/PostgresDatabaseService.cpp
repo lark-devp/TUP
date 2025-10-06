@@ -269,3 +269,50 @@ bool PostgresDatabaseService::saveTweekTokens(int userId, const QString& idToken
     }
     return true;
 }
+
+bool PostgresDatabaseService::hasTweekTokens(int userId)
+{
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        SELECT tweek_token, tweek_refresh_token FROM "User"
+        WHERE user_id = :user_id
+    )");
+    query.bindValue(":user_id", userId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка проверки токенов Tweek:" << query.lastError().text();
+        return false;
+    }
+
+    if (query.next()) {
+        // Проверяем, что токены не просто существуют, но и не пустые
+        return !query.value("tweek_token").toString().isEmpty() &&
+               !query.value("tweek_refresh_token").toString().isEmpty();
+    }
+    return false;
+}
+
+std::optional<TweekTokens> PostgresDatabaseService::getTweekTokens(int userId)
+{
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        SELECT tweek_token, tweek_refresh_token FROM "User"
+        WHERE user_id = :user_id
+    )");
+    query.bindValue(":user_id", userId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка получения токенов Tweek:" << query.lastError().text();
+        return std::nullopt;
+    }
+
+    if (query.next()) {
+        TweekTokens tokens;
+        tokens.idToken = query.value("tweek_token").toString();
+        tokens.refreshToken = query.value("tweek_refresh_token").toString();
+        if (!tokens.idToken.isEmpty()) {
+            return tokens;
+        }
+    }
+    return std::nullopt;
+}

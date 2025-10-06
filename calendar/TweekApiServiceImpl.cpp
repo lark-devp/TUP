@@ -3,19 +3,180 @@
 #include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QDebug>
 #include <QUrlQuery>
 
+// Конструктор остается таким же, как в прошлый раз
 TweekApiServiceImpl::TweekApiServiceImpl(QObject *parent)
     : ITweekApiService(parent),
-    m_signInUrl("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + m_apiKey)
+    m_apiKey("AIzaSyC7_JO56peYl_eD9QODZlLwZpMclLUoC9s"),
+    m_signInUrl("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + m_apiKey),
+    m_refreshUrl("https://securetoken.googleapis.com/v1/token?key=" + m_apiKey),
+    m_calendarsUrl("https://tweek.so/api/v1/calendars"),
+    m_tasksUrl("https://tweek.so/api/v1/tasks")
 {
     m_networkManager = new QNetworkAccessManager(this);
 }
 
+// Вспомогательный метод для создания запросов с авторизацией
+QNetworkRequest TweekApiServiceImpl::createAuthorizedRequest(const QUrl& url, const QString& idToken)
+{
+    QNetworkRequest request(url);
+    qDebug() << "Creating authorized request for" << url << "with token:" << (idToken.isEmpty() ? "EMPTY!" : "present");
+
+    // 1. Устанавливаем токен авторизации (это уже есть)
+    request.setRawHeader("Authorization", ("Bearer " + idToken).toUtf8());
+
+    // 2. ДОБАВЛЯЕМ ЗАГОЛОВОК USER-AGENT
+    // Это стандартная практика, которую требуют многие API.
+    request.setHeader(QNetworkRequest::UserAgentHeader, "TimeTrackerApp/1.0");
+
+    return request;
+}
+
+void TweekApiServiceImpl::fetchCalendars(const QString& idToken)
+{
+    QNetworkRequest request = createAuthorizedRequest(m_calendarsUrl, idToken);
+    QNetworkReply* reply = m_networkManager->get(request);
+    connect(reply, &QNetworkReply::finished, this, &TweekApiServiceImpl::onCalendarsReplyFinished);
+}
+
+// ----- ОБНОВЛЕННЫЙ СЛОТ ДЛЯ КАЛЕНДАРЕЙ -----
+void TweekApiServiceImpl::onCalendarsReplyFinished()
+{
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply) return;
+
+    // --- НАЧАЛО: Логика обработки редиректа ---
+    QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    if (redirectionTarget.isValid()) {
+        QUrl newUrl = reply->url().resolved(redirectionTarget.toUrl());
+        qDebug() << "Redirecting calendar request to:" << newUrl;
+
+        QNetworkRequest newRequest(newUrl);
+        // ВАЖНО: Копируем заголовок авторизации из старого запроса в новый
+        newRequest.setRawHeader("Authorization", reply->request().rawHeader("Authorization"));
+
+        QNetworkReply* newReply = m_networkManager->get(newRequest);
+        // Подключаем новый ответ к этому же слоту для рекурсивной обработки
+        connect(newReply, &QNetworkReply::finished, this, &TweekApiServiceImpl::onCalendarsReplyFinished);
+
+        reply->deleteLater();
+        return; // Завершаем обработку старого ответа
+    }
+    // --- КОНЕЦ: Логика обработки редиректа ---
+
+    if (reply->error() != QNetworkReply::NoError) {
+        // Улучшенное логгирование: выводим HTTP статус и текст ошибки
+        int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qCritical() << "Calendar fetch network error:" << reply->errorString() << "| HTTP Status:" << httpStatusCode;
+        emit calendarsFetchFailed("Сетевая ошибка: " + reply->errorString());
+        reply->deleteLater();
+        return;
+    }
+
+    // ... остальная логика парсинга ответа остается без изменений ...
+    QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+    if (!doc.isArray()) {
+        emit calendarsFetchFailed("Некорректный ответ от сервера (ожидался массив).");
+        reply->deleteLater();
+        return;
+    }
+
+    QVector<TweekCalendar> calendars;
+    for (const QJsonValue& value : doc.array()) {
+        QJsonObject obj = value.toObject();
+        TweekCalendar calendar;
+        calendar.id = obj["id"].toString();
+        calendar.name = obj["name"].toString();
+        if (!calendar.id.isEmpty() && !calendar.name.isEmpty()) {
+            calendars.append(calendar);
+        }
+    }
+    emit calendarsFetchSuccess(calendars);
+    reply->deleteLater();
+}
+
+void TweekApiServiceImpl::fetchTodayTasks(const QString& idToken, const QString& calendarId)
+{
+    QUrl urlWithQuery = m_tasksUrl;
+    QUrlQuery query;
+    query.addQueryItem("calendarId", calendarId);
+
+    QString today = QDate::currentDate().toString(Qt::ISODate);
+    query.addQueryItem("dateFrom", today);
+    query.addQueryItem("dateTo", today);
+
+    urlWithQuery.setQuery(query);
+
+    QNetworkRequest request = createAuthorizedRequest(urlWithQuery, idToken);
+    QNetworkReply* reply = m_networkManager->get(request);
+    connect(reply, &QNetworkReply::finished, this, &TweekApiServiceImpl::onTasksReplyFinished);
+}
+
+// ----- ОБНОВЛЕННЫЙ СЛОТ ДЛЯ ЗАДАЧ -----
+void TweekApiServiceImpl::onTasksReplyFinished()
+{
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply) return;
+
+    // --- НАЧАЛО: Логика обработки редиректа ---
+    QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    if (redirectionTarget.isValid()) {
+        QUrl newUrl = reply->url().resolved(redirectionTarget.toUrl());
+        qDebug() << "Redirecting task request to:" << newUrl;
+
+        QNetworkRequest newRequest(newUrl);
+        newRequest.setRawHeader("Authorization", reply->request().rawHeader("Authorization"));
+
+        QNetworkReply* newReply = m_networkManager->get(newRequest);
+        connect(newReply, &QNetworkReply::finished, this, &TweekApiServiceImpl::onTasksReplyFinished);
+
+        reply->deleteLater();
+        return;
+    }
+    // --- КОНЕЦ: Логика обработки редиректа ---
+
+    if (reply->error() != QNetworkReply::NoError) {
+        int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qCritical() << "Task fetch network error:" << reply->errorString() << "| HTTP Status:" << httpStatusCode;
+        emit tasksFetchFailed("Сетевая ошибка: " + reply->errorString());
+        reply->deleteLater();
+        return;
+    }
+
+    // ... остальная логика парсинга ответа остается без изменений ...
+    QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+    if (!doc.isObject()) {
+        emit tasksFetchFailed("Некорректный ответ от сервера (ожидался объект).");
+        reply->deleteLater();
+        return;
+    }
+
+    QVector<TweekTask> tasks;
+    QJsonObject rootObj = doc.object();
+    if (rootObj.contains("data") && rootObj["data"].isArray()) {
+        for (const QJsonValue& value : rootObj["data"].toArray()) {
+            QJsonObject obj = value.toObject();
+            TweekTask task;
+            task.id = obj["id"].toString();
+            task.title = obj["text"].toString();
+            task.description = obj["description"].toString();
+            if(!task.id.isEmpty() && !task.title.isEmpty()){
+                tasks.append(task);
+            }
+        }
+    }
+    emit tasksFetchSuccess(tasks);
+    reply->deleteLater();
+}
+
+
+// --- Методы аутентификации (остаются без изменений, т.к. их логика верна) ---
+
 void TweekApiServiceImpl::authenticate(const QString &email, const QString &password)
 {
-    // 1. Создаем JSON-тело запроса
     QJsonObject requestBody;
     requestBody["email"] = email;
     requestBody["password"] = password;
@@ -23,11 +184,9 @@ void TweekApiServiceImpl::authenticate(const QString &email, const QString &pass
     QJsonDocument doc(requestBody);
     QByteArray jsonData = doc.toJson();
 
-    // 2. Создаем и настраиваем запрос
     QNetworkRequest request(m_signInUrl);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    // 3. Отправляем POST-запрос
     QNetworkReply* reply = m_networkManager->post(request, jsonData);
     connect(reply, &QNetworkReply::finished, this, &TweekApiServiceImpl::onAuthenticationReplyFinished);
 }
@@ -37,62 +196,62 @@ void TweekApiServiceImpl::onAuthenticationReplyFinished()
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
     if (!reply) return;
 
-    // Проверяем на наличие сетевых ошибок
     if (reply->error() != QNetworkReply::NoError) {
-        qCritical() << "Сетевая ошибка:" << reply->errorString();
         emit authenticationFailed("Сетевая ошибка: " + reply->errorString());
         reply->deleteLater();
         return;
     }
 
-    // Читаем и парсим ответ
     QByteArray responseData = reply->readAll();
     QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
     QJsonObject jsonObj = jsonDoc.object();
 
-    // Google API может вернуть 200 OK, но с объектом ошибки внутри JSON
     if (jsonObj.contains("error")) {
         QString message = jsonObj["error"].toObject()["message"].toString();
-        qWarning() << "Ошибка API аутентификации:" << message;
         emit authenticationFailed("Ошибка: " + message);
     } else if (jsonObj.contains("idToken") && jsonObj.contains("refreshToken")) {
         QString idToken = jsonObj["idToken"].toString();
         QString refreshToken = jsonObj["refreshToken"].toString();
-        qInfo() << "Аутентификация Tweek успешна!";
         emit authenticationSuccess(idToken, refreshToken);
     } else {
-        qCritical() << "Неожиданный ответ от API:" << responseData;
         emit authenticationFailed("Получен некорректный ответ от сервера.");
     }
 
     reply->deleteLater();
 }
+
 void TweekApiServiceImpl::refreshToken(const QString &token)
 {
-    // 1. Создаем тело запроса в формате x-www-form-urlencoded
-    // QUrlQuery идеально подходит для этого, так как он сам заботится о кодировании.
     QUrlQuery query;
     query.addQueryItem("grant_type", "refresh_token");
     query.addQueryItem("refresh_token", token);
     QByteArray postData = query.toString(QUrl::FullyEncoded).toUtf8();
 
-    // 2. Создаем и настраиваем запрос
     QNetworkRequest request(m_refreshUrl);
-    // ВАЖНО: Устанавливаем правильный Content-Type, как в документации
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
-    // 3. Отправляем POST-запрос
     QNetworkReply* reply = m_networkManager->post(request, postData);
     connect(reply, &QNetworkReply::finished, this, &TweekApiServiceImpl::onRefreshTokenReplyFinished);
 }
+
 void TweekApiServiceImpl::onRefreshTokenReplyFinished()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
     if (!reply) return;
 
     if (reply->error() != QNetworkReply::NoError) {
-        qCritical() << "Сетевая ошибка при обновлении токена:" << reply->errorString();
-        emit authenticationFailed("Сетевая ошибка: " + reply->errorString());
+        // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+        int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        QByteArray responseData = reply->readAll(); // Читаем тело ответа при ошибке
+
+        // Выводим расширенную информацию в лог
+        qCritical() << "Refresh token network error:" << reply->errorString()
+                    << "| HTTP Status:" << httpStatusCode
+                    << "| Server Response:" << responseData;
+
+        emit authenticationFailed("Ошибка обновления токена: " + responseData); // Отправляем тело ответа
+        // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
         reply->deleteLater();
         return;
     }
@@ -101,22 +260,15 @@ void TweekApiServiceImpl::onRefreshTokenReplyFinished()
     QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
     QJsonObject jsonObj = jsonDoc.object();
 
-    // Обработка ошибок, как и в первом методе
     if (jsonObj.contains("error")) {
         QString message = jsonObj["error"].toObject()["message"].toString();
-        qWarning() << "Ошибка API обновления токена:" << message;
         emit authenticationFailed("Ошибка обновления токена: " + message);
     }
-    // ВАЖНО: Проверяем ключи из документации для этого ответа (`id_token` и `refresh_token`)
     else if (jsonObj.contains("id_token") && jsonObj.contains("refresh_token")) {
         QString idToken = jsonObj["id_token"].toString();
         QString refreshToken = jsonObj["refresh_token"].toString();
-        qInfo() << "Токен Tweek успешно обновлен!";
-        // Отправляем тот же сигнал, что и при обычной аутентификации.
-        // Контроллеру не важно, как мы получили токены, ему важно их получить.
         emit authenticationSuccess(idToken, refreshToken);
     } else {
-        qCritical() << "Неожиданный ответ от API при обновлении токена:" << responseData;
         emit authenticationFailed("Получен некорректный ответ от сервера.");
     }
 

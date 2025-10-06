@@ -8,6 +8,7 @@
 
 #include "../../../app/ApplicationController.h"
 #include <QtCore/qmetatype.h>
+#include <QtCore/QList>
 
 #include <QtCore/qtmochelpers.h>
 
@@ -67,7 +68,17 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         "idToken",
         "refreshToken",
         "onTweekAuthFailed",
-        "error"
+        "error",
+        "onCalendarsFetchSuccess",
+        "QList<TweekCalendar>",
+        "calendars",
+        "onCalendarsFetchFailed",
+        "onTasksFetchSuccess",
+        "QList<TweekTask>",
+        "tasks",
+        "onTasksFetchFailed",
+        "onSyncTasksSelected",
+        "selectedTasks"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -123,6 +134,26 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         QtMocHelpers::SlotData<void(const QString &)>(28, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 29 },
         }}),
+        // Slot 'onCalendarsFetchSuccess'
+        QtMocHelpers::SlotData<void(const QVector<TweekCalendar> &)>(30, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 31, 32 },
+        }}),
+        // Slot 'onCalendarsFetchFailed'
+        QtMocHelpers::SlotData<void(const QString &)>(33, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 29 },
+        }}),
+        // Slot 'onTasksFetchSuccess'
+        QtMocHelpers::SlotData<void(const QVector<TweekTask> &)>(34, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 35, 36 },
+        }}),
+        // Slot 'onTasksFetchFailed'
+        QtMocHelpers::SlotData<void(const QString &)>(37, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 29 },
+        }}),
+        // Slot 'onSyncTasksSelected'
+        QtMocHelpers::SlotData<void(const QVector<TweekTask> &)>(38, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 35, 39 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -164,6 +195,11 @@ void ApplicationController::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 15: _t->onTweekConnectRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 16: _t->onTweekAuthSuccess((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 17: _t->onTweekAuthFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 18: _t->onCalendarsFetchSuccess((*reinterpret_cast< std::add_pointer_t<QList<TweekCalendar>>>(_a[1]))); break;
+        case 19: _t->onCalendarsFetchFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 20: _t->onTasksFetchSuccess((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
+        case 21: _t->onTasksFetchFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 22: _t->onSyncTasksSelected((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
         default: ;
         }
     }
@@ -188,14 +224,14 @@ int ApplicationController::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 18)
+        if (_id < 23)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 18;
+        _id -= 23;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 18)
+        if (_id < 23)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 18;
+        _id -= 23;
     }
     return _id;
 }

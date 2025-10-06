@@ -3,6 +3,7 @@
 #include <QDebug> // Для вывода ошибок
 
 
+
 // Подключаем все необходимые компоненты
 #include "ui/theme/minimal/MinimalUIFactory.h"
 #include "app/ApplicationController.h"

@@ -7,6 +7,13 @@
 #include "ui/interfaces/ITaskSelectionView.h"
 #include "ui/interfaces/IAllTasksStatisticsView.h"
 
+
+// Структура для хранения токенов
+struct TweekTokens {
+    QString idToken;
+    QString refreshToken;
+};
+
 /**
  * @brief Интерфейс для абстракции взаимодействия с базой данных.
  * Позволяет приложению работать с любой БД (PostgreSQL, Firestore и т.д.),
@@ -84,6 +91,21 @@ public:
      * @return true в случае успеха.
      */
     virtual bool saveTweekTokens(int userId, const QString& idToken, const QString& refreshToken) = 0;
+
+    /**
+     * @brief Проверяет, есть ли у пользователя сохраненные токены Tweek.
+     * @param userId ID пользователя.
+     * @return true, если токены существуют и не пустые.
+     */
+    virtual bool hasTweekTokens(int userId) = 0;
+
+    /**
+     * @brief Получает сохраненные токены Tweek для пользователя.
+     * @param userId ID пользователя.
+     * @return std::optional<TweekTokens>, содержащий токены, если они есть.
+     */
+    virtual std::optional<TweekTokens> getTweekTokens(int userId) = 0;
+
 signals:
     void connectionStatusChanged(bool isConnected);
     void errorOccurred(const QString& errorMessage);
