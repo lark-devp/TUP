@@ -1,18 +1,13 @@
 #pragma once
 
-#include "ui/interfaces/ISynchronizationView.h" // Убедитесь, что путь к вашему интерфейсу верный
+#include "ui/interfaces/ISynchronizationView.h"
 
-// Предварительные объявления классов Qt для минимизации зависимостей в заголовке
-class QLabel;
+class QLineEdit;
+class QPushButton;
 class QTextEdit;
 class QProgressBar;
-class QPushButton;
+class QLabel;
 
-/**
- * @brief Минималистичная реализация окна процесса синхронизации.
- *
- * Отображает статус, лог, прогресс и кнопку для закрытия.
- */
 class MinimalSynchronizationView : public ISynchronizationView
 {
     Q_OBJECT
@@ -21,21 +16,22 @@ public:
     explicit MinimalSynchronizationView(QWidget *parent = nullptr);
     ~MinimalSynchronizationView() override = default;
 
-    // --- РЕАЛИЗАЦИЯ МЕТОДОВ ИНТЕРФЕЙСОВ ---
-    // Из IView
+    // --- Реализация методов интерфейса ---
     QWidget* getWidget() override;
-
-    // Из ISynchronizationView
     void updateStatus(const QString& statusMessage) override;
     void logMessage(const QString& message) override;
     void setProgress(int percentage) override;
     void setCloseButtonEnabled(bool enabled) override;
 
+private slots:
+    void onConnectClicked();
+
 private:
-    // Указатели на UI-элементы
-    QLabel* m_titleLabel;
-    QLabel* m_statusLabel;
-    QTextEdit* m_logEdit;
-    QProgressBar* m_progressBar;
+    QLineEdit* m_emailEdit;
+    QLineEdit* m_passwordEdit;
+    QPushButton* m_connectButton;
     QPushButton* m_closeButton;
+    QTextEdit* m_logView;
+    QProgressBar* m_progressBar;
+    QLabel* m_statusLabel;
 };

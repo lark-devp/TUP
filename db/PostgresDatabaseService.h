@@ -23,6 +23,8 @@ public:
     QVector<qint64> getWeeklyTaskStats(int taskId, const QDate& weekStartDate) override;
     QVector<TaskTimeSummary> getTaskTimeSummaries(int userId) override;
 
+    bool saveTweekTokens(int userId, const QString& idToken, const QString& refreshToken) override;
+
 private:
     QSqlDatabase m_db; // <-- 2. Добавляем объект для хранения соединения
 };

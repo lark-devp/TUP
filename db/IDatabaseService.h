@@ -76,7 +76,14 @@ public:
      */
     virtual QVector<qint64> getWeeklyTaskStats(int taskId, const QDate& weekStartDate) = 0;
     virtual QVector<TaskTimeSummary> getTaskTimeSummaries(int userId) = 0;
-
+    /**
+     * @brief Сохраняет токены Tweek для пользователя.
+     * @param userId ID пользователя.
+     * @param idToken JWT токен.
+     * @param refreshToken Токен для обновления.
+     * @return true в случае успеха.
+     */
+    virtual bool saveTweekTokens(int userId, const QString& idToken, const QString& refreshToken) = 0;
 signals:
     void connectionStatusChanged(bool isConnected);
     void errorOccurred(const QString& errorMessage);

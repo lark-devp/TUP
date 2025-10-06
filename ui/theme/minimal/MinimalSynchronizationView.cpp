@@ -1,12 +1,11 @@
 #include "MinimalSynchronizationView.h"
-
 #include <QVBoxLayout>
-#include <QLabel>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QPushButton>
 #include <QTextEdit>
 #include <QProgressBar>
-#include <QPushButton>
-#include <QFont>
-#include <QGraphicsDropShadowEffect>
+#include <QLabel>
 
 MinimalSynchronizationView::MinimalSynchronizationView(QWidget *parent)
     : ISynchronizationView(parent)
@@ -73,91 +72,68 @@ MinimalSynchronizationView::MinimalSynchronizationView(QWidget *parent)
     )";
 
 
-    // --- 2. Создание виджетов ---
+    // --- 2. Создание и стилизация виджетов ---
+    auto titleLabel = new QLabel("Введите данные от Tweek", this);
+    titleLabel->setStyleSheet(titleStyle); // <--- Применение стиля
 
-    m_titleLabel = new QLabel("Синхронизация с календарем", this);
-    m_statusLabel = new QLabel("Инициализация...", this);
-    m_logEdit = new QTextEdit(this);
-    m_progressBar = new QProgressBar(this);
+    m_emailEdit = new QLineEdit(this);
+    m_emailEdit->setPlaceholderText("your@example.com");
+
+    m_passwordEdit = new QLineEdit(this);
+    m_passwordEdit->setEchoMode(QLineEdit::Password);
+
+    m_connectButton = new QPushButton("Подключить", this);
+    m_connectButton->setStyleSheet(buttonStyle); // <--- Применение стиля
+
     m_closeButton = new QPushButton("Закрыть", this);
+    m_closeButton->setStyleSheet(buttonStyle); // <--- Применение стиля
 
+    m_statusLabel = new QLabel("Готово к подключению.", this);
+    m_statusLabel->setStyleSheet(statusStyle); // <--- Применение стиля
 
-    // --- 3. Настройка виджетов и применение стилей ---
+    m_progressBar = new QProgressBar(this);
+    m_progressBar->setStyleSheet(progressBarStyle); // <--- Применение стиля
 
-    m_titleLabel->setStyleSheet(titleStyle);
-    m_statusLabel->setStyleSheet(statusStyle);
-    m_logEdit->setStyleSheet(logStyle);
-    m_progressBar->setStyleSheet(progressBarStyle);
-    m_closeButton->setStyleSheet(buttonStyle);
+    m_logView = new QTextEdit(this);
+    m_logView->setReadOnly(true);
+    m_logView->setStyleSheet(logStyle); // <--- Применение стиля
 
-    m_logEdit->setReadOnly(true); // Лог только для чтения
-    m_progressBar->setRange(0, 100);
-    m_progressBar->setValue(0);
-
-    // Изначально кнопка "Закрыть" неактивна, пока процесс не завершится
-    setCloseButtonEnabled(false);
-
-    // Добавляем тень и курсор для кнопки
-    m_closeButton->setCursor(Qt::PointingHandCursor);
-    auto shadow = new QGraphicsDropShadowEffect(this);
-    shadow->setBlurRadius(15);
-    shadow->setOffset(0, 3);
-    shadow->setColor(QColor(0, 0, 0, 80));
-    m_closeButton->setGraphicsEffect(shadow);
-
-
-    // --- 4. Компоновка ---
-
+    // --- 3. Компоновка ---
     auto mainLayout = new QVBoxLayout(this);
-    mainLayout->setSpacing(10);
-    mainLayout->setContentsMargins(25, 25, 25, 25);
+    auto formLayout = new QFormLayout();
+    formLayout->addRow("Email:", m_emailEdit);
+    formLayout->addRow("Пароль:", m_passwordEdit);
 
-    mainLayout->addWidget(m_titleLabel, 0, Qt::AlignHCenter);
-    mainLayout->addWidget(m_statusLabel, 0, Qt::AlignHCenter);
+    mainLayout->addWidget(titleLabel, 0, Qt::AlignCenter);
+    mainLayout->addLayout(formLayout);
+    mainLayout->addWidget(m_connectButton);
+    mainLayout->addSpacing(15);
+    mainLayout->addWidget(m_statusLabel);
     mainLayout->addWidget(m_progressBar);
-    mainLayout->addWidget(m_logEdit); // Лог займет основное пространство
-    mainLayout->addWidget(m_closeButton);
+    mainLayout->addWidget(m_logView);
+    mainLayout->addWidget(m_closeButton, 0, Qt::AlignRight);
 
     setLayout(mainLayout);
-    setWindowTitle("Процесс синхронизации");
-    setMinimumSize(500, 400);
+    setMinimumSize(450, 500);
 
+    // Изначально кнопка закрытия заблокирована во время "процесса"
+    setCloseButtonEnabled(true);
 
-    // --- 5. Соединение сигналов ---
-
-    // Соединяем нажатие кнопки с сигналом интерфейса, который должен быть обработан в Presenter/Controller
+    // --- 4. Соединение сигналов ---
+    connect(m_connectButton, &QPushButton::clicked, this, &MinimalSynchronizationView::onConnectClicked);
     connect(m_closeButton, &QPushButton::clicked, this, &ISynchronizationView::closeRequested);
 }
 
+QWidget* MinimalSynchronizationView::getWidget() { return this; }
+void MinimalSynchronizationView::updateStatus(const QString& status) { m_statusLabel->setText(status); }
+void MinimalSynchronizationView::logMessage(const QString& msg) { m_logView->append(msg); }
+void MinimalSynchronizationView::setProgress(int p) { m_progressBar->setValue(p); }
+void MinimalSynchronizationView::setCloseButtonEnabled(bool en) { m_closeButton->setEnabled(en); }
 
-// --- РЕАЛИЗАЦИЯ МЕТОДОВ ИНТЕРФЕЙСА ---
-
-QWidget* MinimalSynchronizationView::getWidget()
+void MinimalSynchronizationView::onConnectClicked()
 {
-    return this;
-}
-
-void MinimalSynchronizationView::updateStatus(const QString& statusMessage)
-{
-    m_statusLabel->setText(statusMessage);
-}
-
-void MinimalSynchronizationView::logMessage(const QString& message)
-{
-    // append добавляет текст с новой строки
-    m_logEdit->append(message);
-}
-
-void MinimalSynchronizationView::setProgress(int percentage)
-{
-    // Ограничиваем значение в диапазоне 0-100
-    if (percentage < 0) percentage = 0;
-    if (percentage > 100) percentage = 100;
-
-    m_progressBar->setValue(percentage);
-}
-
-void MinimalSynchronizationView::setCloseButtonEnabled(bool enabled)
-{
-    m_closeButton->setEnabled(enabled);
+    // Блокируем кнопку, чтобы избежать двойных нажатий
+    m_connectButton->setEnabled(false);
+    // Отправляем сигнал наружу с данными из полей
+    emit connectRequested(m_emailEdit->text(), m_passwordEdit->text());
 }

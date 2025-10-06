@@ -11,6 +11,7 @@
 #include "ui/interfaces/IAddTaskView.h"
 #include "ui/interfaces/IAuthorizationView.h"
 #include "db/IDatabaseService.h"
+#include "calendar/ITweekApiService.h"
 
 class ApplicationController : public QObject
 {
@@ -19,7 +20,7 @@ class ApplicationController : public QObject
 
 public:
     // Контроллер принимает во владение Фабрику
-    explicit ApplicationController(std::unique_ptr<IUIFactory> factory, std::unique_ptr<IDatabaseService> dbService, QObject *parent = nullptr);
+    explicit ApplicationController(std::unique_ptr<IUIFactory> factory, std::unique_ptr<IDatabaseService> dbService, std::unique_ptr<ITweekApiService> calendar, QObject *parent = nullptr);
 
     // Метод для запуска приложения (показа первого окна)
     void start();
@@ -45,6 +46,10 @@ private slots:
     void onTimerTick();
 
     void onWeekChangeForStatisticsRequested(const QDate& weekStartDate);
+
+    void onTweekConnectRequested(const QString& email, const QString& password);
+    void onTweekAuthSuccess(const QString& idToken, const QString& refreshToken);
+    void onTweekAuthFailed(const QString& error);
 
 private:
     /**
@@ -79,5 +84,6 @@ private:
     std::unique_ptr<IAllTasksStatisticsView> m_allTasksStatisticsView;
     std::unique_ptr<ISynchronizationView> m_synchronizationView;
     std::unique_ptr<IAddTaskView> m_addTaskView;
+    std::unique_ptr<ITweekApiService> m_tweekApiService;
 
 };

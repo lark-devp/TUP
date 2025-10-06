@@ -250,3 +250,22 @@ QVector<TaskTimeSummary> PostgresDatabaseService::getTaskTimeSummaries(int userI
     qDebug() << "Найдено" << summaries.count() << "задач с записью времени для пользователя" << userId;
     return summaries;
 }
+
+bool PostgresDatabaseService::saveTweekTokens(int userId, const QString& idToken, const QString& refreshToken)
+{
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        UPDATE "User"
+        SET tweek_token = :id_token, tweek_refresh_token = :refresh_token
+        WHERE user_id = :user_id
+    )");
+    query.bindValue(":id_token", idToken);
+    query.bindValue(":refresh_token", refreshToken);
+    query.bindValue(":user_id", userId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка сохранения токенов Tweek:" << query.lastError().text();
+        return false;
+    }
+    return true;
+}

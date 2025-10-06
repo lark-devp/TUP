@@ -1,5 +1,5 @@
 QT       += core gui
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql network
 
 CONFIG += c++17
 
@@ -9,6 +9,7 @@ CONFIG += c++17
 
 SOURCES += \
     app/ApplicationController.cpp \
+    calendar/TweekApiServiceImpl.cpp \
     db/PostgresDatabaseService.cpp \
     main.cpp \
     app/mainwindow.cpp \
@@ -26,6 +27,8 @@ HEADERS += \
     app/ApplicationController.h \
     app/mainwindow.h \
     calendar/ICalendarService.h \
+    calendar/ITweekApiService.h \
+    calendar/TweekApiServiceImpl.h \
     db/IDatabaseService.h \
     db/PostgresDatabaseService.h \
     ui/interfaces/IAddTaskView.h \

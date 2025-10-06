@@ -1,4 +1,5 @@
 release/ApplicationController.o
+release/TweekApiServiceImpl.o
 release/PostgresDatabaseService.o
 release/main.o
 release/mainwindow.o
@@ -14,6 +15,8 @@ release/MinimalUIFactory.o
 release/moc_ApplicationController.o
 release/moc_mainwindow.o
 release/moc_ICalendarService.o
+release/moc_ITweekApiService.o
+release/moc_TweekApiServiceImpl.o
 release/moc_IDatabaseService.o
 release/moc_PostgresDatabaseService.o
 release/moc_IAddTaskView.o

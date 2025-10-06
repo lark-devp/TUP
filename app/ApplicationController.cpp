@@ -3,10 +3,11 @@
 #include <QVector>
 #include <QDate>
 
-ApplicationController::ApplicationController(std::unique_ptr<IUIFactory> factory,std::unique_ptr<IDatabaseService> dbService, QObject *parent)
+ApplicationController::ApplicationController(std::unique_ptr<IUIFactory> factory,std::unique_ptr<IDatabaseService> dbService,
+                                             std::unique_ptr<ITweekApiService> calendar, QObject *parent)
     : QObject(parent)
     , m_factory(std::move(factory))
-    , m_dbService(std::move(dbService))
+    , m_dbService(std::move(dbService)), m_tweekApiService(std::move(calendar))
 {
 }
 
@@ -294,32 +295,69 @@ void ApplicationController::onAllTasksStatisticsClosed()
 // Этот слот вызовется, когда пользователь нажмет "Синхронизация"
 void ApplicationController::onSynchronizationRequested()
 {
-    qDebug() << "Переход к окну синхронизации";
-
-    // 1. Скрываем главное окно
+    qDebug() << "Переход к окну подключения Tweek";
     m_taskSelectionView->hideView();
 
-    // 2. Создаем окно синхронизации через фабрику
     m_synchronizationView = m_factory->createSynchronizationWindow();
 
-    // 3. Подключаем сигнал о закрытии, чтобы вернуться назад
+    // Подключаемся к сигналам от окна
     connect(m_synchronizationView.get(), &ISynchronizationView::closeRequested,
             this, &ApplicationController::onSynchronizationClosed);
+    connect(m_synchronizationView.get(), &ISynchronizationView::connectRequested,
+            this, &ApplicationController::onTweekConnectRequested);
 
-    // 4. Показываем новое окно
     m_synchronizationView->showView();
+}
+void ApplicationController::onTweekConnectRequested(const QString& email, const QString& password)
+{
+    if (!m_synchronizationView) return;
 
-    // 5. ЗАПУСКАЕМ ПРОЦЕСС СИНХРОНИЗАЦИИ
-    // Это ключевой момент. Контроллер управляет процессом
-    // и передает обновления в "глупое" окно.
-    // В будущем здесь будет вызов ICalendarService.
-    // А пока давайте сымитируем процесс:
-    m_synchronizationView->logMessage("Начинаем синхронизацию...");
-    m_synchronizationView->setProgress(10);
-    // ... здесь будет реальная работа ...
-    m_synchronizationView->logMessage("Синхронизация успешно завершена.");
-    m_synchronizationView->setProgress(100);
-    m_synchronizationView->setCloseButtonEnabled(true); // Разрешаем закрыть окно
+    // Подготавливаем UI к процессу
+    m_synchronizationView->setCloseButtonEnabled(false);
+    m_synchronizationView->updateStatus("Аутентификация...");
+    m_synchronizationView->logMessage("Отправка учетных данных...");
+    m_synchronizationView->setProgress(25);
+
+    // Подписываемся на результат работы сервиса
+    connect(m_tweekApiService.get(), &ITweekApiService::authenticationSuccess,
+            this, &ApplicationController::onTweekAuthSuccess, Qt::UniqueConnection);
+    connect(m_tweekApiService.get(), &ITweekApiService::authenticationFailed,
+            this, &ApplicationController::onTweekAuthFailed, Qt::UniqueConnection);
+
+    // Запускаем процесс
+    m_tweekApiService->authenticate(email, password);
+}
+
+void ApplicationController::onTweekAuthSuccess(const QString& idToken, const QString& refreshToken)
+{
+    if (!m_synchronizationView) return;
+
+    m_synchronizationView->logMessage("Учетные данные верны. Сохранение токенов...");
+    m_synchronizationView->setProgress(75);
+
+    bool saved = m_dbService->saveTweekTokens(m_currentUserId, idToken, refreshToken);
+
+    if (saved) {
+        m_synchronizationView->logMessage("Токены успешно сохранены в базе данных!");
+        m_synchronizationView->updateStatus("Подключение успешно завершено!");
+        m_synchronizationView->setProgress(100);
+    } else {
+        m_synchronizationView->logMessage("Критическая ошибка: не удалось сохранить токены в БД.");
+        m_synchronizationView->updateStatus("Ошибка сохранения.");
+        m_synchronizationView->setProgress(0);
+    }
+    m_synchronizationView->setCloseButtonEnabled(true);
+}
+
+void ApplicationController::onTweekAuthFailed(const QString& error)
+{
+    if (!m_synchronizationView) return;
+
+    m_synchronizationView->logMessage("Ошибка: " + error);
+    m_synchronizationView->updateStatus("Не удалось подключиться.");
+    m_synchronizationView->setProgress(0);
+    m_synchronizationView->setCloseButtonEnabled(true);
+    // Можно разблокировать кнопку "Подключить" для повторной попытки
 }
 
 // Этот слот вызовется, когда пользователь закроет окно синхронизации

@@ -26,4 +26,5 @@ public:
 signals:
     // Сигналы о действиях пользователя
     void closeRequested();
+    void connectRequested(const QString& email, const QString& password);
 };

@@ -40,12 +40,19 @@ template <> constexpr inline auto ISynchronizationView::qt_create_metaobjectdata
     QtMocHelpers::StringRefStorage qt_stringData {
         "ISynchronizationView",
         "closeRequested",
-        ""
+        "",
+        "connectRequested",
+        "email",
+        "password"
     };
 
     QtMocHelpers::UintData qt_methods {
         // Signal 'closeRequested'
         QtMocHelpers::SignalData<void()>(1, 2, QMC::AccessPublic, QMetaType::Void),
+        // Signal 'connectRequested'
+        QtMocHelpers::SignalData<void(const QString &, const QString &)>(3, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 4 }, { QMetaType::QString, 5 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -70,11 +77,14 @@ void ISynchronizationView::qt_static_metacall(QObject *_o, QMetaObject::Call _c,
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->closeRequested(); break;
+        case 1: _t->connectRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         default: ;
         }
     }
     if (_c == QMetaObject::IndexOfMethod) {
         if (QtMocHelpers::indexOfMethod<void (ISynchronizationView::*)()>(_a, &ISynchronizationView::closeRequested, 0))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ISynchronizationView::*)(const QString & , const QString & )>(_a, &ISynchronizationView::connectRequested, 1))
             return;
     }
 }
@@ -98,14 +108,14 @@ int ISynchronizationView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 2;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 1)
+        if (_id < 2)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 1;
+        _id -= 2;
     }
     return _id;
 }
@@ -114,5 +124,11 @@ int ISynchronizationView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 void ISynchronizationView::closeRequested()
 {
     QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
+}
+
+// SIGNAL 1
+void ISynchronizationView::connectRequested(const QString & _t1, const QString & _t2)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2);
 }
 QT_WARNING_POP

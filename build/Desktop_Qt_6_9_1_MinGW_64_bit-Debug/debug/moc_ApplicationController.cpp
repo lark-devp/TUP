@@ -60,7 +60,14 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         "onTimerStop",
         "onTimerTick",
         "onWeekChangeForStatisticsRequested",
-        "weekStartDate"
+        "weekStartDate",
+        "onTweekConnectRequested",
+        "email",
+        "onTweekAuthSuccess",
+        "idToken",
+        "refreshToken",
+        "onTweekAuthFailed",
+        "error"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -104,6 +111,18 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         QtMocHelpers::SlotData<void(const QDate &)>(21, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QDate, 22 },
         }}),
+        // Slot 'onTweekConnectRequested'
+        QtMocHelpers::SlotData<void(const QString &, const QString &)>(23, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 24 }, { QMetaType::QString, 4 },
+        }}),
+        // Slot 'onTweekAuthSuccess'
+        QtMocHelpers::SlotData<void(const QString &, const QString &)>(25, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 26 }, { QMetaType::QString, 27 },
+        }}),
+        // Slot 'onTweekAuthFailed'
+        QtMocHelpers::SlotData<void(const QString &)>(28, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 29 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -142,6 +161,9 @@ void ApplicationController::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 12: _t->onTimerStop(); break;
         case 13: _t->onTimerTick(); break;
         case 14: _t->onWeekChangeForStatisticsRequested((*reinterpret_cast< std::add_pointer_t<QDate>>(_a[1]))); break;
+        case 15: _t->onTweekConnectRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 16: _t->onTweekAuthSuccess((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 17: _t->onTweekAuthFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         default: ;
         }
     }
@@ -166,14 +188,14 @@ int ApplicationController::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 15)
+        if (_id < 18)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 15;
+        _id -= 18;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 15)
+        if (_id < 18)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 15;
+        _id -= 18;
     }
     return _id;
 }
