@@ -121,7 +121,7 @@ void MinimalAuthorizationView::setupUi()
     m_mainContainer = new QWidget();
     m_mainContainer->setLayout(formLayout);
     m_mainContainer->setStyleSheet("background-color: #f4f7fa; border-radius: 15px;");
-    m_mainContainer->setMaximumWidth(380);
+    m_mainContainer->setMaximumWidth(450);
 
     // Центрируем контейнер формы на окне
     mainLayout->addStretch();

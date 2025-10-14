@@ -57,7 +57,7 @@ MinimalSingleTaskStatisticsView::MinimalSingleTaskStatisticsView(QWidget *parent
 
     setLayout(m_mainLayout);
     setWindowTitle("Статистика по задаче");
-    setMinimumSize(500, 450);
+    setMinimumSize(450, 600);
 
     // --- 4. Соединение сигналов ---
     connect(m_prevWeekButton, &QPushButton::clicked, this, &MinimalSingleTaskStatisticsView::onPrevWeekClicked);

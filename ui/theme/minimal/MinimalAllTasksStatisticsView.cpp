@@ -114,7 +114,7 @@ MinimalAllTasksStatisticsView::MinimalAllTasksStatisticsView(QWidget *parent)
 
     setLayout(mainLayout);
     setWindowTitle("Общая статистика");
-    setMinimumSize(500, 450);
+    setMinimumSize(450, 600);
 
     // --- 4. Соединение сигналов ---
     connect(m_closeButton, &QPushButton::clicked, this, &IAllTasksStatisticsView::closeRequested);

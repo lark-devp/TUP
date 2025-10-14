@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ui/interfaces/IAddTaskView.h" // Убедитесь, что путь к вашему интерфейсу правильный
+#include "ui/interfaces/IAddTaskView.h"
 
-// Предварительные объявления классов Qt для уменьшения зависимостей в заголовке
+
 class QLineEdit;
 class QTextEdit;
 class QPushButton;
@@ -20,7 +20,7 @@ public:
     ~MinimalAddTaskView() override = default;
 
     // --- РЕАЛИЗАЦИЯ МЕТОДОВ ИНТЕРФЕЙСОВ ---
-    // Из IView
+
     QWidget* getWidget() override;
 
     // Из IAddTaskView

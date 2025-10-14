@@ -19,12 +19,11 @@ std::unique_ptr<ITaskSelectionView> MinimalUIFactory::createTaskListWindow()
     return std::make_unique<MinimalTaskSelectionView>();
 }
 
-// Даже если у вас еще нет этих окон, вы ОБЯЗАНЫ предоставить
-// реализацию-заглушку для каждого метода, требуемого интерфейсом.
+
 
 std::unique_ptr<ITimerView> MinimalUIFactory::createTimerWindow()
 {
-    // Пока возвращаем nullptr, т.к. класс MinimalistTimerView еще не создан
+
     return std::make_unique<MinimalTimerView>();
 }
 

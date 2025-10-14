@@ -163,7 +163,7 @@ MinimalSynchronizationView::MinimalSynchronizationView(QWidget *parent)
     m_mainLayout->addWidget(m_closeButton, 0, Qt::AlignRight);
 
     setLayout(m_mainLayout);
-    setMinimumSize(450, 500);
+    setMinimumSize(450, 600);
 
     // --- 5. Соединение сигналов ---
     connect(m_closeButton, &QPushButton::clicked, this, &ISynchronizationView::closeRequested);

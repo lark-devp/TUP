@@ -78,7 +78,11 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         "tasks",
         "onTasksFetchFailed",
         "onSyncTasksSelected",
-        "selectedTasks"
+        "selectedTasks",
+        "onTimerModeSelected",
+        "onPomodoroModeSelected",
+        "workMinutes",
+        "restMinutes"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -154,6 +158,12 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         QtMocHelpers::SlotData<void(const QVector<TweekTask> &)>(38, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { 0x80000000 | 35, 39 },
         }}),
+        // Slot 'onTimerModeSelected'
+        QtMocHelpers::SlotData<void()>(40, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onPomodoroModeSelected'
+        QtMocHelpers::SlotData<void(int, int)>(41, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 42 }, { QMetaType::Int, 43 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -200,6 +210,8 @@ void ApplicationController::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 20: _t->onTasksFetchSuccess((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
         case 21: _t->onTasksFetchFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 22: _t->onSyncTasksSelected((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
+        case 23: _t->onTimerModeSelected(); break;
+        case 24: _t->onPomodoroModeSelected((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
         default: ;
         }
     }
@@ -224,14 +236,14 @@ int ApplicationController::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 23)
+        if (_id < 25)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 23;
+        _id -= 25;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 23)
+        if (_id < 25)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 23;
+        _id -= 25;
     }
     return _id;
 }

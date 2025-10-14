@@ -60,6 +60,9 @@ private slots:
 
     void onSyncTasksSelected(const QVector<TweekTask>& selectedTasks);
 
+    void onTimerModeSelected();
+    void onPomodoroModeSelected(int workMinutes, int restMinutes);
+
 private:
     /**
      * @brief Создает, настраивает и показывает главное окно приложения (список задач).
@@ -69,12 +72,29 @@ private:
     void returnToTaskSelection();
     void refreshTaskList();
     void loadAndDisplayWeeklyStats();
+    void startNextPomodoroSession();
+    void handlePomodoroSessionFinish();
     int m_currentUserId;
 
-    // Поля для управления сессией таймера
+    enum class TimerMode { None, Stopwatch, Pomodoro };
+    enum class PomodoroState { Work, Rest };
+
+    TimerMode m_currentTimerMode = TimerMode::None;
+    PomodoroState m_currentPomodoroState;
+
+    // Поля для обычного таймера
+    qint64 m_elapsedSeconds;
+
+    // Поля для Помодоро
+    int m_pomodoroWorkDurationSecs;
+    int m_pomodoroRestDurationSecs;
+    int m_pomodoroTotalSessions = 4; // Всего 4 сессии работы
+    int m_pomodoroSessionsCompleted = 0;
+    qint64 m_secondsRemainingInSession;
+
+    // Общие поля для таймера
     std::unique_ptr<QTimer> m_timer;
     QDateTime m_sessionStartTime;
-    qint64 m_elapsedSeconds; // Прошедшие секунды с начала сессии
     int m_currentTimingTaskId;
 
     // Поля для хранения контекста окна статистики

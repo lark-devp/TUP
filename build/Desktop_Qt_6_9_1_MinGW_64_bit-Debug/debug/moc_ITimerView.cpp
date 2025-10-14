@@ -41,7 +41,11 @@ template <> constexpr inline auto ITimerView::qt_create_metaobjectdata<qt_meta_t
         "ITimerView",
         "stopClicked",
         "",
-        "closeRequested"
+        "closeRequested",
+        "timerModeSelected",
+        "pomodoroModeSelected",
+        "workMinutes",
+        "restMinutes"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -49,6 +53,12 @@ template <> constexpr inline auto ITimerView::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SignalData<void()>(1, 2, QMC::AccessPublic, QMetaType::Void),
         // Signal 'closeRequested'
         QtMocHelpers::SignalData<void()>(3, 2, QMC::AccessPublic, QMetaType::Void),
+        // Signal 'timerModeSelected'
+        QtMocHelpers::SignalData<void()>(4, 2, QMC::AccessPublic, QMetaType::Void),
+        // Signal 'pomodoroModeSelected'
+        QtMocHelpers::SignalData<void(int, int)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::Int, 6 }, { QMetaType::Int, 7 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -74,6 +84,8 @@ void ITimerView::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         switch (_id) {
         case 0: _t->stopClicked(); break;
         case 1: _t->closeRequested(); break;
+        case 2: _t->timerModeSelected(); break;
+        case 3: _t->pomodoroModeSelected((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
         default: ;
         }
     }
@@ -81,6 +93,10 @@ void ITimerView::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         if (QtMocHelpers::indexOfMethod<void (ITimerView::*)()>(_a, &ITimerView::stopClicked, 0))
             return;
         if (QtMocHelpers::indexOfMethod<void (ITimerView::*)()>(_a, &ITimerView::closeRequested, 1))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ITimerView::*)()>(_a, &ITimerView::timerModeSelected, 2))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ITimerView::*)(int , int )>(_a, &ITimerView::pomodoroModeSelected, 3))
             return;
     }
 }
@@ -104,14 +120,14 @@ int ITimerView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 4)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 4;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 2)
+        if (_id < 4)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 2;
+        _id -= 4;
     }
     return _id;
 }
@@ -126,5 +142,17 @@ void ITimerView::stopClicked()
 void ITimerView::closeRequested()
 {
     QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
+}
+
+// SIGNAL 2
+void ITimerView::timerModeSelected()
+{
+    QMetaObject::activate(this, &staticMetaObject, 2, nullptr);
+}
+
+// SIGNAL 3
+void ITimerView::pomodoroModeSelected(int _t1, int _t2)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 3, nullptr, _t1, _t2);
 }
 QT_WARNING_POP

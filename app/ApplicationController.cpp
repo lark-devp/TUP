@@ -89,78 +89,159 @@ void ApplicationController::showMainWindow(const QVector<TaskDisplayData>& tasks
 // Этот слот вызывается, когда пользователь нажимает "Старт" в окне выбора задач
 void ApplicationController::onTaskSelectedForTimer(const QString& taskId)
 {
-    qDebug() << "Переход к таймеру для задачи:" << taskId;
+    qDebug() << "Переход к выбору режима таймера для задачи:" << taskId;
 
-    // 1. Сохраняем ID текущей задачи
     m_currentTimingTaskId = taskId.toInt();
-
-    // 2. Скрываем окно выбора задач
     m_taskSelectionView->hideView();
 
-    // 3. Создаем окно таймера
     m_timerView = m_factory->createTimerWindow();
 
-    // 4. Настраиваем окно
+    // Настраиваем только заголовок
     QString title = m_dbService->getTaskTitle(m_currentTimingTaskId);
     m_timerView->setTaskTitle(title.isEmpty() ? "Задача " + taskId : title);
-    m_timerView->updateDisplayedTime("00:00:00"); // Начинаем с нуля
 
-    // 5. Подключаем сигналы от окна таймера к нашим новым слотам
+    // Подключаем ВСЕ сигналы, включая новые
     connect(m_timerView.get(), &ITimerView::stopClicked, this, &ApplicationController::onTimerStop);
     connect(m_timerView.get(), &ITimerView::closeRequested, this, &ApplicationController::onTimerClosed);
+    connect(m_timerView.get(), &ITimerView::timerModeSelected, this, &ApplicationController::onTimerModeSelected);
+    connect(m_timerView.get(), &ITimerView::pomodoroModeSelected, this, &ApplicationController::onPomodoroModeSelected);
 
-    // 6. Показываем окно
+    // Показываем окно в начальном состоянии (выбор режима)
+    m_timerView->showModeSelection();
     m_timerView->showView();
+}
+void ApplicationController::onTimerModeSelected()
+{
+    qDebug() << "Выбран режим обычного таймера";
+    m_currentTimerMode = TimerMode::Stopwatch;
 
-    // --- 7. ЗАПУСКАЕМ ЛОГИКУ ТАЙМЕРА ---
+    // Эта логика переехала из старого onTaskSelectedForTimer
     m_elapsedSeconds = 0;
     m_sessionStartTime = QDateTime::currentDateTime();
-    m_timer = std::make_unique<QTimer>(this);
-    connect(m_timer.get(), &QTimer::timeout, this, &ApplicationController::onTimerTick);
-    m_timer->start(1000); // Запускаем таймер с интервалом в 1 секунду
+
+    if (!m_timer) {
+        m_timer = std::make_unique<QTimer>(this);
+        connect(m_timer.get(), &QTimer::timeout, this, &ApplicationController::onTimerTick);
+    }
+    m_timer->start(1000);
+
+    // Обновляем UI, чтобы показать время
+    m_timerView->updateDisplayedTime("00:00:00");
 }
 
-// Слот, вызываемый каждую секунду по сигналу от QTimer
+// --- НОВЫЙ СЛОТ: Пользователь выбрал Помодоро ---
+void ApplicationController::onPomodoroModeSelected(int workMinutes, int restMinutes)
+{
+    qDebug() << "Выбран режим Помодоро: " << workMinutes << "мин работа," << restMinutes << "мин отдых.";
+    m_currentTimerMode = TimerMode::Pomodoro;
+    m_pomodoroWorkDurationSecs = workMinutes * 60;
+    m_pomodoroRestDurationSecs = restMinutes * 60;
+    m_pomodoroSessionsCompleted = 0;
+
+    if (!m_timer) {
+        m_timer = std::make_unique<QTimer>(this);
+        connect(m_timer.get(), &QTimer::timeout, this, &ApplicationController::onTimerTick);
+    }
+
+    // Начинаем первую рабочую сессию
+    startNextPomodoroSession();
+}
+
+// --- ГЛАВНЫЙ ТИК ТАЙМЕРА ТЕПЕРЬ ОБРАБАТЫВАЕТ ОБА РЕЖИМА ---
 void ApplicationController::onTimerTick()
 {
-    m_elapsedSeconds++;
-    qint64 hours = m_elapsedSeconds / 3600;
-    qint64 minutes = (m_elapsedSeconds % 3600) / 60;
-    qint64 seconds = m_elapsedSeconds % 60;
+    if (m_currentTimerMode == TimerMode::Stopwatch) {
+        m_elapsedSeconds++;
+        qint64 hours = m_elapsedSeconds / 3600;
+        qint64 minutes = (m_elapsedSeconds % 3600) / 60;
+        qint64 seconds = m_elapsedSeconds % 60;
+        QString timeString = QString("%1:%2:%3").arg(hours, 2, 10, QChar('0')).arg(minutes, 2, 10, QChar('0')).arg(seconds, 2, 10, QChar('0'));
+        if (m_timerView) m_timerView->updateDisplayedTime(timeString);
 
-    // Форматируем строку в виде HH:mm:ss
-    QString timeString = QString("%1:%2:%3")
-                             .arg(hours, 2, 10, QChar('0'))
-                             .arg(minutes, 2, 10, QChar('0'))
-                             .arg(seconds, 2, 10, QChar('0'));
+    } else if (m_currentTimerMode == TimerMode::Pomodoro) {
+        m_secondsRemainingInSession--;
 
-    if (m_timerView) {
-        m_timerView->updateDisplayedTime(timeString);
+        qint64 minutes = m_secondsRemainingInSession / 60;
+        qint64 seconds = m_secondsRemainingInSession % 60;
+        QString timeString = QString("%1:%2").arg(minutes, 2, 10, QChar('0')).arg(seconds, 2, 10, QChar('0'));
+        if (m_timerView) m_timerView->updateDisplayedTime(timeString);
+
+        if (m_secondsRemainingInSession <= 0) {
+            handlePomodoroSessionFinish();
+        }
     }
 }
+
+// --- НОВЫЙ МЕТОД: Логика завершения сессии Помодоро ---
+void ApplicationController::handlePomodoroSessionFinish()
+{
+    if (m_timer) m_timer->stop();
+
+    // Если закончилась рабочая сессия, сохраняем ее
+    if (m_currentPomodoroState == PomodoroState::Work) {
+        QDateTime endTime = m_sessionStartTime.addSecs(m_pomodoroWorkDurationSecs);
+        m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
+        qDebug() << "Рабочая сессия Помодоро сохранена.";
+        m_pomodoroSessionsCompleted++;
+    }
+
+    // Проверяем, не закончили ли мы все циклы
+    if (m_pomodoroSessionsCompleted >= m_pomodoroTotalSessions) {
+        qDebug() << "Все сессии Помодоро завершены.";
+        onTimerStop(); // Завершаем работу
+        return;
+    }
+
+    // Если не все, запускаем следующую сессию
+    startNextPomodoroSession();
+}
+
+// --- НОВЫЙ МЕТОД: Запуск следующей сессии (работа или отдых) ---
+void ApplicationController::startNextPomodoroSession()
+{
+    // Определяем, какая сессия будет следующей: работа или отдых
+    // Если предыдущая была отдых ИЛИ это самый первый запуск, то начинаем РАБОТУ
+    if (m_currentPomodoroState == PomodoroState::Rest || m_pomodoroSessionsCompleted == 0) {
+        m_currentPomodoroState = PomodoroState::Work;
+        m_secondsRemainingInSession = m_pomodoroWorkDurationSecs;
+    } else { // Иначе - начинаем отдых
+        m_currentPomodoroState = PomodoroState::Rest;
+        m_secondsRemainingInSession = m_pomodoroRestDurationSecs;
+    }
+
+    m_sessionStartTime = QDateTime::currentDateTime();
+
+    if (m_timerView) {
+        bool isWork = (m_currentPomodoroState == PomodoroState::Work);
+        m_timerView->displayPomodoroState(m_pomodoroTotalSessions - m_pomodoroSessionsCompleted, isWork);
+    }
+
+    if (m_timer) m_timer->start(1000);
+}
+
+
 
 // Слот, вызываемый при нажатии кнопки "Стоп"
 void ApplicationController::onTimerStop()
 {
     qDebug() << "Таймер остановлен. Сохранение сессии...";
+    if (m_timer) m_timer->stop();
 
-    // 1. Останавливаем таймер
-    if (m_timer) {
-        m_timer->stop();
+    // Сохраняем прогресс, только если таймер был запущен
+    if (m_currentTimerMode == TimerMode::Stopwatch && m_elapsedSeconds > 0) {
+        QDateTime endTime = QDateTime::currentDateTime();
+        m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
+    } else if (m_currentTimerMode == TimerMode::Pomodoro && m_currentPomodoroState == PomodoroState::Work) {
+        // Если остановили во время работы, сохраняем фактически затраченное время
+        qint64 elapsed = m_pomodoroWorkDurationSecs - m_secondsRemainingInSession;
+        if (elapsed > 0) {
+            QDateTime endTime = m_sessionStartTime.addSecs(elapsed);
+            m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
+        }
     }
 
-    // 2. Сохраняем запись в базу данных
-    QDateTime endTime = QDateTime::currentDateTime();
-    bool success = m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
-
-    if (success) {
-        qDebug() << "Сессия успешно сохранена.";
-    } else {
-        qCritical() << "Не удалось сохранить сессию!";
-        // Здесь можно показать пользователю сообщение об ошибке, если нужно
-    }
-
-    // 3. Закрываем окно таймера и возвращаемся к списку задач
+    // Сбрасываем состояние и закрываем окно
+    m_currentTimerMode = TimerMode::None;
     onTimerClosed();
 }
 
@@ -169,11 +250,17 @@ void ApplicationController::onTimerStop()
 void ApplicationController::onTimerClosed()
 {
     qDebug() << "Возврат к списку задач";
-    // 1. Скрываем и уничтожаем окно таймера (оно нам пока больше не нужно)
-    m_timerView->hideView();
-    m_timerView.reset(); // Освобождаем память
+    // Убедимся, что таймер остановлен при закрытии окна
+    if (m_timer) {
+        m_timer->stop();
+    }
+    m_currentTimerMode = TimerMode::None; // Сброс состояния
 
-    // 2. Снова показываем окно списка задач
+    if (m_timerView) {
+        m_timerView->hideView();
+        m_timerView.reset();
+    }
+
     m_taskSelectionView->showView();
 }
 

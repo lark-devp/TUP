@@ -1,11 +1,13 @@
 #pragma once
 
-#include "ui/interfaces/ITimerView.h" // Подключаем скорректированный интерфейс
+#include "ui/interfaces/ITimerView.h"
 
-// Предварительные объявления классов Qt
+// Предварительные объявления
 class QLabel;
 class QPushButton;
 class QCloseEvent;
+class QStackedWidget;
+class QWidget;
 
 class MinimalTimerView : public ITimerView
 {
@@ -15,22 +17,35 @@ public:
     explicit MinimalTimerView(QWidget *parent = nullptr);
     ~MinimalTimerView() override = default;
 
-    // --- РЕАЛИЗАЦИЯ МЕТОДОВ ИНТЕРФЕЙСОВ ---
-    // Из IView
+    // --- РЕАЛИЗАЯ ИНТЕРФЕЙСОВ ---
     QWidget* getWidget() override;
-
-    // Из ITimerView
     void setTaskTitle(const QString& title) override;
     void updateDisplayedTime(const QString& timeString) override;
-    void setTimerControlsEnabled(bool canStop) override;
+    void showModeSelection() override;
+    void displayPomodoroState(int remainingSessions, bool isWorkSession) override;
 
 protected:
-    // Переопределяем событие закрытия окна для отправки сигнала
     void closeEvent(QCloseEvent *event) override;
 
+private slots:
+    void onPomodoroButtonClicked();
+
 private:
-    // Указатели на UI-элементы
+    // --- ОБЩИЕ UI ЭЛЕМЕНТЫ ---
+    QStackedWidget* m_mainStack;
     QLabel* m_taskTitleLabel;
-    QLabel* m_timeDisplayLabel;
-    QPushButton* m_stopButton;
+
+    // --- UI для выбора режима (Страница 0) ---
+    QWidget* createModeSelectionPage();
+
+    // --- UI для обычного таймера (Страница 1) ---
+    QLabel* m_stopwatchTimeLabel;
+    QWidget* createStopwatchPage();
+
+    // --- UI для Помодоро (Страница 2) ---
+    QLabel* m_pomodoroTimeLabel;
+    QLabel* m_pomodoroStateLabel;
+    QLabel* m_pomodoroSessionLabel; // Для отображения помидорок
+    QWidget* createPomodoroPage();
+
 };

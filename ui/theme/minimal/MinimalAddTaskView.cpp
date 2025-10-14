@@ -133,7 +133,7 @@ MinimalAddTaskView::MinimalAddTaskView(QWidget *parent)
 
     setLayout(mainLayout);
     setWindowTitle("Добавление задачи");
-    setMinimumSize(400, 450);
+    setMinimumSize(450, 600);
 
 
     // --- 5. Соединение сигналов и слотов ---
