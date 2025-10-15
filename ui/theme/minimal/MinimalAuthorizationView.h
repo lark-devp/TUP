@@ -1,18 +1,14 @@
 #pragma once
 
-#include "ui/interfaces/IAuthorizationView.h" // Убедитесь, что путь к вашему интерфейсу верный
+#include "ui/interfaces/IAuthorizationView.h"
 
 // Предварительные объявления классов Qt
 class QLineEdit;
 class QPushButton;
 class QLabel;
 class QWidget;
+class QStackedWidget;
 
-/**
- * @brief Минималистичная конкретная реализация интерфейса окна авторизации.
- * Создает простой, но стильный UI с помощью кода, без использования .ui файлов.
- * Логика разделена на создание UI (setupUi) и соединение сигналов (setupConnections).
- */
 class MinimalAuthorizationView : public IAuthorizationView
 {
     Q_OBJECT
@@ -27,26 +23,34 @@ public:
     // --- РЕАЛИЗАЦИЯ МЕТОДОВ ИНТЕРФЕЙСА IAuthorizationView ---
     void showLoading(bool isLoading) override;
     void showError(const QString& message) override;
+    void showInfo(const QString& message) override;
     void clearForm() override;
+    void switchState(State state) override;
 
 private:
-    /**
-     * @brief Создает и настраивает все UI-элементы окна.
-     */
     void setupUi();
-
-    /**
-     * @brief Соединяет сигналы от UI-элементов со слотами этого класса.
-     */
     void setupConnections();
 
     // --- Указатели на UI-элементы ---
+    // Общие
     QLabel* m_titleLabel;
+    QLabel* m_errorLabel;
+    QLabel* m_infoLabel;
+    QWidget* m_mainContainer;
+    QPushButton* m_mainButton; // Основная кнопка (Войти / Регистрация / Отправить)
+
+    // Поля ввода
     QLineEdit* m_usernameLineEdit;
     QLineEdit* m_passwordLineEdit;
-    QPushButton* m_loginButton;
-    QLabel* m_errorLabel;
+    QLineEdit* m_emailLineEdit;
+    QLineEdit* m_confirmPasswordLineEdit;
 
-    // Главный виджет-контейнер для стилизации и компоновки
-    QWidget* m_mainContainer;
+    // Кнопки-ссылки
+    QWidget* m_linksWidget; // Контейнер для ссылок
+    QPushButton* m_registerLink;
+    QPushButton* m_forgotPasswordLink;
+    QPushButton* m_backToLoginLink;
+
+
+    State m_currentState = State::Login;
 };

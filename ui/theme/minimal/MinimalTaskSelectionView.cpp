@@ -93,7 +93,7 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     m_allStatsButton = new QPushButton("Статистика (все)", this);
     m_addTaskButton = new QPushButton("➕ Добавить", this);
     m_syncButton = new QPushButton("🔄 Синхронизация", this);
-    m_refreshButton = new QPushButton("Обновить", this);
+    m_refreshButton = new QPushButton("Обновить календарь", this);
 
 
     // --- 3. Применение стилей и эффектов ---

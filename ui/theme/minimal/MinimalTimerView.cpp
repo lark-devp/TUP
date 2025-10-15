@@ -80,16 +80,16 @@ QWidget* MinimalTimerView::createModeSelectionPage()
     auto title = new QLabel("Выберите режим", pageWidget);
     title->setStyleSheet("font-size: 24px; font-weight: bold; color: #333;");
 
-    // СТИЛИ БОЛЬШЕ НЕ НУЖНЫ ЗДЕСЬ
+
 
     auto stopwatchButton = new QPushButton("⏱️ Обычный таймер", pageWidget);
-    // stopwatchButton->setStyleSheet(buttonStyle); // УДАЛЕНО
+
     stopwatchButton->setMinimumHeight(40);
     connect(stopwatchButton, &QPushButton::clicked, this, &ITimerView::timerModeSelected);
 
 
     auto pomodoroButton = new QPushButton("🍅 Таймер Помодоро", pageWidget);
-    // pomodoroButton->setStyleSheet(buttonStyle); // УДАЛЕНО
+
     pomodoroButton->setMinimumHeight(40);
     connect(pomodoroButton, &QPushButton::clicked, this, &MinimalTimerView::onPomodoroButtonClicked);
 
@@ -116,7 +116,7 @@ QWidget* MinimalTimerView::createStopwatchPage()
     m_stopwatchTimeLabel->setStyleSheet("font-size: 54px; font-weight: bold; color: #333;");
 
     auto stopButton = new QPushButton("⏹️ Стоп", pageWidget);
-    // stopButton->setStyleSheet(buttonStyle); // УДАЛЕНО
+
     stopButton->setMinimumSize(120, 40);
     connect(stopButton, &QPushButton::clicked, this, &ITimerView::stopClicked);
 
@@ -146,7 +146,7 @@ QWidget* MinimalTimerView::createPomodoroPage()
     m_pomodoroSessionLabel->setStyleSheet("font-size: 24px;");
 
     auto finishButton = new QPushButton("Завершить сессию", pageWidget);
-    // finishButton->setStyleSheet(buttonStyle); // УДАЛЕНО
+
     finishButton->setMinimumSize(150, 40);
     connect(finishButton, &QPushButton::clicked, this, &ITimerView::stopClicked);
 

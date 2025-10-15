@@ -14,32 +14,32 @@ class IAuthorizationView : public IView
     Q_OBJECT
 
 public:
+    // Перечисление для управления состояниями окна
+    enum class State {
+        Login,
+        Register,
+        PasswordRecovery
+    };
+
     explicit IAuthorizationView(QWidget * parent = nullptr) : IView(parent) {}
     ~IAuthorizationView() override = default;
 
-    // --- Методы для управления видом извне (команды от "Режиссера") ---
+    // --- Методы для управления видом извне ---
 
-    /**
-     * @brief Отображает состояние загрузки.
-     * Должно блокировать UI (например, делать кнопку "Войти" неактивной)
-     * и, возможно, показывать анимацию.
-     * @param isLoading true, если процесс входа выполняется, иначе false.
-     */
     virtual void showLoading(bool isLoading) = 0;
-
-    /**
-     * @brief Показывает сообщение об ошибке аутентификации.
-     * @param message Текст ошибки (например, "Неверный логин или пароль").
-     */
     virtual void showError(const QString& message) = 0;
-
-    /**
-     * @brief Очищает поля ввода и сообщение об ошибке.
-     */
+    virtual void showInfo(const QString& message) = 0; // Для некритичных сообщений
     virtual void clearForm() = 0;
 
+    /**
+     * @brief Переключает вид в одно из состояний (вход, регистрация и т.д.).
+     * @param state Новое состояние вида.
+     */
+    virtual void switchState(State state) = 0;
+
+
 signals:
-    // --- Сигналы о действиях пользователя (реплики для "Режиссера") ---
+    // --- Сигналы о действиях пользователя ---
 
     /**
      * @brief Испускается, когда пользователь нажимает кнопку "Войти".
@@ -49,12 +49,22 @@ signals:
     void loginRequested(const QString& username, const QString& password);
 
     /**
-     * @brief (Опционально) Испускается при нажатии на ссылку/кнопку "Регистрация".
+     * @brief Испускается, когда пользователь отправляет форму регистрации.
+     * @param username Введенное имя.
+     * @param email Введенная почта.
+     * @param password Введенный пароль.
      */
-    void registrationRequested();
+    void registrationSubmitted(const QString& username, const QString& email, const QString& password);
 
     /**
-     * @brief (Опционально) Испускается при нажатии на ссылку/кнопку "Забыли пароль?".
+     * @brief Испускается, когда пользователь отправляет форму восстановления пароля.
+     * @param email Введенная почта.
      */
-    void passwordRecoveryRequested();
+    void recoverySubmitted(const QString& email);
+
+    /**
+     * @brief Испускается при нажатии на ссылку/кнопку для перехода на экран входа.
+     */
+    void backToLoginRequested();
+
 };

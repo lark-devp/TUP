@@ -64,37 +64,55 @@ void PostgresDatabaseService::disconnectFromSource()
 }
 
 
-// Он будет автоматически загружать новое поле password_hash благодаря "SELECT *".
 QVariantMap PostgresDatabaseService::authenticateUser(const QString& username, const QString& password)
 {
-    // ВАЖНО: Никогда не храните пароли в открытом виде!
-    // Этот пример предполагает, что у вас в таблице User есть поле password_hash
-    // Для простоты здесь используется SHA-256, но в реальных системах нужны "соленые" хеши.
-    // QString passwordHash = QString(QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256).toHex());
-
+    // ВАЖНО: В реальном проекте используйте "соленое" хеширование (например, bcrypt).
+    // Для примера, будем сравнивать пароль напрямую, как в вашем коде.
     QSqlQuery query;
-    // Для курсовой работы, если у вас нет хеширования, можете временно использовать прямое сравнение,
-    // но ОБЯЗАТЕЛЬНО упомяните в пояснительной записке, что это небезопасно.
-    // Давайте для примера предположим, что у вас в таблице есть поле "password".
     query.prepare(R"(SELECT user_id FROM "User" WHERE username = :username AND password_hash = :password)");
     query.bindValue(":username", username);
-    query.bindValue(":password", password); // Замените на passwordHash, если используете хеши
+    query.bindValue(":password", password); // ВАЖНО: Это небезопасно!
 
     if (!query.exec()) {
         qCritical() << "Ошибка аутентификации:" << query.lastError().text();
-        return QVariantMap(); // Возвращаем пустую карту при ошибке
+        return QVariantMap();
     }
-
     if (query.next()) {
-        // Пользователь найден, возвращаем его ID
         QVariantMap userData;
         userData["user_id"] = query.value("user_id").toInt();
         return userData;
     }
-
-    // Пользователь не найден
     return QVariantMap();
 }
+
+bool PostgresDatabaseService::addUser(const QString& username, const QString& email, const QString& password)
+{
+    // ВАЖНО: Здесь тоже пароль сохраняется в открытом виде.
+    // В реальном проекте его нужно хешировать перед сохранением.
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        INSERT INTO "User" (username, password_hash, email)
+        VALUES (:username, :password, :email)
+    )");
+    query.bindValue(":username", username);
+    query.bindValue(":password", password);
+    query.bindValue(":email", email);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка регистрации пользователя:" << query.lastError().text();
+        // Можно дополнительно проверить код ошибки, чтобы понять, что это дубликат
+        if (query.lastError().nativeErrorCode() == "23505") { // Код ошибки уникальности в Postgres
+            emit errorOccurred("Пользователь с таким именем или email уже существует.");
+        } else {
+            emit errorOccurred("Не удалось зарегистрировать пользователя.");
+        }
+        return false;
+    }
+
+    qDebug() << "Пользователь" << username << "успешно зарегистрирован.";
+    return true;
+}
+
 
 QVector<TaskDisplayData> PostgresDatabaseService::getTasksForUser(int userId)
 {

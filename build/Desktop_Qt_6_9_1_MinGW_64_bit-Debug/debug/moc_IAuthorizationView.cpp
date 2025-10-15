@@ -43,8 +43,10 @@ template <> constexpr inline auto IAuthorizationView::qt_create_metaobjectdata<q
         "",
         "username",
         "password",
-        "registrationRequested",
-        "passwordRecoveryRequested"
+        "registrationSubmitted",
+        "email",
+        "recoverySubmitted",
+        "backToLoginRequested"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -52,10 +54,16 @@ template <> constexpr inline auto IAuthorizationView::qt_create_metaobjectdata<q
         QtMocHelpers::SignalData<void(const QString &, const QString &)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 3 }, { QMetaType::QString, 4 },
         }}),
-        // Signal 'registrationRequested'
-        QtMocHelpers::SignalData<void()>(5, 2, QMC::AccessPublic, QMetaType::Void),
-        // Signal 'passwordRecoveryRequested'
-        QtMocHelpers::SignalData<void()>(6, 2, QMC::AccessPublic, QMetaType::Void),
+        // Signal 'registrationSubmitted'
+        QtMocHelpers::SignalData<void(const QString &, const QString &, const QString &)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 3 }, { QMetaType::QString, 6 }, { QMetaType::QString, 4 },
+        }}),
+        // Signal 'recoverySubmitted'
+        QtMocHelpers::SignalData<void(const QString &)>(7, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 6 },
+        }}),
+        // Signal 'backToLoginRequested'
+        QtMocHelpers::SignalData<void()>(8, 2, QMC::AccessPublic, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -80,17 +88,20 @@ void IAuthorizationView::qt_static_metacall(QObject *_o, QMetaObject::Call _c, i
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->loginRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 1: _t->registrationRequested(); break;
-        case 2: _t->passwordRecoveryRequested(); break;
+        case 1: _t->registrationSubmitted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[3]))); break;
+        case 2: _t->recoverySubmitted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 3: _t->backToLoginRequested(); break;
         default: ;
         }
     }
     if (_c == QMetaObject::IndexOfMethod) {
         if (QtMocHelpers::indexOfMethod<void (IAuthorizationView::*)(const QString & , const QString & )>(_a, &IAuthorizationView::loginRequested, 0))
             return;
-        if (QtMocHelpers::indexOfMethod<void (IAuthorizationView::*)()>(_a, &IAuthorizationView::registrationRequested, 1))
+        if (QtMocHelpers::indexOfMethod<void (IAuthorizationView::*)(const QString & , const QString & , const QString & )>(_a, &IAuthorizationView::registrationSubmitted, 1))
             return;
-        if (QtMocHelpers::indexOfMethod<void (IAuthorizationView::*)()>(_a, &IAuthorizationView::passwordRecoveryRequested, 2))
+        if (QtMocHelpers::indexOfMethod<void (IAuthorizationView::*)(const QString & )>(_a, &IAuthorizationView::recoverySubmitted, 2))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (IAuthorizationView::*)()>(_a, &IAuthorizationView::backToLoginRequested, 3))
             return;
     }
 }
@@ -114,14 +125,14 @@ int IAuthorizationView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 3)
+        if (_id < 4)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 3;
+        _id -= 4;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 3)
+        if (_id < 4)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 3;
+        _id -= 4;
     }
     return _id;
 }
@@ -133,14 +144,20 @@ void IAuthorizationView::loginRequested(const QString & _t1, const QString & _t2
 }
 
 // SIGNAL 1
-void IAuthorizationView::registrationRequested()
+void IAuthorizationView::registrationSubmitted(const QString & _t1, const QString & _t2, const QString & _t3)
 {
-    QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
+    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2, _t3);
 }
 
 // SIGNAL 2
-void IAuthorizationView::passwordRecoveryRequested()
+void IAuthorizationView::recoverySubmitted(const QString & _t1)
 {
-    QMetaObject::activate(this, &staticMetaObject, 2, nullptr);
+    QMetaObject::activate<void>(this, &staticMetaObject, 2, nullptr, _t1);
+}
+
+// SIGNAL 3
+void IAuthorizationView::backToLoginRequested()
+{
+    QMetaObject::activate(this, &staticMetaObject, 3, nullptr);
 }
 QT_WARNING_POP

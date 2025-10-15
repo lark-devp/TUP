@@ -13,51 +13,83 @@ ApplicationController::ApplicationController(std::unique_ptr<IUIFactory> factory
 
 void ApplicationController::start()
 {
-    // 1. Создаем окно авторизации через фабрику
     m_authorizationView = m_factory->createAuthorizationWindow();
-
     if (!m_authorizationView) {
         qCritical() << "Критическая ошибка: не удалось создать окно авторизации!";
         return;
     }
 
-    // 2. Подписываемся на главный сигнал от окна авторизации
-    connect(m_authorizationView.get(), &IAuthorizationView::loginRequested,
-            this, &ApplicationController::onLoginRequested);
+    // Подписываемся на ВСЕ сигналы от окна авторизации
+    connect(m_authorizationView.get(), &IAuthorizationView::loginRequested, this, &ApplicationController::onLoginRequested);
+    connect(m_authorizationView.get(), &IAuthorizationView::registrationSubmitted, this, &ApplicationController::onRegistrationSubmitted);
+    connect(m_authorizationView.get(), &IAuthorizationView::recoverySubmitted, this, &ApplicationController::onRecoverySubmitted);
+    connect(m_authorizationView.get(), &IAuthorizationView::backToLoginRequested, this, &ApplicationController::onBackToLoginRequested);
 
-    // 3. Показываем окно авторизации
     m_authorizationView->showView();
 }
 
-/**
- * @brief Этот слот вызывается, когда пользователь нажимает "Войти".
- * Здесь происходит вся логика аутентификации.
- */
 void ApplicationController::onLoginRequested(const QString& username, const QString& password)
 {
     qDebug() << "Попытка входа через БД для пользователя:" << username;
     m_authorizationView->showLoading(true);
 
-    // ----- ЗАМЕНЯЕМ СТАРУЮ ЛОГИКУ -----
     QVariantMap userData = m_dbService->authenticateUser(username, password);
 
+    m_authorizationView->showLoading(false); // Отключаем загрузку в любом случае
     if (!userData.isEmpty()) {
         qDebug() << "Аутентификация в БД успешна!";
-        m_currentUserId = userData["user_id"].toInt(); // Сохраняем ID пользователя
-
-        // Получаем задачи для этого пользователя
+        m_currentUserId = userData["user_id"].toInt();
         QVector<TaskDisplayData> tasks = m_dbService->getTasksForUser(m_currentUserId);
 
-        // Переходим на главный экран и ПЕРЕДАЕМ ему полученные задачи
         m_authorizationView->hideView();
         m_authorizationView.reset();
-        showMainWindow(tasks); // Вызываем метод с задачами
+        showMainWindow(tasks);
     } else {
         qDebug() << "Ошибка аутентификации в БД!";
-        m_authorizationView->showLoading(false);
         m_authorizationView->showError("Неверное имя пользователя или пароль");
     }
 }
+
+void ApplicationController::onRegistrationSubmitted(const QString& username, const QString& email, const QString& password)
+{
+    // Валидация
+    if (username.trimmed().isEmpty() || password.isEmpty() || email.trimmed().isEmpty()) {
+        m_authorizationView->showError("Все поля должны быть заполнены.");
+        return;
+    }
+
+    m_authorizationView->showLoading(true);
+    bool success = m_dbService->addUser(username, email, password);
+    m_authorizationView->showLoading(false);
+
+    if (success) {
+        m_authorizationView->showInfo("Регистрация прошла успешно! Теперь вы можете войти.");
+        m_authorizationView->switchState(IAuthorizationView::State::Login);
+    } else {
+        // Сервис базы данных сам должен выдать сигнал с текстом ошибки,
+        // но для надежности можно показать общее сообщение.
+        m_authorizationView->showError("Ошибка регистрации. Возможно, такой пользователь уже существует.");
+    }
+}
+
+void ApplicationController::onRecoverySubmitted(const QString& email)
+{
+    if (email.trimmed().isEmpty() || !email.contains('@')) {
+        m_authorizationView->showError("Пожалуйста, введите корректный email.");
+        return;
+    }
+    // Здесь должна быть логика отправки письма. Мы ее симулируем.
+    qDebug() << "Запрос на восстановление пароля для email:" << email;
+
+    m_authorizationView->showInfo("Если пользователь с таким email существует, ссылка для сброса пароля была отправлена на почту.");
+    m_authorizationView->switchState(IAuthorizationView::State::Login);
+}
+
+void ApplicationController::onBackToLoginRequested()
+{
+    m_authorizationView->switchState(IAuthorizationView::State::Login);
+}
+
 /**
  * @brief Этот метод инкапсулирует всю логику создания и настройки главного окна.
  * Мы вынесли его из start(), чтобы можно было вызвать после успешного логина.
