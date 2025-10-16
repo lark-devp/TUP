@@ -1,0 +1,65 @@
+
+
+CREATE TABLE "User" (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE, -- Добавлено UNIQUE для имени пользователя
+    password_hash VARCHAR(255) NOT NULL,  
+    email VARCHAR(150) UNIQUE,              -- Добавлено UNIQUE для email
+    tweek_token VARCHAR(255)
+);
+-- 2. Таблица Task с полем priority (low по умолчанию)
+CREATE TABLE "Task" (
+    task_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES "User"(user_id) ON DELETE CASCADE,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    color VARCHAR(20),
+    source VARCHAR(50),
+    external_id VARCHAR(100),
+    priority VARCHAR(10) NOT NULL DEFAULT 'low' CHECK (priority IN ('high','medium','low'))
+);
+
+CREATE INDEX idx_task_user_id ON "Task"(user_id);
+
+-- 3. Таблица TimeTracking
+CREATE TABLE "TimeTracking" (
+    track_id SERIAL PRIMARY KEY,
+    task_id INT NOT NULL REFERENCES "Task"(task_id) ON DELETE CASCADE,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+   duration_minutes INT GENERATED ALWAYS AS (CAST(EXTRACT(EPOCH FROM (end_time - start_time))/60 AS INT)) STORED
+);
+
+CREATE INDEX idx_timetracking_task_id ON "TimeTracking"(task_id);
+
+-- 4. Таблица TaskAnalytics
+CREATE TABLE "TaskAnalytics" (
+    analytics_id SERIAL PRIMARY KEY,
+    task_id INT NOT NULL REFERENCES "Task"(task_id) ON DELETE CASCADE,
+    date DATE NOT NULL,
+    total_minutes INT NOT NULL
+);
+
+CREATE INDEX idx_taskanalytics_task_id ON "TaskAnalytics"(task_id);
+
+-- 5. Таблица SyncLog
+CREATE TABLE "SyncLog" (
+    sync_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES "User"(user_id) ON DELETE CASCADE,
+    timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
+    direction VARCHAR(20) NOT NULL CHECK (direction IN ('upload', 'download')),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('success', 'error', 'partial'))
+);
+
+CREATE INDEX idx_synclog_user_id ON "SyncLog"(user_id);
+
+-- ============================================
+-- Представление для аналитики задач на основе TimeTracking
+CREATE OR REPLACE VIEW TaskAnalyticsView AS
+SELECT 
+    t.task_id,
+    DATE(tt.start_time) AS date,
+    SUM(EXTRACT(EPOCH FROM (tt.end_time - tt.start_time))/60)::INT AS total_minutes
+FROM "TimeTracking" tt
+JOIN "Task" t ON t.task_id = tt.task_id
+GROUP BY t.task_id, DATE(tt.start_time);

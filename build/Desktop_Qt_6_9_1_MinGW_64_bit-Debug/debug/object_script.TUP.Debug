@@ -1,3 +1,41 @@
+<<<<<<< HEAD
+debug/ApplicationController.o
+debug/TweekApiServiceImpl.o
+debug/PostgresDatabaseService.o
+debug/main.o
+debug/mainwindow.o
+debug/BarChartView.o
+debug/MinimalAddTaskView.o
+debug/MinimalAllTasksStatisticsView.o
+debug/MinimalAuthorizationView.o
+debug/MinimalSingleTaskStatisticsView.o
+debug/MinimalSynchronizationView.o
+debug/MinimalTaskSelectionView.o
+debug/MinimalTimerView.o
+debug/MinimalUIFactory.o
+debug/moc_ApplicationController.o
+debug/moc_mainwindow.o
+debug/moc_ICalendarService.o
+debug/moc_ITweekApiService.o
+debug/moc_TweekApiServiceImpl.o
+debug/moc_IDatabaseService.o
+debug/moc_PostgresDatabaseService.o
+debug/moc_IAddTaskView.o
+debug/moc_IAllTasksStatisticsView.o
+debug/moc_IAuthorizationView.o
+debug/moc_ISingleTaskStatisticsView.o
+debug/moc_ISynchronizationView.o
+debug/moc_ITaskSelectionView.o
+debug/moc_ITimerView.o
+debug/moc_BarChartView.o
+debug/moc_MinimalAddTaskView.o
+debug/moc_MinimalAllTasksStatisticsView.o
+debug/moc_MinimalAuthorizationView.o
+debug/moc_MinimalSingleTaskStatisticsView.o
+debug/moc_MinimalSynchronizationView.o
+debug/moc_MinimalTaskSelectionView.o
+debug/moc_MinimalTimerView.o
+=======
 debug/MultiTaskAnalyticsWindow.o
 debug/SingleTaskAnalyticsWindow.o
 debug/TaskEditorWindow.o
@@ -15,3 +53,4 @@ debug/moc_TaskEditorWindow.o
 debug/moc_TaskSelectorWindow.o
 debug/moc_TaskTimerWindow.o
 debug/moc_mainwindow.o
+>>>>>>> 4949d55e1d4276526d42de2e905266b4b0da814d

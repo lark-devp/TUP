@@ -1,0 +1,30 @@
+#pragma once
+#include "db/IDatabaseService.h"
+#include <QSqlDatabase>
+
+class PostgresDatabaseService : public IDatabaseService
+{
+    Q_OBJECT
+
+public:
+    PostgresDatabaseService(QObject* parent = nullptr);
+    ~PostgresDatabaseService() override;
+
+    // --- Реализация методов интерфейса ---
+    bool connectToSource() override;
+    void disconnectFromSource() override;
+    QVariantMap authenticateUser(const QString& username, const QString& password) override;
+    bool addUser(const QString& username, const QString& email, const QString& password) override;
+    QVector<TaskDisplayData> getTasksForUser(int userId) override;
+    bool addTask(const QString& title, const QString& description, int userId) override;
+    QString getTaskTitle(int taskId) override;
+    bool addTimeTrackingEntry(int taskId, const QDateTime& startTime, const QDateTime& endTime) override;
+    QVector<qint64> getWeeklyTaskStats(int taskId, const QDate& weekStartDate) override;
+    QVector<TaskTimeSummary> getTaskTimeSummaries(int userId) override;
+    bool saveTweekTokens(int userId, const QString& idToken, const QString& refreshToken) override;
+    bool hasTweekTokens(int userId) override;
+    std::optional<TweekTokens> getTweekTokens(int userId) override;
+
+private:
+    QSqlDatabase m_db;
+};
