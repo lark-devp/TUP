@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+<<<<<<< HEAD
     // --- 1. Создание сервиса базы данных ---
     auto dbService = std::make_unique<PostgresDatabaseService>();
     if (!dbService->connectToSource()) {
@@ -37,5 +38,9 @@ int main(int argc, char *argv[])
     // --- 5. Запуск приложения ---
     controller.start();
 
+=======
+    MainWindow window;
+    window.show();
+>>>>>>> 4949d55e1d4276526d42de2e905266b4b0da814d
     return app.exec();
 }

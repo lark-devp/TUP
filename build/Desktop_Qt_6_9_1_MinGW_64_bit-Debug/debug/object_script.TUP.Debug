@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 debug/ApplicationController.o
 debug/TweekApiServiceImpl.o
 debug/PostgresDatabaseService.o
@@ -34,3 +35,22 @@ debug/moc_MinimalSingleTaskStatisticsView.o
 debug/moc_MinimalSynchronizationView.o
 debug/moc_MinimalTaskSelectionView.o
 debug/moc_MinimalTimerView.o
+=======
+debug/MultiTaskAnalyticsWindow.o
+debug/SingleTaskAnalyticsWindow.o
+debug/TaskEditorWindow.o
+debug/TaskSelectorWindow.o
+debug/TaskTimerWindow.o
+debug/DBManager.o
+debug/main.o
+debug/mainwindow.o
+debug/Task.o
+debug/TaskRepository.o
+debug/qrc_resource.o
+debug/moc_MultiTaskAnalyticsWindow.o
+debug/moc_SingleTaskAnalyticsWindow.o
+debug/moc_TaskEditorWindow.o
+debug/moc_TaskSelectorWindow.o
+debug/moc_TaskTimerWindow.o
+debug/moc_mainwindow.o
+>>>>>>> 4949d55e1d4276526d42de2e905266b4b0da814d

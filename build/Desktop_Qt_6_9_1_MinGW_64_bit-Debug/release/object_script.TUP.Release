@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 release/ApplicationController.o
 release/TweekApiServiceImpl.o
 release/PostgresDatabaseService.o
@@ -34,3 +35,22 @@ release/moc_MinimalSingleTaskStatisticsView.o
 release/moc_MinimalSynchronizationView.o
 release/moc_MinimalTaskSelectionView.o
 release/moc_MinimalTimerView.o
+=======
+release/MultiTaskAnalyticsWindow.o
+release/SingleTaskAnalyticsWindow.o
+release/TaskEditorWindow.o
+release/TaskSelectorWindow.o
+release/TaskTimerWindow.o
+release/DBManager.o
+release/main.o
+release/mainwindow.o
+release/Task.o
+release/TaskRepository.o
+release/qrc_resource.o
+release/moc_MultiTaskAnalyticsWindow.o
+release/moc_SingleTaskAnalyticsWindow.o
+release/moc_TaskEditorWindow.o
+release/moc_TaskSelectorWindow.o
+release/moc_TaskTimerWindow.o
+release/moc_mainwindow.o
+>>>>>>> 4949d55e1d4276526d42de2e905266b4b0da814d

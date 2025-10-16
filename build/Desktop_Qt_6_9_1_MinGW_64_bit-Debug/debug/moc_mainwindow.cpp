@@ -6,7 +6,11 @@
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
+<<<<<<< HEAD
 #include "../../../app/mainwindow.h"
+=======
+#include "../../../mainwindow.h"
+>>>>>>> 4949d55e1d4276526d42de2e905266b4b0da814d
 #include <QtCore/qmetatype.h>
 
 #include <QtCore/qtmochelpers.h>
