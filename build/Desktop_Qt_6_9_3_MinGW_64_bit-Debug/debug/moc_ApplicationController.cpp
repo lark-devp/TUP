@@ -89,7 +89,15 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         "onEditTaskRequested",
         "onEditTaskSaved",
         "onEditTaskDeleted",
-        "onEditTaskCancelled"
+        "onEditTaskCancelled",
+        "onSyncSingleTaskToTweek",
+        "onTweekTaskCreateSuccess",
+        "localTaskId",
+        "newTweekTaskId",
+        "onTweekTaskCreateFailed",
+        "onTweekTaskUpdateSuccess",
+        "tweekTaskId",
+        "onTweekTaskUpdateFailed"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -193,6 +201,26 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         QtMocHelpers::SlotData<void()>(49, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onEditTaskCancelled'
         QtMocHelpers::SlotData<void()>(50, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onSyncSingleTaskToTweek'
+        QtMocHelpers::SlotData<void(const QString &)>(51, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 10 },
+        }}),
+        // Slot 'onTweekTaskCreateSuccess'
+        QtMocHelpers::SlotData<void(int, const QString &)>(52, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 53 }, { QMetaType::QString, 54 },
+        }}),
+        // Slot 'onTweekTaskCreateFailed'
+        QtMocHelpers::SlotData<void(int, const QString &)>(55, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 53 }, { QMetaType::QString, 32 },
+        }}),
+        // Slot 'onTweekTaskUpdateSuccess'
+        QtMocHelpers::SlotData<void(const QString &)>(56, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 57 },
+        }}),
+        // Slot 'onTweekTaskUpdateFailed'
+        QtMocHelpers::SlotData<void(const QString &, const QString &)>(58, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 57 }, { QMetaType::QString, 32 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -248,6 +276,11 @@ void ApplicationController::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 29: _t->onEditTaskSaved((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 30: _t->onEditTaskDeleted(); break;
         case 31: _t->onEditTaskCancelled(); break;
+        case 32: _t->onSyncSingleTaskToTweek((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 33: _t->onTweekTaskCreateSuccess((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 34: _t->onTweekTaskCreateFailed((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 35: _t->onTweekTaskUpdateSuccess((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 36: _t->onTweekTaskUpdateFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         default: ;
         }
     }
@@ -272,14 +305,14 @@ int ApplicationController::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 32)
+        if (_id < 37)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 32;
+        _id -= 37;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 32)
+        if (_id < 37)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 32;
+        _id -= 37;
     }
     return _id;
 }

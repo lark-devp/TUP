@@ -137,7 +137,8 @@ QVector<TaskDisplayData> PostgresDatabaseService::getTasksForUser(int userId)
 QVariantMap PostgresDatabaseService::getTaskDetails(int taskId)
 {
     QSqlQuery query;
-    query.prepare(R"(SELECT title, description FROM "Task" WHERE task_id = :task_id)");
+    // ИСПРАВЛЕНИЕ: Мы явно добавляем tweek_task_id в список полей для выборки
+    query.prepare(R"(SELECT title, description, tweek_task_id FROM "Task" WHERE task_id = :task_id)");
     query.bindValue(":task_id", taskId);
 
     if (!query.exec()) {
@@ -148,6 +149,8 @@ QVariantMap PostgresDatabaseService::getTaskDetails(int taskId)
         QVariantMap taskData;
         taskData["title"] = query.value("title").toString();
         taskData["description"] = query.value("description").toString();
+        // Теперь эта строка будет работать, потому что поле есть в результате запроса
+        taskData["tweek_task_id"] = query.value("tweek_task_id").toString();
         return taskData;
     }
     return QVariantMap();
@@ -186,17 +189,38 @@ bool PostgresDatabaseService::deactivateTask(int taskId)
     }
     return true;
 }
-bool PostgresDatabaseService::addTask(const QString& title, const QString& description, int userId)
+bool PostgresDatabaseService::addTask(const QString& title, const QString& description, int userId, const QString& tweekId)
 {
+    qDebug() << "[DEBUG 3: DATABASE]"
+             << "Title:" << title
+             << "Description:" << description
+             << "TweekID:" << tweekId;
+
     QSqlQuery query(m_db);
-    query.prepare(R"(INSERT INTO "Task" (user_id, title, description) VALUES (:user_id, :title, :description))");
+
+    if (tweekId.isEmpty()) {
+        // --- Сценарий 1: Задача создается локально, tweek_task_id будет NULL ---
+        query.prepare(R"(
+            INSERT INTO "Task" (user_id, title, description)
+            VALUES (:user_id, :title, :description)
+        )");
+    } else {
+        // --- Сценарий 2: Задача импортируется из Tweek ---
+        query.prepare(R"(
+            INSERT INTO "Task" (user_id, title, description, tweek_task_id)
+            VALUES (:user_id, :title, :description, :tweek_id)
+        )");
+        query.bindValue(":tweek_id", tweekId);
+    }
+
+    // Эти параметры общие для обоих запросов
     query.bindValue(":user_id", userId);
     query.bindValue(":title", title);
     query.bindValue(":description", description);
 
     if (!query.exec()) {
         qCritical() << "Ошибка добавления задачи:" << query.lastError().text();
-        emit errorOccurred("Не удалось сохранить задачу в базу данных.");
+        emit errorOccurred("Не удалось сохранить задачу в базу данных."); // Можно добавить это для обратной связи
         return false;
     }
 
@@ -384,3 +408,52 @@ std::optional<TweekTokens> PostgresDatabaseService::getTweekTokens(int userId)
     }
     return std::nullopt;
 }
+
+// НОВЫЙ МЕТОД
+bool PostgresDatabaseService::saveTweekTaskId(int localTaskId, const QString& tweekTaskId)
+{
+    QSqlQuery query(m_db);
+    query.prepare(R"(UPDATE "Task" SET tweek_task_id = :tweek_id WHERE task_id = :local_id)");
+    query.bindValue(":tweek_id", tweekTaskId);
+    query.bindValue(":local_id", localTaskId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка сохранения Tweek Task ID:" << query.lastError().text();
+        return false;
+    }
+    return true;
+}
+
+// НОВЫЙ МЕТОД
+bool PostgresDatabaseService::saveTweekDefaultCalendar(int userId, const QString& calendarId)
+{
+    QSqlQuery query(m_db);
+    query.prepare(R"(UPDATE "User" SET tweek_default_calendar_id = :calendar_id WHERE user_id = :user_id)");
+    query.bindValue(":calendar_id", calendarId);
+    query.bindValue(":user_id", userId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка сохранения календаря по умолчанию:" << query.lastError().text();
+        return false;
+    }
+    return true;
+}
+
+// НОВЫЙ МЕТОД
+QString PostgresDatabaseService::getTweekDefaultCalendar(int userId)
+{
+    QSqlQuery query(m_db);
+    query.prepare(R"(SELECT tweek_default_calendar_id FROM "User" WHERE user_id = :user_id)");
+    query.bindValue(":user_id", userId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка получения календаря по умолчанию:" << query.lastError().text();
+        return QString();
+    }
+
+    if (query.next()) {
+        return query.value(0).toString();
+    }
+    return QString();
+}
+

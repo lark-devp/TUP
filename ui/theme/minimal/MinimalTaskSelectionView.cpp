@@ -116,6 +116,7 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     // Изначально кнопки, требующие выбора задачи, неактивны
     m_startTimerButton->setEnabled(false);
     m_statsButton->setEnabled(false);
+    m_refreshButton->setEnabled(false);
 
 
     // --- 4. Компоновка ---
@@ -150,7 +151,11 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     connect(m_allStatsButton, &QPushButton::clicked, this, &ITaskSelectionView::allTasksStatisticsRequested);
     connect(m_addTaskButton, &QPushButton::clicked, this, &ITaskSelectionView::addTaskRequested);
     connect(m_syncButton, &QPushButton::clicked, this, &ITaskSelectionView::synchronizationRequested);
-    connect(m_refreshButton, &QPushButton::clicked, this, &ITaskSelectionView::refreshRequested);
+    connect(m_refreshButton, &QPushButton::clicked, this, [this](){
+        if (auto* item = m_listWidget->currentItem()) {
+            emit syncSingleTaskRequested(item->data(Qt::UserRole).toString());
+        }
+    });
     connect(m_listWidget, &QListWidget::itemDoubleClicked, this, &MinimalTaskSelectionView::onItemDoubleClicked);
 }
 
@@ -193,6 +198,7 @@ void MinimalTaskSelectionView::onTaskSelectionChanged(QListWidgetItem* current, 
     bool isTaskSelected = (current != nullptr);
     m_startTimerButton->setEnabled(isTaskSelected);
     m_statsButton->setEnabled(isTaskSelected);
+    m_refreshButton->setEnabled(isTaskSelected);
 }
 
 void MinimalTaskSelectionView::onStartTimerClicked()
@@ -255,5 +261,12 @@ void MinimalTaskSelectionView::onItemDoubleClicked(QListWidgetItem* item)
         QString taskId = item->data(Qt::UserRole).toString();
         // Отправляем сигнал "наружу", что пользователь хочет редактировать задачу
         emit editTaskRequested(taskId);
+    }
+}
+void MinimalTaskSelectionView::onRefreshClicked()
+{
+    if (auto currentItem = m_listWidget->currentItem()) {
+        QString taskId = currentItem->data(Qt::UserRole).toString();
+        emit syncSingleTaskRequested(taskId); // Будем использовать существующий сигнал с перегрузкой
     }
 }

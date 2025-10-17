@@ -146,6 +146,7 @@ void TweekApiServiceImpl::onTasksReplyFinished()
     }
 
 
+
     QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
     if (!doc.isObject()) {
         emit tasksFetchFailed("Некорректный ответ от сервера (ожидался объект).");
@@ -161,7 +162,11 @@ void TweekApiServiceImpl::onTasksReplyFinished()
             TweekTask task;
             task.id = obj["id"].toString();
             task.title = obj["text"].toString();
-            task.description = obj["description"].toString();
+            task.description = obj["note"].toString();
+            qDebug() << "[DEBUG 1: PARSER]"
+                     << "ID:" << task.id
+                     << "Title:" << task.title
+                     << "Description:" << task.description;
             if(!task.id.isEmpty() && !task.title.isEmpty()){
                 tasks.append(task);
             }
@@ -272,4 +277,83 @@ void TweekApiServiceImpl::onRefreshTokenReplyFinished()
     }
 
     reply->deleteLater();
+}
+void TweekApiServiceImpl::createTaskInTweek(const QString& idToken, const QString& calendarId, const QString& title, const QString& description, int localTaskId)
+{
+    QJsonObject taskObject;
+    taskObject["text"] = title;
+    taskObject["note"] = description;
+    taskObject["date"] = QDate::currentDate().toString(Qt::ISODate); // Создаем на сегодня
+    taskObject["calendarId"] = calendarId;
+    taskObject["done"] = false;
+    taskObject["gcal"] = false;
+
+    QJsonDocument doc(taskObject);
+    QByteArray jsonData = doc.toJson();
+
+    QNetworkRequest request = createAuthorizedRequest(m_tasksUrl, idToken);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QNetworkReply* reply = m_networkManager->post(request, jsonData);
+
+    // Используем лямбду, чтобы передать localTaskId в обработчик
+    connect(reply, &QNetworkReply::finished, this, [this, reply, localTaskId](){
+        if (!reply) return;
+
+
+        if (reply->error() != QNetworkReply::NoError) {
+            // Читаем тело ответа, в котором содержится детальная ошибка от Tweek
+            QByteArray errorBody = reply->readAll();
+            int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+            // Формируем подробное сообщение об ошибке
+            QString detailedError = QString("Сетевая ошибка: %1 (Код: %2). Ответ сервера: %3")
+                                        .arg(reply->errorString())
+                                        .arg(httpStatusCode)
+                                        .arg(QString::fromUtf8(errorBody));
+
+            qWarning() << "Ошибка создания задачи в Tweek (local ID:" << localTaskId << "):" << detailedError;
+            emit taskCreateFailed(localTaskId, detailedError);
+        } else {
+            QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+            if (doc.isObject() && doc.object().contains("id")) {
+                QString newId = doc.object()["id"].toString();
+                emit taskCreateSuccess(localTaskId, newId);
+            } else {
+                emit taskCreateFailed(localTaskId, "Не удалось получить ID новой задачи из ответа.");
+            }
+        }
+        reply->deleteLater();
+    });
+}
+
+void TweekApiServiceImpl::updateTaskInTweek(const QString& idToken, const QString& tweekTaskId, const QString& title, const QString& description)
+{
+    QJsonObject taskObject;
+    taskObject["text"] = title;
+    taskObject["note"] = description;
+
+
+    QJsonDocument doc(taskObject);
+    QByteArray jsonData = doc.toJson();
+
+    QUrl updateUrl(m_tasksUrl.toString() + "/" + tweekTaskId); // Endpoint: /tasks/{taskId}
+
+    QNetworkRequest request = createAuthorizedRequest(updateUrl, idToken);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QNetworkReply* reply = m_networkManager->sendCustomRequest(request, "PATCH", jsonData);
+
+    // Используем лямбду для обработки
+    connect(reply, &QNetworkReply::finished, this, [this, reply, tweekTaskId](){
+        if (!reply) return;
+
+        // PATCH возвращает 204 No Content при успехе, так что ошибка - это главное, на что смотрим
+        if (reply->error() != QNetworkReply::NoError) {
+            emit taskUpdateFailed(tweekTaskId, "Ошибка обновления: " + reply->errorString());
+        } else {
+            emit taskUpdateSuccess(tweekTaskId);
+        }
+        reply->deleteLater();
+    });
 }

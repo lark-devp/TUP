@@ -15,6 +15,8 @@ public:
     void refreshToken(const QString& token) override;
     void fetchCalendars(const QString& idToken) override;
     void fetchTodayTasks(const QString& idToken, const QString& calendarId) override;
+    void createTaskInTweek(const QString& idToken, const QString& calendarId, const QString& title, const QString& description, int localTaskId) override;
+    void updateTaskInTweek(const QString& idToken, const QString& tweekTaskId, const QString& title, const QString& description) override;
 
 private slots:
     void onAuthenticationReplyFinished();

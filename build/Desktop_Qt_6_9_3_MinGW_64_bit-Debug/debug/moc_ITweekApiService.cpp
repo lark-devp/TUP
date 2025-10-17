@@ -53,7 +53,14 @@ template <> constexpr inline auto ITweekApiService::qt_create_metaobjectdata<qt_
         "tasksFetchSuccess",
         "QList<TweekTask>",
         "tasks",
-        "tasksFetchFailed"
+        "tasksFetchFailed",
+        "taskCreateSuccess",
+        "localTaskId",
+        "newTweekTaskId",
+        "taskCreateFailed",
+        "taskUpdateSuccess",
+        "tweekTaskId",
+        "taskUpdateFailed"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -80,6 +87,22 @@ template <> constexpr inline auto ITweekApiService::qt_create_metaobjectdata<qt_
         // Signal 'tasksFetchFailed'
         QtMocHelpers::SignalData<void(const QString &)>(14, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 6 },
+        }}),
+        // Signal 'taskCreateSuccess'
+        QtMocHelpers::SignalData<void(int, const QString &)>(15, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::Int, 16 }, { QMetaType::QString, 17 },
+        }}),
+        // Signal 'taskCreateFailed'
+        QtMocHelpers::SignalData<void(int, const QString &)>(18, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::Int, 16 }, { QMetaType::QString, 6 },
+        }}),
+        // Signal 'taskUpdateSuccess'
+        QtMocHelpers::SignalData<void(const QString &)>(19, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 20 },
+        }}),
+        // Signal 'taskUpdateFailed'
+        QtMocHelpers::SignalData<void(const QString &, const QString &)>(21, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 20 }, { QMetaType::QString, 6 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -110,6 +133,10 @@ void ITweekApiService::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         case 3: _t->calendarsFetchFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 4: _t->tasksFetchSuccess((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
         case 5: _t->tasksFetchFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 6: _t->taskCreateSuccess((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 7: _t->taskCreateFailed((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 8: _t->taskUpdateSuccess((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 9: _t->taskUpdateFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         default: ;
         }
     }
@@ -125,6 +152,14 @@ void ITweekApiService::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         if (QtMocHelpers::indexOfMethod<void (ITweekApiService::*)(const QVector<TweekTask> & )>(_a, &ITweekApiService::tasksFetchSuccess, 4))
             return;
         if (QtMocHelpers::indexOfMethod<void (ITweekApiService::*)(const QString & )>(_a, &ITweekApiService::tasksFetchFailed, 5))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ITweekApiService::*)(int , const QString & )>(_a, &ITweekApiService::taskCreateSuccess, 6))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ITweekApiService::*)(int , const QString & )>(_a, &ITweekApiService::taskCreateFailed, 7))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ITweekApiService::*)(const QString & )>(_a, &ITweekApiService::taskUpdateSuccess, 8))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ITweekApiService::*)(const QString & , const QString & )>(_a, &ITweekApiService::taskUpdateFailed, 9))
             return;
     }
 }
@@ -148,14 +183,14 @@ int ITweekApiService::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 6)
+        if (_id < 10)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 6;
+        _id -= 10;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 6)
+        if (_id < 10)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 6;
+        _id -= 10;
     }
     return _id;
 }
@@ -194,5 +229,29 @@ void ITweekApiService::tasksFetchSuccess(const QVector<TweekTask> & _t1)
 void ITweekApiService::tasksFetchFailed(const QString & _t1)
 {
     QMetaObject::activate<void>(this, &staticMetaObject, 5, nullptr, _t1);
+}
+
+// SIGNAL 6
+void ITweekApiService::taskCreateSuccess(int _t1, const QString & _t2)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 6, nullptr, _t1, _t2);
+}
+
+// SIGNAL 7
+void ITweekApiService::taskCreateFailed(int _t1, const QString & _t2)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 7, nullptr, _t1, _t2);
+}
+
+// SIGNAL 8
+void ITweekApiService::taskUpdateSuccess(const QString & _t1)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 8, nullptr, _t1);
+}
+
+// SIGNAL 9
+void ITweekApiService::taskUpdateFailed(const QString & _t1, const QString & _t2)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 9, nullptr, _t1, _t2);
 }
 QT_WARNING_POP

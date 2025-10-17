@@ -32,6 +32,7 @@ private slots:
 
     void onStartTimerClicked();
     void onShowStatsClicked();
+    void onRefreshClicked();
 
 private:
 

@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QVector>
 #include <QDate>
+#include <QMessageBox>
 
 ApplicationController::ApplicationController(std::unique_ptr<IUIFactory> factory,std::unique_ptr<IDatabaseService> dbService,
                                              std::unique_ptr<ITweekApiService> calendar, QObject *parent)
@@ -105,6 +106,7 @@ void ApplicationController::showMainWindow(const QVector<TaskDisplayData>& tasks
     connect(m_taskSelectionView.get(), &ITaskSelectionView::synchronizationRequested, this, &ApplicationController::onSynchronizationRequested);
     connect(m_taskSelectionView.get(), &ITaskSelectionView::addTaskRequested, this, &ApplicationController::onAddTaskRequested);
     connect(m_taskSelectionView.get(), &ITaskSelectionView::editTaskRequested, this, &ApplicationController::onEditTaskRequested);
+    connect(m_taskSelectionView.get(), &ITaskSelectionView::syncSingleTaskRequested, this, &ApplicationController::onSyncSingleTaskToTweek);
     m_taskSelectionView->displayTasks(tasks);
 
     m_taskSelectionView->showView();
@@ -418,6 +420,7 @@ void ApplicationController::onSynchronizationRequested()
 
     connect(m_synchronizationView.get(), &ISynchronizationView::tasksRequested,
             [this](const QString& calendarId){
+                m_dbService->saveTweekDefaultCalendar(m_currentUserId, calendarId);
                 if (m_currentTweekTokens) {
                     m_tweekApiService->fetchTodayTasks(m_currentTweekTokens->idToken, calendarId);
                 }
@@ -704,7 +707,11 @@ void ApplicationController::onSyncTasksSelected(const QVector<TweekTask>& select
 
     int successCount = 0;
     for (const auto& task : selectedTasks) {
-        if (m_dbService->addTask(task.title, task.description, m_currentUserId)) {
+        qDebug() << "[DEBUG 2: CONTROLLER]"
+                 << "ID:" << task.id
+                 << "Title:" << task.title
+                 << "Description:" << task.description;
+        if (m_dbService->addTask(task.title, task.description, m_currentUserId, task.id)) {
             successCount++;
         }
     }
@@ -715,4 +722,89 @@ void ApplicationController::onSyncTasksSelected(const QVector<TweekTask>& select
 
 
     refreshTaskList();
+}
+void ApplicationController::onSyncSingleTaskToTweek(const QString& taskId)
+{
+    qDebug() << "Запрос на синхронизацию задачи" << taskId << "с Tweek.";
+
+    // 1. Проверяем, есть ли у нас токены
+    if (!m_currentTweekTokens || m_currentTweekTokens->idToken.isEmpty()) {
+        auto savedTokens = m_dbService->getTweekTokens(m_currentUserId);
+        if (!savedTokens) {
+            m_taskSelectionView->showError("Пожалуйста, сначала выполните полную синхронизацию (кнопка 'Синхронизация'), чтобы войти в Tweek.");
+            return;
+        }
+        m_currentTweekTokens = savedTokens;
+    }
+
+    // 2. Проверяем, есть ли календарь по умолчанию
+    QString calendarId = m_dbService->getTweekDefaultCalendar(m_currentUserId);
+    if (calendarId.isEmpty()) {
+        m_taskSelectionView->showError("Не выбран календарь для синхронизации. Пожалуйста, выполните полную синхронизацию и выберите календарь.");
+        return;
+    }
+
+    // 3. Получаем детали задачи
+    QVariantMap taskData = m_dbService->getTaskDetails(taskId.toInt());
+    if (taskData.isEmpty()) {
+        m_taskSelectionView->showError("Не удалось найти информацию о задаче.");
+        return;
+    }
+
+    QString tweekId = taskData["tweek_task_id"].toString();
+    QString title = taskData["title"].toString();
+    QString description = taskData["description"].toString();
+
+    // 4. Подключаем сигналы от API сервиса
+    connect(m_tweekApiService.get(), &ITweekApiService::taskCreateSuccess, this, &ApplicationController::onTweekTaskCreateSuccess, Qt::UniqueConnection);
+    connect(m_tweekApiService.get(), &ITweekApiService::taskCreateFailed, this, &ApplicationController::onTweekTaskCreateFailed, Qt::UniqueConnection);
+    connect(m_tweekApiService.get(), &ITweekApiService::taskUpdateSuccess, this, &ApplicationController::onTweekTaskUpdateSuccess, Qt::UniqueConnection);
+    connect(m_tweekApiService.get(), &ITweekApiService::taskUpdateFailed, this, &ApplicationController::onTweekTaskUpdateFailed, Qt::UniqueConnection);
+
+
+    m_taskSelectionView->showLoading(true); // Показываем индикатор загрузки
+
+    // 5. Вызываем нужный метод API
+    if (tweekId.isEmpty()) {
+        // Задачи в Tweek нет - создаем
+        qDebug() << "Создание новой задачи в Tweek...";
+        m_tweekApiService->createTaskInTweek(m_currentTweekTokens->idToken, calendarId, title, description, taskId.toInt());
+    } else {
+        // Задача есть - обновляем
+        qDebug() << "Обновление существующей задачи в Tweek:" << tweekId;
+        m_tweekApiService->updateTaskInTweek(m_currentTweekTokens->idToken, tweekId, title, description);
+    }
+}
+
+void ApplicationController::onTweekTaskCreateSuccess(int localTaskId, const QString& newTweekTaskId)
+{
+    m_taskSelectionView->showLoading(false);
+    qDebug() << "Задача" << localTaskId << "успешно создана в Tweek с ID:" << newTweekTaskId;
+
+    // Сохраняем новый ID в нашей базе
+    m_dbService->saveTweekTaskId(localTaskId, newTweekTaskId);
+
+    // Можно показать всплывающее уведомление об успехе
+    QMessageBox::information(m_taskSelectionView->getWidget(), "Успех", "Задача успешно добавлена в календарь Tweek.");
+}
+
+void ApplicationController::onTweekTaskCreateFailed(int localTaskId, const QString& error)
+{
+    m_taskSelectionView->showLoading(false);
+    qWarning() << "Ошибка создания задачи" << localTaskId << "в Tweek:" << error;
+    m_taskSelectionView->showError("Не удалось создать задачу в Tweek: " + error);
+}
+
+void ApplicationController::onTweekTaskUpdateSuccess(const QString& tweekTaskId)
+{
+    m_taskSelectionView->showLoading(false);
+    qDebug() << "Задача" << tweekTaskId << "успешно обновлена в Tweek.";
+    QMessageBox::information(m_taskSelectionView->getWidget(), "Успех", "Задача успешно обновлена в календаре Tweek.");
+}
+
+void ApplicationController::onTweekTaskUpdateFailed(const QString& tweekTaskId, const QString& error)
+{
+    m_taskSelectionView->showLoading(false);
+    qWarning() << "Ошибка обновления задачи" << tweekTaskId << "в Tweek:" << error;
+    m_taskSelectionView->showError("Не удалось обновить задачу в Tweek: " + error);
 }

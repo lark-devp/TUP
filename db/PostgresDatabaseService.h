@@ -15,7 +15,7 @@ public:
     QVariantMap authenticateUser(const QString& username, const QString& password) override;
     bool addUser(const QString& username, const QString& email, const QString& password) override;
     QVector<TaskDisplayData> getTasksForUser(int userId) override;
-    bool addTask(const QString& title, const QString& description, int userId) override;
+    bool addTask(const QString& title, const QString& description, int userId, const QString& tweekId = QString()) override;
     QString getTaskTitle(int taskId) override;
     bool addTimeTrackingEntry(int taskId, const QDateTime& startTime, const QDateTime& endTime) override;
     QVector<qint64> getWeeklyTaskStats(int taskId, const QDate& weekStartDate) override;
@@ -26,6 +26,10 @@ public:
     QVariantMap getTaskDetails(int taskId) override;
     bool updateTask(int taskId, const QString& title, const QString& description) override;
     bool deactivateTask(int taskId) override;
+    bool saveTweekTaskId(int localTaskId, const QString& tweekTaskId) override;
+    bool saveTweekDefaultCalendar(int userId, const QString& calendarId) override;
+    QString getTweekDefaultCalendar(int userId) override;
+
 
 private:
     QSqlDatabase m_db;

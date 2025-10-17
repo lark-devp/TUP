@@ -41,5 +41,6 @@ signals:
     void allTasksStatisticsRequested();
     void addTaskRequested();
     void synchronizationRequested();
+    void syncSingleTaskRequested(const QString& taskId);
     void refreshRequested();
 };

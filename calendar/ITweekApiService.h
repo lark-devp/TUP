@@ -42,6 +42,8 @@ public:
      * @param calendarId ID календаря.
      */
     virtual void fetchTodayTasks(const QString& idToken, const QString& calendarId) = 0;
+    virtual void createTaskInTweek(const QString& idToken, const QString& calendarId, const QString& title, const QString& description, int localTaskId) = 0;
+    virtual void updateTaskInTweek(const QString& idToken, const QString& tweekTaskId, const QString& title, const QString& description) = 0;
 
 signals:
 
@@ -54,4 +56,8 @@ signals:
 
     void tasksFetchSuccess(const QVector<TweekTask>& tasks);
     void tasksFetchFailed(const QString& errorMessage);
+    void taskCreateSuccess(int localTaskId, const QString& newTweekTaskId);
+    void taskCreateFailed(int localTaskId, const QString& errorMessage);
+    void taskUpdateSuccess(const QString& tweekTaskId);
+    void taskUpdateFailed(const QString& tweekTaskId, const QString& errorMessage);
 };

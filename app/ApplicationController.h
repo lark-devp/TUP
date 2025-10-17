@@ -72,6 +72,13 @@ private slots:
     void onEditTaskDeleted();
     void onEditTaskCancelled();
 
+    void onSyncSingleTaskToTweek(const QString& taskId);
+    void onTweekTaskCreateSuccess(int localTaskId, const QString& newTweekTaskId);
+    void onTweekTaskCreateFailed(int localTaskId, const QString& error);
+    void onTweekTaskUpdateSuccess(const QString& tweekTaskId);
+    void onTweekTaskUpdateFailed(const QString& tweekTaskId, const QString& error);
+
+
 private:
 
 
