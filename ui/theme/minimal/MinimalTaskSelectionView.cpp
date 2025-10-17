@@ -151,6 +151,7 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     connect(m_addTaskButton, &QPushButton::clicked, this, &ITaskSelectionView::addTaskRequested);
     connect(m_syncButton, &QPushButton::clicked, this, &ITaskSelectionView::synchronizationRequested);
     connect(m_refreshButton, &QPushButton::clicked, this, &ITaskSelectionView::refreshRequested);
+    connect(m_listWidget, &QListWidget::itemDoubleClicked, this, &MinimalTaskSelectionView::onItemDoubleClicked);
 }
 
 // --- Реализация методов интерфейсов и слотов (остается без изменений) ---
@@ -247,4 +248,12 @@ void MinimalTaskSelectionView::setupConnections()
 
     connect(m_addTaskButton, &QPushButton::clicked,
             this, &MinimalTaskSelectionView::addTaskRequested);
+}
+void MinimalTaskSelectionView::onItemDoubleClicked(QListWidgetItem* item)
+{
+    if (item) {
+        QString taskId = item->data(Qt::UserRole).toString();
+        // Отправляем сигнал "наружу", что пользователь хочет редактировать задачу
+        emit editTaskRequested(taskId);
+    }
 }

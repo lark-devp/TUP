@@ -7,6 +7,7 @@ release/BarChartView.o
 release/MinimalAddTaskView.o
 release/MinimalAllTasksStatisticsView.o
 release/MinimalAuthorizationView.o
+release/MinimalEditTaskView.o
 release/MinimalSingleTaskStatisticsView.o
 release/MinimalSynchronizationView.o
 release/MinimalTaskSelectionView.o
@@ -14,7 +15,6 @@ release/MinimalTimerView.o
 release/MinimalUIFactory.o
 release/moc_ApplicationController.o
 release/moc_mainwindow.o
-release/moc_ICalendarService.o
 release/moc_ITweekApiService.o
 release/moc_TweekApiServiceImpl.o
 release/moc_IDatabaseService.o
@@ -22,6 +22,7 @@ release/moc_PostgresDatabaseService.o
 release/moc_IAddTaskView.o
 release/moc_IAllTasksStatisticsView.o
 release/moc_IAuthorizationView.o
+release/moc_IEditTaskView.o
 release/moc_ISingleTaskStatisticsView.o
 release/moc_ISynchronizationView.o
 release/moc_ITaskSelectionView.o
@@ -30,6 +31,7 @@ release/moc_BarChartView.o
 release/moc_MinimalAddTaskView.o
 release/moc_MinimalAllTasksStatisticsView.o
 release/moc_MinimalAuthorizationView.o
+release/moc_MinimalEditTaskView.o
 release/moc_MinimalSingleTaskStatisticsView.o
 release/moc_MinimalSynchronizationView.o
 release/moc_MinimalTaskSelectionView.o

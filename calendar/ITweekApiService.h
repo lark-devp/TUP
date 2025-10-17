@@ -44,9 +44,9 @@ public:
     virtual void fetchTodayTasks(const QString& idToken, const QString& calendarId) = 0;
 
 signals:
-    // Сигнал в случае успешного получения токенов
+
     void authenticationSuccess(const QString& idToken, const QString& refreshToken);
-    // Сигнал в случае ошибки
+
     void authenticationFailed(const QString& errorMessage);
 
     void calendarsFetchSuccess(const QVector<TweekCalendar>& calendars);

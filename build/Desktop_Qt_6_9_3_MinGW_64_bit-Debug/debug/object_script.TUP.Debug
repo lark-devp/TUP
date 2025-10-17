@@ -7,6 +7,7 @@ debug/BarChartView.o
 debug/MinimalAddTaskView.o
 debug/MinimalAllTasksStatisticsView.o
 debug/MinimalAuthorizationView.o
+debug/MinimalEditTaskView.o
 debug/MinimalSingleTaskStatisticsView.o
 debug/MinimalSynchronizationView.o
 debug/MinimalTaskSelectionView.o
@@ -14,7 +15,6 @@ debug/MinimalTimerView.o
 debug/MinimalUIFactory.o
 debug/moc_ApplicationController.o
 debug/moc_mainwindow.o
-debug/moc_ICalendarService.o
 debug/moc_ITweekApiService.o
 debug/moc_TweekApiServiceImpl.o
 debug/moc_IDatabaseService.o
@@ -22,6 +22,7 @@ debug/moc_PostgresDatabaseService.o
 debug/moc_IAddTaskView.o
 debug/moc_IAllTasksStatisticsView.o
 debug/moc_IAuthorizationView.o
+debug/moc_IEditTaskView.o
 debug/moc_ISingleTaskStatisticsView.o
 debug/moc_ISynchronizationView.o
 debug/moc_ITaskSelectionView.o
@@ -30,6 +31,7 @@ debug/moc_BarChartView.o
 debug/moc_MinimalAddTaskView.o
 debug/moc_MinimalAllTasksStatisticsView.o
 debug/moc_MinimalAuthorizationView.o
+debug/moc_MinimalEditTaskView.o
 debug/moc_MinimalSingleTaskStatisticsView.o
 debug/moc_MinimalSynchronizationView.o
 debug/moc_MinimalTaskSelectionView.o

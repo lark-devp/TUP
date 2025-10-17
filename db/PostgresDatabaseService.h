@@ -10,7 +10,6 @@ public:
     PostgresDatabaseService(QObject* parent = nullptr);
     ~PostgresDatabaseService() override;
 
-    // --- Реализация методов интерфейса ---
     bool connectToSource() override;
     void disconnectFromSource() override;
     QVariantMap authenticateUser(const QString& username, const QString& password) override;
@@ -24,6 +23,9 @@ public:
     bool saveTweekTokens(int userId, const QString& idToken, const QString& refreshToken) override;
     bool hasTweekTokens(int userId) override;
     std::optional<TweekTokens> getTweekTokens(int userId) override;
+    QVariantMap getTaskDetails(int taskId) override;
+    bool updateTask(int taskId, const QString& title, const QString& description) override;
+    bool deactivateTask(int taskId) override;
 
 private:
     QSqlDatabase m_db;

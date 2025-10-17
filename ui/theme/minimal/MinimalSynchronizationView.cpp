@@ -14,7 +14,7 @@
 MinimalSynchronizationView::MinimalSynchronizationView(QWidget *parent)
     : ISynchronizationView(parent)
 {
-    // --- 1. Определение стилей ---
+
 
     this->setStyleSheet("background-color: #f4f7fa;"); // Общий фон
 

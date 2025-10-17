@@ -48,7 +48,7 @@ MinimalSingleTaskStatisticsView::MinimalSingleTaskStatisticsView(QWidget *parent
     m_mainLayout->addWidget(m_taskTitleLabel);
     m_mainLayout->addLayout(navigationLayout); // Добавляем навигацию
     m_mainLayout->addWidget(m_loadingLabel);
-    m_mainLayout->addWidget(m_chartView); // Добавляем диаграмму
+    m_mainLayout->addWidget(m_chartView,1); // Добавляем диаграмму
 
 
     m_chartView->hide();

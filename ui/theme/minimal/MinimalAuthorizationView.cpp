@@ -64,7 +64,7 @@ void MinimalAuthorizationView::setupUi()
     // Ссылки
     // Кнопка "Регистрация"
     m_registerLink = new QPushButton("Регистрация");
-    m_registerLink->setFlat(true); // Убирает рельеф кнопки, делая ее плоской
+    m_registerLink->setFlat(true);
     m_registerLink->setCursor(Qt::PointingHandCursor);
     m_registerLink->setStyleSheet(linkButtonStyle);
 
@@ -116,7 +116,7 @@ void MinimalAuthorizationView::setupUi()
     formLayout->addWidget(m_titleLabel, 0, Qt::AlignHCenter);
     formLayout->addSpacing(10);
     formLayout->addWidget(m_usernameLineEdit);
-    formLayout->addWidget(m_emailLineEdit); // Добавляем все поля, будем управлять видимостью
+    formLayout->addWidget(m_emailLineEdit);
     formLayout->addWidget(m_passwordLineEdit);
     formLayout->addWidget(m_confirmPasswordLineEdit);
     formLayout->addWidget(m_errorLabel);
@@ -152,7 +152,7 @@ void MinimalAuthorizationView::setupConnections()
 {
     // Главная кнопка действует в зависимости от текущего состояния
     connect(m_mainButton, &QPushButton::clicked, this, [this](){
-        clearForm(); // Очищаем сообщения
+        clearForm();
         switch (m_currentState) {
         case State::Login:
             emit loginRequested(m_usernameLineEdit->text(), m_passwordLineEdit->text());
@@ -248,7 +248,7 @@ void MinimalAuthorizationView::showInfo(const QString& message)
 
 void MinimalAuthorizationView::clearForm()
 {
-    // Очищаем только сообщения, а не поля ввода
+
     showError("");
     showInfo("");
 }

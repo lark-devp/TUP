@@ -12,6 +12,7 @@
 #include "ui/interfaces/IAuthorizationView.h"
 #include "db/IDatabaseService.h"
 #include "calendar/ITweekApiService.h"
+#include "ui/interfaces/IEditTaskView.h"
 
 
 class ApplicationController : public QObject
@@ -20,10 +21,10 @@ class ApplicationController : public QObject
 
 
 public:
-    // Контроллер принимает во владение Фабрику
+
     explicit ApplicationController(std::unique_ptr<IUIFactory> factory, std::unique_ptr<IDatabaseService> dbService, std::unique_ptr<ITweekApiService> calendar, QObject *parent = nullptr);
 
-    // Метод для запуска приложения (показа первого окна)
+
     void start();
     void showMainWindow(const QVector<TaskDisplayData>& tasks);
 private slots:
@@ -38,7 +39,7 @@ private slots:
     void onSynchronizationRequested();
     void onAddTaskRequested();
 
-    //слоты при закрытии окон
+
     void onTimerClosed();
     void onStatisticsClosed();
     void onAllTasksStatisticsClosed();
@@ -66,11 +67,13 @@ private slots:
     void onTimerModeSelected();
     void onPomodoroModeSelected(int workMinutes, int restMinutes);
 
+    void onEditTaskRequested(const QString& taskId);
+    void onEditTaskSaved(const QString& title, const QString& description);
+    void onEditTaskDeleted();
+    void onEditTaskCancelled();
+
 private:
-    /**
-     * @brief Создает, настраивает и показывает главное окно приложения (список задач).
-     * Вызывается после успешной авторизации.
-     */
+
 
     void returnToTaskSelection();
     void refreshTaskList();
@@ -78,24 +81,24 @@ private:
     void startNextPomodoroSession();
     void handlePomodoroSessionFinish();
     int m_currentUserId;
-
+    int m_currentEditingTaskId;
     enum class TimerMode { None, Stopwatch, Pomodoro };
     enum class PomodoroState { Work, Rest };
 
     TimerMode m_currentTimerMode = TimerMode::None;
     PomodoroState m_currentPomodoroState;
 
-    // Поля для обычного таймера
+
     qint64 m_elapsedSeconds;
 
-    // Поля для Помодоро
+
     int m_pomodoroWorkDurationSecs;
     int m_pomodoroRestDurationSecs;
-    int m_pomodoroTotalSessions = 4; // Всего 4 сессии работы
+    int m_pomodoroTotalSessions = 4;
     int m_pomodoroSessionsCompleted = 0;
     qint64 m_secondsRemainingInSession;
 
-    // Общие поля для таймера
+
     std::unique_ptr<QTimer> m_timer;
     QDateTime m_sessionStartTime;
     int m_currentTimingTaskId;
@@ -118,5 +121,6 @@ private:
     std::unique_ptr<IAddTaskView> m_addTaskView;
     std::unique_ptr<ITweekApiService> m_tweekApiService;
     std::optional<TweekTokens> m_currentTweekTokens;
+    std::unique_ptr<IEditTaskView> m_editTaskView;
 
 };

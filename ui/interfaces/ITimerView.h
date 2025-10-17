@@ -34,6 +34,7 @@ public:
      * @param isWorkSession True, если текущая сессия - работа, false - если отдых.
      */
     virtual void displayPomodoroState(int remainingSessions, bool isWorkSession) = 0;
+    virtual void showStopwatchMode() = 0;
 
 signals:
     // Сигналы о действиях пользователя
@@ -50,4 +51,5 @@ signals:
      * @param restMinutes Длительность сессии отдыха в минутах.
      */
     void pomodoroModeSelected(int workMinutes, int restMinutes);
+
 };

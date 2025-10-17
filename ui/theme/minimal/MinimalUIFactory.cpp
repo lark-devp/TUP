@@ -8,6 +8,7 @@
 #include "ui/theme/minimal/MinimalSynchronizationView.h"
 #include "ui/theme/minimal/MinimalAddTaskView.h"
 #include "ui/theme/minimal/MinimalAuthorizationView.h"
+#include "ui/theme/minimal/MinimalEditTaskView.h"
 
 std::unique_ptr<IAuthorizationView> MinimalUIFactory::createAuthorizationWindow()
 {
@@ -32,6 +33,10 @@ std::unique_ptr<IAddTaskView> MinimalUIFactory::createAddTaskWindow()
     return std::make_unique<MinimalAddTaskView>();
 }
 
+std::unique_ptr<IEditTaskView> MinimalUIFactory::createEditTaskWindow()
+{
+    return std::make_unique<MinimalEditTaskView>();
+}
 std::unique_ptr<ISingleTaskStatisticsView> MinimalUIFactory::createSingleTaskStatisticsWindow()
 {
     return std::make_unique<MinimalSingleTaskStatisticsView>();

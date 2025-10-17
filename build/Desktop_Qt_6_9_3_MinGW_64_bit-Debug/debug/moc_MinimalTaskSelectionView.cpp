@@ -44,6 +44,8 @@ template <> constexpr inline auto MinimalTaskSelectionView::qt_create_metaobject
         "QListWidgetItem*",
         "current",
         "previous",
+        "onItemDoubleClicked",
+        "item",
         "onStartTimerClicked",
         "onShowStatsClicked"
     };
@@ -53,10 +55,14 @@ template <> constexpr inline auto MinimalTaskSelectionView::qt_create_metaobject
         QtMocHelpers::SlotData<void(QListWidgetItem *, QListWidgetItem *)>(1, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { 0x80000000 | 3, 4 }, { 0x80000000 | 3, 5 },
         }}),
+        // Slot 'onItemDoubleClicked'
+        QtMocHelpers::SlotData<void(QListWidgetItem *)>(6, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 3, 7 },
+        }}),
         // Slot 'onStartTimerClicked'
-        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onShowStatsClicked'
-        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(9, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -81,8 +87,9 @@ void MinimalTaskSelectionView::qt_static_metacall(QObject *_o, QMetaObject::Call
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->onTaskSelectionChanged((*reinterpret_cast< std::add_pointer_t<QListWidgetItem*>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QListWidgetItem*>>(_a[2]))); break;
-        case 1: _t->onStartTimerClicked(); break;
-        case 2: _t->onShowStatsClicked(); break;
+        case 1: _t->onItemDoubleClicked((*reinterpret_cast< std::add_pointer_t<QListWidgetItem*>>(_a[1]))); break;
+        case 2: _t->onStartTimerClicked(); break;
+        case 3: _t->onShowStatsClicked(); break;
         default: ;
         }
     }
@@ -107,14 +114,14 @@ int MinimalTaskSelectionView::qt_metacall(QMetaObject::Call _c, int _id, void **
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 3)
+        if (_id < 4)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 3;
+        _id -= 4;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 3)
+        if (_id < 4)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 3;
+        _id -= 4;
     }
     return _id;
 }

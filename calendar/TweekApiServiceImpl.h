@@ -26,7 +26,6 @@ private:
     QNetworkRequest createAuthorizedRequest(const QUrl& url, const QString& idToken);
     QNetworkAccessManager* m_networkManager;
     const QString m_apiKey = "AIzaSyD8L3xf8ELS_YeKMA04u7nLyxhkneOspcs";
-    //const QString m_apiKey = "AIzaSyC7_JO56peYl_eD9QODZlLwZpMclLUoC9s";
     const QUrl m_signInUrl;
     const QUrl m_refreshUrl;
     const QUrl m_calendarsUrl;

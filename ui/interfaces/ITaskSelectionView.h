@@ -36,6 +36,7 @@ public:
 signals:
     // Сигналы о действиях пользователя
     void taskSelectedForTimer(const QString& taskId);
+    void editTaskRequested(const QString& taskId);
     void statisticsRequestedForTask(const QString& taskId);
     void allTasksStatisticsRequested();
     void addTaskRequested();

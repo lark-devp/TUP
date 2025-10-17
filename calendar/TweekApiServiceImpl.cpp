@@ -7,7 +7,7 @@
 #include <QDebug>
 #include <QUrlQuery>
 
-// Конструктор остается таким же, как в прошлый раз
+
 TweekApiServiceImpl::TweekApiServiceImpl(QObject *parent)
     : ITweekApiService(parent),
     m_apiKey("AIzaSyC7_JO56peYl_eD9QODZlLwZpMclLUoC9s"),
@@ -25,11 +25,10 @@ QNetworkRequest TweekApiServiceImpl::createAuthorizedRequest(const QUrl& url, co
     QNetworkRequest request(url);
     qDebug() << "Creating authorized request for" << url << "with token:" << (idToken.isEmpty() ? "EMPTY!" : "present");
 
-    // 1. Устанавливаем токен авторизации (это уже есть)
+
     request.setRawHeader("Authorization", ("Bearer " + idToken).toUtf8());
 
-    // 2. ДОБАВЛЯЕМ ЗАГОЛОВОК USER-AGENT
-    // Это стандартная практика, которую требуют многие API.
+
     request.setHeader(QNetworkRequest::UserAgentHeader, "TimeTrackerApp/1.0");
 
     return request;
@@ -48,7 +47,7 @@ void TweekApiServiceImpl::onCalendarsReplyFinished()
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
     if (!reply) return;
 
-    // --- НАЧАЛО: Логика обработки редиректа ---
+
     QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
     if (redirectionTarget.isValid()) {
         QUrl newUrl = reply->url().resolved(redirectionTarget.toUrl());
@@ -65,10 +64,10 @@ void TweekApiServiceImpl::onCalendarsReplyFinished()
         reply->deleteLater();
         return; // Завершаем обработку старого ответа
     }
-    // --- КОНЕЦ: Логика обработки редиректа ---
+
 
     if (reply->error() != QNetworkReply::NoError) {
-        // Улучшенное логгирование: выводим HTTP статус и текст ошибки
+
         int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qCritical() << "Calendar fetch network error:" << reply->errorString() << "| HTTP Status:" << httpStatusCode;
         emit calendarsFetchFailed("Сетевая ошибка: " + reply->errorString());
@@ -76,7 +75,7 @@ void TweekApiServiceImpl::onCalendarsReplyFinished()
         return;
     }
 
-    // ... остальная логика парсинга ответа остается без изменений ...
+
     QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
     if (!doc.isArray()) {
         emit calendarsFetchFailed("Некорректный ответ от сервера (ожидался массив).");
@@ -115,13 +114,13 @@ void TweekApiServiceImpl::fetchTodayTasks(const QString& idToken, const QString&
     connect(reply, &QNetworkReply::finished, this, &TweekApiServiceImpl::onTasksReplyFinished);
 }
 
-// ----- ОБНОВЛЕННЫЙ СЛОТ ДЛЯ ЗАДАЧ -----
+
 void TweekApiServiceImpl::onTasksReplyFinished()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
     if (!reply) return;
 
-    // --- НАЧАЛО: Логика обработки редиректа ---
+
     QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
     if (redirectionTarget.isValid()) {
         QUrl newUrl = reply->url().resolved(redirectionTarget.toUrl());
@@ -136,7 +135,7 @@ void TweekApiServiceImpl::onTasksReplyFinished()
         reply->deleteLater();
         return;
     }
-    // --- КОНЕЦ: Логика обработки редиректа ---
+
 
     if (reply->error() != QNetworkReply::NoError) {
         int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -146,7 +145,7 @@ void TweekApiServiceImpl::onTasksReplyFinished()
         return;
     }
 
-    // ... остальная логика парсинга ответа остается без изменений ...
+
     QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
     if (!doc.isObject()) {
         emit tasksFetchFailed("Некорректный ответ от сервера (ожидался объект).");
@@ -173,7 +172,7 @@ void TweekApiServiceImpl::onTasksReplyFinished()
 }
 
 
-// --- Методы аутентификации (остаются без изменений, т.к. их логика верна) ---
+
 
 void TweekApiServiceImpl::authenticate(const QString &email, const QString &password)
 {
@@ -240,7 +239,7 @@ void TweekApiServiceImpl::onRefreshTokenReplyFinished()
     if (!reply) return;
 
     if (reply->error() != QNetworkReply::NoError) {
-        // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+
         int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         QByteArray responseData = reply->readAll(); // Читаем тело ответа при ошибке
 
@@ -250,7 +249,7 @@ void TweekApiServiceImpl::onRefreshTokenReplyFinished()
                     << "| Server Response:" << responseData;
 
         emit authenticationFailed("Ошибка обновления токена: " + responseData); // Отправляем тело ответа
-        // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
 
         reply->deleteLater();
         return;

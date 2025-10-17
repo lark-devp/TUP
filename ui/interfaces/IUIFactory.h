@@ -10,6 +10,7 @@
 #include "IAllTasksStatisticsView.h"
 #include "ISynchronizationView.h"
 #include "IAuthorizationView.h"
+#include "IEditTaskView.h"
 
 /**
  * @brief Интерфейс Абстрактной фабрики для создания UI-компонентов.
@@ -27,4 +28,5 @@ public:
     virtual std::unique_ptr<ISingleTaskStatisticsView> createSingleTaskStatisticsWindow() = 0;
     virtual std::unique_ptr<IAllTasksStatisticsView> createAllTasksStatisticsWindow() = 0;
     virtual std::unique_ptr<ISynchronizationView> createSynchronizationWindow() = 0;
+    virtual std::unique_ptr<IEditTaskView> createEditTaskWindow() = 0;
 };

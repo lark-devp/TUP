@@ -8,7 +8,7 @@
 PostgresDatabaseService::PostgresDatabaseService(QObject* parent)
     : IDatabaseService(parent)
 {
-    // Получаем объект соединения с базой данных по умолчанию
+
     // "QPSQL" - это внутреннее имя драйвера Qt для PostgreSQL
     m_db = QSqlDatabase::addDatabase("QPSQL");
     qDebug() << "Database service initialized.";
@@ -28,25 +28,22 @@ PostgresDatabaseService::~PostgresDatabaseService()
  */
 bool PostgresDatabaseService::connectToSource()
 {
-    // --- 1. Установка параметров соединения ---
-    // ВАЖНО: Для курсовой работы можно временно хранить их в коде,
-    // но в реальном приложении их нужно выносить в файл конфигурации (settings.ini, .env).
 
-    m_db.setHostName("localhost");      // Адрес сервера БД. "localhost" - если БД на том же компьютере.
-    m_db.setDatabaseName("timetracker"); // <-- ЗАМЕНИТЕ НА ИМЯ ВАШЕЙ БАЗЫ ДАННЫХ
-    m_db.setUserName("postgres");  // <-- ЗАМЕНИТЕ НА ВАШЕГО ПОЛЬЗОВАТЕЛЯ POSTGRES (часто "postgres")
-    m_db.setPassword("Annapetrovna2005");  // <-- ЗАМЕНИТЕ НА ВАШ ПАРОЛЬ
+
+    m_db.setHostName("localhost");
+    m_db.setDatabaseName("timetracker");
+    m_db.setUserName("postgres");  //
+    m_db.setPassword("Annapetrovna2005");
     m_db.setPort(5432);                 // Стандартный порт для PostgreSQL
 
-    // --- 2. Попытка открыть соединение ---
+
     bool ok = m_db.open();
 
-    // --- 3. Проверка результата и логирование ---
+
     if (ok) {
         qDebug() << "Успешное подключение к базе данных:" << m_db.databaseName();
     } else {
-        // Если подключиться не удалось, выводим подробную ошибку.
-        // Это САМАЯ ВАЖНАЯ часть для отладки!
+
         qCritical() << "Не удалось подключиться к базе данных! Ошибка:";
         qCritical() << m_db.lastError().text();
     }
@@ -66,12 +63,11 @@ void PostgresDatabaseService::disconnectFromSource()
 
 QVariantMap PostgresDatabaseService::authenticateUser(const QString& username, const QString& password)
 {
-    // ВАЖНО: В реальном проекте используйте "соленое" хеширование (например, bcrypt).
-    // Для примера, будем сравнивать пароль напрямую, как в вашем коде.
+
     QSqlQuery query;
     query.prepare(R"(SELECT user_id FROM "User" WHERE username = :username AND password_hash = :password)");
     query.bindValue(":username", username);
-    query.bindValue(":password", password); // ВАЖНО: Это небезопасно!
+    query.bindValue(":password", password);
 
     if (!query.exec()) {
         qCritical() << "Ошибка аутентификации:" << query.lastError().text();
@@ -87,8 +83,7 @@ QVariantMap PostgresDatabaseService::authenticateUser(const QString& username, c
 
 bool PostgresDatabaseService::addUser(const QString& username, const QString& email, const QString& password)
 {
-    // ВАЖНО: Здесь тоже пароль сохраняется в открытом виде.
-    // В реальном проекте его нужно хешировать перед сохранением.
+
     QSqlQuery query(m_db);
     query.prepare(R"(
         INSERT INTO "User" (username, password_hash, email)
@@ -100,7 +95,7 @@ bool PostgresDatabaseService::addUser(const QString& username, const QString& em
 
     if (!query.exec()) {
         qCritical() << "Ошибка регистрации пользователя:" << query.lastError().text();
-        // Можно дополнительно проверить код ошибки, чтобы понять, что это дубликат
+
         if (query.lastError().nativeErrorCode() == "23505") { // Код ошибки уникальности в Postgres
             emit errorOccurred("Пользователь с таким именем или email уже существует.");
         } else {
@@ -118,12 +113,17 @@ QVector<TaskDisplayData> PostgresDatabaseService::getTasksForUser(int userId)
 {
     QVector<TaskDisplayData> tasks;
     QSqlQuery query;
-    query.prepare(R"(SELECT task_id, title FROM "Task" WHERE user_id = :user_id)");
+    // ОБНОВЛЕННЫЙ ЗАПРОС: Добавляем проверку на is_active = TRUE
+    query.prepare(R"(
+        SELECT task_id, title FROM "Task"
+        WHERE user_id = :user_id AND is_active = TRUE
+        ORDER BY title
+    )");
     query.bindValue(":user_id", userId);
 
     if (!query.exec()) {
         qCritical() << "Ошибка получения задач:" << query.lastError().text();
-        return tasks; // Возвращаем пустой вектор
+        return tasks;
     }
 
     while (query.next()) {
@@ -132,9 +132,59 @@ QVector<TaskDisplayData> PostgresDatabaseService::getTasksForUser(int userId)
         task.title = query.value("title").toString();
         tasks.append(task);
     }
-
-    qDebug() << "Найдено" << tasks.count() << "задач для пользователя" << userId;
     return tasks;
+}
+QVariantMap PostgresDatabaseService::getTaskDetails(int taskId)
+{
+    QSqlQuery query;
+    query.prepare(R"(SELECT title, description FROM "Task" WHERE task_id = :task_id)");
+    query.bindValue(":task_id", taskId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка получения деталей задачи:" << query.lastError().text();
+        return QVariantMap();
+    }
+    if (query.next()) {
+        QVariantMap taskData;
+        taskData["title"] = query.value("title").toString();
+        taskData["description"] = query.value("description").toString();
+        return taskData;
+    }
+    return QVariantMap();
+}
+
+// НОВЫЙ МЕТОД
+bool PostgresDatabaseService::updateTask(int taskId, const QString& title, const QString& description)
+{
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        UPDATE "Task"
+        SET title = :title, description = :description
+        WHERE task_id = :task_id
+    )");
+    query.bindValue(":title", title);
+    query.bindValue(":description", description);
+    query.bindValue(":task_id", taskId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка обновления задачи:" << query.lastError().text();
+        return false;
+    }
+    return true;
+}
+
+// НОВЫЙ МЕТОД
+bool PostgresDatabaseService::deactivateTask(int taskId)
+{
+    QSqlQuery query(m_db);
+    query.prepare(R"(UPDATE "Task" SET is_active = FALSE WHERE task_id = :task_id)");
+    query.bindValue(":task_id", taskId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка деактивации (удаления) задачи:" << query.lastError().text();
+        return false;
+    }
+    return true;
 }
 bool PostgresDatabaseService::addTask(const QString& title, const QString& description, int userId)
 {

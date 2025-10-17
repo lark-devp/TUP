@@ -13,8 +13,7 @@
 MinimalTimerView::MinimalTimerView(QWidget *parent)
     : ITimerView(parent)
 {
-    // --- Устанавливаем стили для всего виджета ---
-    // Общий фон и стиль для ВСЕХ кнопок в этом окне
+
     this->setStyleSheet(R"(
         /* Общий фон для окна */
         QWidget {
@@ -44,20 +43,19 @@ MinimalTimerView::MinimalTimerView(QWidget *parent)
         }
     )");
 
-    // --- Главный контейнер ---
+
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(30, 30, 30, 30);
 
-    // --- Заголовок задачи (общий для всех экранов) ---
     m_taskTitleLabel = new QLabel("Название задачи", this);
     m_taskTitleLabel->setAlignment(Qt::AlignCenter);
     m_taskTitleLabel->setStyleSheet("font-size: 18px; color: #555; font-weight: bold; margin-bottom: 10px;");
 
-    // --- Stacked Widget для переключения экранов ---
+
     m_mainStack = new QStackedWidget(this);
-    m_mainStack->addWidget(createModeSelectionPage()); // Индекс 0
-    m_mainStack->addWidget(createStopwatchPage());   // Индекс 1
-    m_mainStack->addWidget(createPomodoroPage());      // Индекс 2
+    m_mainStack->addWidget(createModeSelectionPage()); //  0
+    m_mainStack->addWidget(createStopwatchPage());   //  1
+    m_mainStack->addWidget(createPomodoroPage());      //  2
 
     mainLayout->addWidget(m_taskTitleLabel);
     mainLayout->addWidget(m_mainStack, 1);
@@ -68,7 +66,7 @@ MinimalTimerView::MinimalTimerView(QWidget *parent)
 }
 
 
-// --- Создание страниц для QStackedWidget ---
+
 
 QWidget* MinimalTimerView::createModeSelectionPage()
 {
@@ -82,7 +80,7 @@ QWidget* MinimalTimerView::createModeSelectionPage()
 
 
 
-    auto stopwatchButton = new QPushButton("⏱️ Обычный таймер", pageWidget);
+    auto stopwatchButton = new QPushButton("⏱️ Секундомер", pageWidget);
 
     stopwatchButton->setMinimumHeight(40);
     connect(stopwatchButton, &QPushButton::clicked, this, &ITimerView::timerModeSelected);
@@ -162,7 +160,7 @@ QWidget* MinimalTimerView::createPomodoroPage()
 }
 
 
-// --- Реализация методов интерфейса ---
+
 
 QWidget* MinimalTimerView::getWidget() { return this; }
 
@@ -212,13 +210,12 @@ void MinimalTimerView::onPomodoroButtonClicked()
         return;
     }
 
-    int restMinutes = QInputDialog::getInt(this, "Время отдыха", "Минут на отдых:", 5, 1, 60, 1, &ok);
+    int restMinutes = QInputDialog::getInt(this, "Время отдыха", "Минут на отдых:", 5, 0, 60, 1, &ok);
     if (!ok) {
         return;
     }
 
-    // Если пользователь ничего не ввел, QInputDialog вернет значения по умолчанию.
-    // Испускаем сигнал с полученными значениями.
+
     emit pomodoroModeSelected(workMinutes, restMinutes);
 }
 
@@ -226,4 +223,9 @@ void MinimalTimerView::closeEvent(QCloseEvent *event)
 {
     emit closeRequested();
     ITimerView::closeEvent(event);
+}
+void MinimalTimerView::showStopwatchMode()
+{
+    // Просто переключаем QStackedWidget на страницу с обычным таймером (индекс 1)
+    m_mainStack->setCurrentIndex(1);
 }

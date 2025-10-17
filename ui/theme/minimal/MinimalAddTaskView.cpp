@@ -12,7 +12,7 @@
 MinimalAddTaskView::MinimalAddTaskView(QWidget *parent)
     : IAddTaskView(parent)
 {
-    // --- 1. Определение стилей ---
+
 
     // Стиль для всего виджета
     this->setStyleSheet("background-color: #f4f7fa;");

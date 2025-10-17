@@ -85,7 +85,11 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         "onTimerModeSelected",
         "onPomodoroModeSelected",
         "workMinutes",
-        "restMinutes"
+        "restMinutes",
+        "onEditTaskRequested",
+        "onEditTaskSaved",
+        "onEditTaskDeleted",
+        "onEditTaskCancelled"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -177,6 +181,18 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         QtMocHelpers::SlotData<void(int, int)>(44, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::Int, 45 }, { QMetaType::Int, 46 },
         }}),
+        // Slot 'onEditTaskRequested'
+        QtMocHelpers::SlotData<void(const QString &)>(47, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 10 },
+        }}),
+        // Slot 'onEditTaskSaved'
+        QtMocHelpers::SlotData<void(const QString &, const QString &)>(48, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 20 }, { QMetaType::QString, 21 },
+        }}),
+        // Slot 'onEditTaskDeleted'
+        QtMocHelpers::SlotData<void()>(49, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onEditTaskCancelled'
+        QtMocHelpers::SlotData<void()>(50, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -228,6 +244,10 @@ void ApplicationController::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 25: _t->onSyncTasksSelected((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
         case 26: _t->onTimerModeSelected(); break;
         case 27: _t->onPomodoroModeSelected((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
+        case 28: _t->onEditTaskRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 29: _t->onEditTaskSaved((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 30: _t->onEditTaskDeleted(); break;
+        case 31: _t->onEditTaskCancelled(); break;
         default: ;
         }
     }
@@ -252,14 +272,14 @@ int ApplicationController::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 28)
+        if (_id < 32)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 28;
+        _id -= 32;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 28)
+        if (_id < 32)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 28;
+        _id -= 32;
     }
     return _id;
 }
