@@ -78,6 +78,7 @@ private slots:
     void onTweekTaskCreateFailed(int localTaskId, const QString& error);
     void onTweekTaskUpdateSuccess(const QString& tweekTaskId);
     void onTweekTaskUpdateFailed(const QString& tweekTaskId, const QString& error);
+    void onLogoutRequested();
 
 
 private:

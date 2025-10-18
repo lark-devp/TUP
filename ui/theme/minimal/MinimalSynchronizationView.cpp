@@ -115,8 +115,9 @@ MinimalSynchronizationView::MinimalSynchronizationView(QWidget *parent)
     m_tasksList->setStyleSheet(listStyle);
     m_loginTitle->setStyleSheet(titleStyle);
     m_syncTitle->setStyleSheet(titleStyle);
+     m_closeLoginButton->setStyleSheet(secondaryButtonStyle);
 
-    setMinimumSize(500, 700); // Увеличим размер для удобства
+    setMinimumSize(500, 700);
     setWindowTitle("Синхронизация с Tweek");
 
     // --- 4. Соединение сигналов ---
@@ -137,13 +138,31 @@ void MinimalSynchronizationView::setupLoginUi() {
     m_passwordEdit->setPlaceholderText("••••••••");
     m_connectButton = new QPushButton("Войти", this);
 
+    // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+
+    // 1. Создаем нашу новую кнопку "Закрыть"
+    m_closeLoginButton = new QPushButton("Закрыть", this);
+
+    // 2. Соединяем ее сигнал с тем же сигналом интерфейса, что и у другой кнопки "Закрыть"
+    connect(m_closeLoginButton, &QPushButton::clicked, this, &ISynchronizationView::closeRequested);
+
+    // 3. Создаем горизонтальный layout для кнопок
+    auto buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(m_closeLoginButton); // Кнопка "Закрыть" слева
+    buttonLayout->addStretch();                  // Растягивающаяся пружина посередине
+    buttonLayout->addWidget(m_connectButton);    // Кнопка "Войти" справа
+
+    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
     layout->addWidget(m_loginTitle, 0, Qt::AlignCenter);
     layout->addWidget(new QLabel("Email:", this));
     layout->addWidget(m_emailEdit);
     layout->addWidget(new QLabel("Пароль:", this));
     layout->addWidget(m_passwordEdit);
     layout->addStretch();
-    layout->addWidget(m_connectButton);
+
+    // 4. Добавляем в основной layout наш новый layout с кнопками
+    layout->addLayout(buttonLayout);
 
     connect(m_connectButton, &QPushButton::clicked, this, &MinimalSynchronizationView::onConnectClicked);
 }
@@ -193,6 +212,8 @@ void MinimalSynchronizationView::showState(ViewState state) {
         m_calendarCombo->clear();
         m_tasksList->clear();
         m_logView->clear();
+        m_emailEdit->clear();       // Очищаем поле email
+        m_passwordEdit->clear();
         setProgress(0);
     } else {
         m_loginWidget->hide();

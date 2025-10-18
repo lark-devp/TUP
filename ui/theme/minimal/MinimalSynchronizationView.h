@@ -58,6 +58,7 @@ private:
     QLineEdit* m_passwordEdit;
     QPushButton* m_connectButton;
     QLabel* m_loginTitle;
+    QPushButton* m_closeLoginButton;
 
     // Виджеты для состояния Sync
     QWidget* m_syncWidget = nullptr;

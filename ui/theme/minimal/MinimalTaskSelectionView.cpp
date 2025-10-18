@@ -9,23 +9,16 @@
 #include <QMessageBox>
 #include <QFont>
 #include <QGraphicsDropShadowEffect> // Необходимо для тени
+#include <QPainter>
+#include <QPainterPath>
+#include <QPixmap>
 
 MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     : ITaskSelectionView(parent)
 {
     // --- 1. Определение стилей ---
-
-    // Стиль для всего окна
     this->setStyleSheet("background-color: #f4f7fa;");
-
-    // Стиль для заголовка
-    const QString titleStyle = R"(
-        font-size: 24px;
-        font-weight: bold;
-        color: #333;
-    )";
-
-    // Стиль для списка задач
+    const QString titleStyle = "font-size: 24px; font-weight: bold; color: #333;";
     const QString listWidgetStyle = R"(
         QListWidget {
            border: 1px solid #dcdcdc;
@@ -48,8 +41,6 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
            font-weight: bold;
         }
     )";
-
-    // Общий стиль для кнопок
     const QString buttonStyle = R"(
         QPushButton {
            background-color: #4a90e2;
@@ -71,6 +62,20 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
            color: #a0a0a0;
         }
     )";
+    const QString iconButtonStyle = R"(
+        QPushButton {
+            background-color: transparent;
+            border: none;
+            padding: 4px;
+            border-radius: 13px; /* Делаем круглой */
+        }
+        QPushButton:hover {
+            background-color: #e0e8f0;
+        }
+        QPushButton:pressed {
+            background-color: #d0d8e0;
+        }
+    )";
 
 
     // --- 2. Создание виджетов ---
@@ -87,7 +92,7 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     m_stackedWidget->addWidget(m_listWidget);
     m_stackedWidget->addWidget(loadingWidget);
 
-    // Кнопки
+    // Кнопки действий
     m_startTimerButton = new QPushButton("▶️ Старт", this);
     m_statsButton = new QPushButton("📊 Статистика", this);
     m_allStatsButton = new QPushButton("Статистика (все)", this);
@@ -95,25 +100,63 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     m_syncButton = new QPushButton("🔄 Синхронизация", this);
     m_refreshButton = new QPushButton("Обновить календарь", this);
 
+    // --- ИЗМЕНЕНИЕ: Создание кнопки и кастомной иконки ---
+    m_logoutButton = new QPushButton(this);
+
+    // Создаем pixmap для рисования
+    QPixmap pixmap(64, 64); // Рисуем в высоком разрешении для четкости
+    pixmap.fill(Qt::transparent); // Прозрачный фон
+
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing); // Включаем сглаживание
+    QPen pen(QColor("#555555")); // Темно-серый цвет
+    pen.setWidth(6);
+    pen.setCapStyle(Qt::RoundCap);
+    pen.setJoinStyle(Qt::RoundJoin);
+    painter.setPen(pen);
+
+    // Рисуем "дверной проем"
+    QPainterPath doorPath;
+    doorPath.moveTo(45, 10);
+    doorPath.lineTo(20, 10);
+    doorPath.arcTo(10, 10, 10, 10, 90, 90);
+    doorPath.lineTo(10, 54);
+    doorPath.arcTo(10, 44, 10, 10, 180, 90);
+    doorPath.lineTo(45, 54);
+    painter.drawPath(doorPath);
+
+    // Рисуем стрелку
+    painter.drawLine(30, 32, 54, 32);
+    painter.drawLine(44, 22, 54, 32);
+    painter.drawLine(44, 42, 54, 32);
+
+    QIcon logoutIcon(pixmap);
+    m_logoutButton->setIcon(logoutIcon); // Устанавливаем нашу иконку
+    m_logoutButton->setFixedSize(26, 26); // <-- ИЗМЕНЕНИЕ: Уменьшили размер кнопки
+    m_logoutButton->setIconSize(QSize(18, 18)); // <-- ИЗМЕНЕНИЕ: Уменьшили размер самой иконки
+    m_logoutButton->setToolTip("Выйти из аккаунта");
+
 
     // --- 3. Применение стилей и эффектов ---
     m_titleLabel->setStyleSheet(titleStyle);
     m_listWidget->setStyleSheet(listWidgetStyle);
 
-    // Применяем общий стиль ко всем кнопкам
-    for (auto* button : findChildren<QPushButton*>()) {
+    const QList<QPushButton*> actionButtons = {
+        m_startTimerButton, m_statsButton, m_allStatsButton,
+        m_addTaskButton, m_syncButton, m_refreshButton
+    };
+    for (auto* button : actionButtons) {
         button->setStyleSheet(buttonStyle);
-        button->setCursor(Qt::PointingHandCursor); // Меняем курсор при наведении
-
-        // Добавляем тень к каждой кнопке
+        button->setCursor(Qt::PointingHandCursor);
         auto shadow = new QGraphicsDropShadowEffect(this);
         shadow->setBlurRadius(15);
         shadow->setOffset(0, 3);
         shadow->setColor(QColor(0, 0, 0, 80));
         button->setGraphicsEffect(shadow);
     }
+    m_logoutButton->setStyleSheet(iconButtonStyle);
+    m_logoutButton->setCursor(Qt::PointingHandCursor);
 
-    // Изначально кнопки, требующие выбора задачи, неактивны
     m_startTimerButton->setEnabled(false);
     m_statsButton->setEnabled(false);
     m_refreshButton->setEnabled(false);
@@ -121,12 +164,15 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
 
     // --- 4. Компоновка ---
     auto mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(30, 20, 30, 30);
     mainLayout->setSpacing(20);
-    mainLayout->setContentsMargins(30, 30, 30, 30);
+
+    auto topBarLayout = new QHBoxLayout();
+    topBarLayout->addStretch();
+    topBarLayout->addWidget(m_logoutButton);
 
     auto buttonLayout = new QGridLayout();
     buttonLayout->setSpacing(15);
-
     buttonLayout->addWidget(m_startTimerButton, 0, 0);
     buttonLayout->addWidget(m_statsButton, 0, 1);
     buttonLayout->addWidget(m_addTaskButton, 1, 0);
@@ -134,9 +180,10 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     buttonLayout->addWidget(m_syncButton, 2, 0);
     buttonLayout->addWidget(m_allStatsButton, 2, 1);
 
+    mainLayout->addLayout(topBarLayout);
     mainLayout->addWidget(m_titleLabel, 0, Qt::AlignHCenter);
-    mainLayout->addWidget(m_stackedWidget);
-    mainLayout->addSpacing(10); // Небольшой отступ перед кнопками
+    mainLayout->addWidget(m_stackedWidget, 1);
+    mainLayout->addSpacing(10);
     mainLayout->addLayout(buttonLayout);
 
     setLayout(mainLayout);
@@ -144,22 +191,23 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     setMinimumSize(450, 600);
 
 
-    // --- 5. Соединение сигналов и слотов (без изменений) ---
+    // --- 5. Соединение сигналов и слотов ---
     connect(m_listWidget, &QListWidget::currentItemChanged, this, &MinimalTaskSelectionView::onTaskSelectionChanged);
     connect(m_startTimerButton, &QPushButton::clicked, this, &MinimalTaskSelectionView::onStartTimerClicked);
     connect(m_statsButton, &QPushButton::clicked, this, &MinimalTaskSelectionView::onShowStatsClicked);
     connect(m_allStatsButton, &QPushButton::clicked, this, &ITaskSelectionView::allTasksStatisticsRequested);
     connect(m_addTaskButton, &QPushButton::clicked, this, &ITaskSelectionView::addTaskRequested);
     connect(m_syncButton, &QPushButton::clicked, this, &ITaskSelectionView::synchronizationRequested);
+    connect(m_listWidget, &QListWidget::itemDoubleClicked, this, &MinimalTaskSelectionView::onItemDoubleClicked);
+    connect(m_logoutButton, &QPushButton::clicked, this, &ITaskSelectionView::logoutRequested);
     connect(m_refreshButton, &QPushButton::clicked, this, [this](){
         if (auto* item = m_listWidget->currentItem()) {
             emit syncSingleTaskRequested(item->data(Qt::UserRole).toString());
         }
     });
-    connect(m_listWidget, &QListWidget::itemDoubleClicked, this, &MinimalTaskSelectionView::onItemDoubleClicked);
 }
 
-// --- Реализация методов интерфейсов и слотов (остается без изменений) ---
+
 
 QWidget* MinimalTaskSelectionView::getWidget()
 {

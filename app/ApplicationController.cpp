@@ -107,6 +107,7 @@ void ApplicationController::showMainWindow(const QVector<TaskDisplayData>& tasks
     connect(m_taskSelectionView.get(), &ITaskSelectionView::addTaskRequested, this, &ApplicationController::onAddTaskRequested);
     connect(m_taskSelectionView.get(), &ITaskSelectionView::editTaskRequested, this, &ApplicationController::onEditTaskRequested);
     connect(m_taskSelectionView.get(), &ITaskSelectionView::syncSingleTaskRequested, this, &ApplicationController::onSyncSingleTaskToTweek);
+    connect(m_taskSelectionView.get(), &ITaskSelectionView::logoutRequested, this, &ApplicationController::onLogoutRequested);
     m_taskSelectionView->displayTasks(tasks);
 
     m_taskSelectionView->showView();
@@ -856,4 +857,28 @@ void ApplicationController::onTweekDisconnectRequested()
     m_synchronizationView->logMessage("Вы успешно вышли из аккаунта.");
     m_synchronizationView->showState(ISynchronizationView::ViewState::Login);
     m_synchronizationView->setControlsEnabled(true); // Разблокируем контролы
+}
+void ApplicationController::onLogoutRequested()
+{
+    qDebug() << "Пользователь" << m_currentUserId << "выходит из системы.";
+
+    // 1. Скрываем и уничтожаем все текущие окна, связанные с сессией пользователя
+    if (m_taskSelectionView) {
+        m_taskSelectionView->hideView();
+        m_taskSelectionView.reset();
+    }
+    if (m_timerView) m_timerView.reset();
+    if (m_statisticsView) m_statisticsView.reset();
+    if (m_allTasksStatisticsView) m_allTasksStatisticsView.reset();
+    if (m_synchronizationView) m_synchronizationView.reset();
+    if (m_addTaskView) m_addTaskView.reset();
+    if (m_editTaskView) m_editTaskView.reset();
+    if (m_timer) m_timer.reset();
+
+    // 2. Сбрасываем данные о текущем пользователе
+    m_currentUserId = 0;
+    m_currentTweekTokens.reset();
+
+    // 3. Запускаем процесс авторизации заново
+    start();
 }

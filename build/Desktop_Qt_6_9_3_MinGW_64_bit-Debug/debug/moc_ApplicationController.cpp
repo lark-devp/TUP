@@ -98,7 +98,8 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         "onTweekTaskCreateFailed",
         "onTweekTaskUpdateSuccess",
         "tweekTaskId",
-        "onTweekTaskUpdateFailed"
+        "onTweekTaskUpdateFailed",
+        "onLogoutRequested"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -224,6 +225,8 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         QtMocHelpers::SlotData<void(const QString &, const QString &)>(59, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 58 }, { QMetaType::QString, 32 },
         }}),
+        // Slot 'onLogoutRequested'
+        QtMocHelpers::SlotData<void()>(60, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -285,6 +288,7 @@ void ApplicationController::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 35: _t->onTweekTaskCreateFailed((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 36: _t->onTweekTaskUpdateSuccess((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 37: _t->onTweekTaskUpdateFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 38: _t->onLogoutRequested(); break;
         default: ;
         }
     }
@@ -309,14 +313,14 @@ int ApplicationController::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 38)
+        if (_id < 39)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 38;
+        _id -= 39;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 38)
+        if (_id < 39)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 38;
+        _id -= 39;
     }
     return _id;
 }
