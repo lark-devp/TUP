@@ -55,6 +55,7 @@ private slots:
     void onTweekConnectRequested(const QString& email, const QString& password);
     void onTweekAuthSuccess(const QString& idToken, const QString& refreshToken);
     void onTweekAuthFailed(const QString& error);
+    void onTweekDisconnectRequested();
 
     void onCalendarsFetchSuccess(const QVector<TweekCalendar>& calendars);
     void onCalendarsFetchFailed(const QString& error);

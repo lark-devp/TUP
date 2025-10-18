@@ -234,7 +234,11 @@ void TweekApiServiceImpl::refreshToken(const QString &token)
     QNetworkRequest request(m_refreshUrl);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
+    // Создаем ответ и сразу же подключаем к нему слот onRefreshTokenReplyFinished
     QNetworkReply* reply = m_networkManager->post(request, postData);
+
+    // Используем this в качестве контекста, чтобы соединение автоматически разорвалось,
+    // если TweekApiServiceImpl будет уничтожен до получения ответа.
     connect(reply, &QNetworkReply::finished, this, &TweekApiServiceImpl::onRefreshTokenReplyFinished);
 }
 
@@ -252,6 +256,12 @@ void TweekApiServiceImpl::onRefreshTokenReplyFinished()
         qCritical() << "Refresh token network error:" << reply->errorString()
                     << "| HTTP Status:" << httpStatusCode
                     << "| Server Response:" << responseData;
+        QString errorMessage;
+        if (reply->error() == QNetworkReply::ConnectionRefusedError || reply->error() == QNetworkReply::TimeoutError || httpStatusCode == 0) {
+            errorMessage = "Не удалось подключиться к серверу. Проверьте ваше интернет-соединение.";
+        } else {
+            errorMessage = "Ошибка обновления токена: " + responseData;
+        }
 
         emit authenticationFailed("Ошибка обновления токена: " + responseData); // Отправляем тело ответа
 

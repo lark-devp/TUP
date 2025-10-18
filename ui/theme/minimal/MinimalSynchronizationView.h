@@ -57,13 +57,16 @@ private:
     QLineEdit* m_emailEdit;
     QLineEdit* m_passwordEdit;
     QPushButton* m_connectButton;
+    QLabel* m_loginTitle;
 
     // Виджеты для состояния Sync
     QWidget* m_syncWidget = nullptr;
+    QPushButton* m_disconnectButton;
     QComboBox* m_calendarCombo;
     QPushButton* m_getTasksButton;
     QListWidget* m_tasksList;
     QPushButton* m_confirmButton;
+    QLabel* m_syncTitle;
 
     // Для хранения полного объекта задачи
     QMap<QString, TweekTask> m_taskMap;

@@ -37,9 +37,10 @@ signals:
     void closeRequested();
     void connectRequested(const QString& email, const QString& password);
 
-    // Новые сигналы
+
     void calendarsRequested();
     void tasksRequested(const QString& calendarId);
     void tasksSelected(const QVector<TweekTask>& selectedTasks);
+    void disconnectRequested();
 
 };

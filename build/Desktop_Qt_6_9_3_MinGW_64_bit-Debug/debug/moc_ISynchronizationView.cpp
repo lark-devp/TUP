@@ -50,7 +50,8 @@ template <> constexpr inline auto ISynchronizationView::qt_create_metaobjectdata
         "calendarId",
         "tasksSelected",
         "QList<TweekTask>",
-        "selectedTasks"
+        "selectedTasks",
+        "disconnectRequested"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -70,6 +71,8 @@ template <> constexpr inline auto ISynchronizationView::qt_create_metaobjectdata
         QtMocHelpers::SignalData<void(const QVector<TweekTask> &)>(9, 2, QMC::AccessPublic, QMetaType::Void, {{
             { 0x80000000 | 10, 11 },
         }}),
+        // Signal 'disconnectRequested'
+        QtMocHelpers::SignalData<void()>(12, 2, QMC::AccessPublic, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -98,6 +101,7 @@ void ISynchronizationView::qt_static_metacall(QObject *_o, QMetaObject::Call _c,
         case 2: _t->calendarsRequested(); break;
         case 3: _t->tasksRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 4: _t->tasksSelected((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
+        case 5: _t->disconnectRequested(); break;
         default: ;
         }
     }
@@ -111,6 +115,8 @@ void ISynchronizationView::qt_static_metacall(QObject *_o, QMetaObject::Call _c,
         if (QtMocHelpers::indexOfMethod<void (ISynchronizationView::*)(const QString & )>(_a, &ISynchronizationView::tasksRequested, 3))
             return;
         if (QtMocHelpers::indexOfMethod<void (ISynchronizationView::*)(const QVector<TweekTask> & )>(_a, &ISynchronizationView::tasksSelected, 4))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ISynchronizationView::*)()>(_a, &ISynchronizationView::disconnectRequested, 5))
             return;
     }
 }
@@ -134,14 +140,14 @@ int ISynchronizationView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 6)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 6;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 5)
+        if (_id < 6)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 5;
+        _id -= 6;
     }
     return _id;
 }
@@ -174,5 +180,11 @@ void ISynchronizationView::tasksRequested(const QString & _t1)
 void ISynchronizationView::tasksSelected(const QVector<TweekTask> & _t1)
 {
     QMetaObject::activate<void>(this, &staticMetaObject, 4, nullptr, _t1);
+}
+
+// SIGNAL 5
+void ISynchronizationView::disconnectRequested()
+{
+    QMetaObject::activate(this, &staticMetaObject, 5, nullptr);
 }
 QT_WARNING_POP

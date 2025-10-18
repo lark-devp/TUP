@@ -228,14 +228,45 @@ void ApplicationController::handlePomodoroSessionFinish()
 
 void ApplicationController::startNextPomodoroSession()
 {
-    // Определяем, какая сессия будет следующей: работа или отдых
-    // Если предыдущая была отдых ИЛИ это самый первый запуск, то начинаем РАБОТУ
+    QString taskTitle = m_dbService->getTaskTitle(m_currentTimingTaskId);
+    if (taskTitle.isEmpty()) {
+        taskTitle = "текущей задачей";
+    }
+
+    // Определяем, какая сессия будет следующей
     if (m_currentPomodoroState == PomodoroState::Rest || m_pomodoroSessionsCompleted == 0) {
         m_currentPomodoroState = PomodoroState::Work;
         m_secondsRemainingInSession = m_pomodoroWorkDurationSecs;
+
+        // --- СОЗДАЕМ И НАСТРАИВАЕМ УВЕДОМЛЕНИЕ О НАЧАЛЕ РАБОТЫ ---
+        QMessageBox workNotification(m_timerView ? m_timerView->getWidget() : nullptr);
+        workNotification.setWindowTitle("Время работать!");
+        workNotification.setText(QString("Начинается сессия работы над задачей:\n'%1'").arg(taskTitle));
+        workNotification.setIcon(QMessageBox::Information);
+        workNotification.setStandardButtons(QMessageBox::Ok);
+
+        // ---- САМАЯ ВАЖНАЯ СТРОКА ----
+        // Добавляем флаг, который держит окно поверх всех остальных
+        workNotification.setWindowFlags(workNotification.windowFlags() | Qt::WindowStaysOnTopHint);
+
+        workNotification.exec(); // Показываем окно и ждем, пока пользователь нажмет "OK"
+
     } else { // Иначе - начинаем отдых
         m_currentPomodoroState = PomodoroState::Rest;
         m_secondsRemainingInSession = m_pomodoroRestDurationSecs;
+
+        // --- СОЗДАЕМ И НАСТРАИВАЕМ УВЕДОМЛЕНИЕ О НАЧАЛЕ ОТДЫХА ---
+        QMessageBox restNotification(m_timerView ? m_timerView->getWidget() : nullptr);
+        int restMinutes = m_pomodoroRestDurationSecs / 60;
+        restNotification.setWindowTitle("Время отдохнуть!");
+        restNotification.setText(QString("Сделайте перерыв на %1 минут.").arg(restMinutes));
+        restNotification.setIcon(QMessageBox::Information);
+        restNotification.setStandardButtons(QMessageBox::Ok);
+
+        // ---- И ЗДЕСЬ ТОЖЕ ДОБАВЛЯЕМ ФЛАГ ----
+        restNotification.setWindowFlags(restNotification.windowFlags() | Qt::WindowStaysOnTopHint);
+
+        restNotification.exec();
     }
 
     m_sessionStartTime = QDateTime::currentDateTime();
@@ -435,7 +466,8 @@ void ApplicationController::onSynchronizationRequested()
     connect(m_tweekApiService.get(), &ITweekApiService::calendarsFetchFailed, this, &ApplicationController::onCalendarsFetchFailed, Qt::UniqueConnection);
     connect(m_tweekApiService.get(), &ITweekApiService::tasksFetchSuccess, this, &ApplicationController::onTasksFetchSuccess, Qt::UniqueConnection);
     connect(m_tweekApiService.get(), &ITweekApiService::tasksFetchFailed, this, &ApplicationController::onTasksFetchFailed, Qt::UniqueConnection);
-
+    connect(m_synchronizationView.get(), &ISynchronizationView::disconnectRequested,
+            this, &ApplicationController::onTweekDisconnectRequested);
 
     auto savedTokens = m_dbService->getTweekTokens(m_currentUserId);
     if (savedTokens && !savedTokens->refreshToken.isEmpty()) {
@@ -807,4 +839,21 @@ void ApplicationController::onTweekTaskUpdateFailed(const QString& tweekTaskId, 
     m_taskSelectionView->showLoading(false);
     qWarning() << "Ошибка обновления задачи" << tweekTaskId << "в Tweek:" << error;
     m_taskSelectionView->showError("Не удалось обновить задачу в Tweek: " + error);
+}
+void ApplicationController::onTweekDisconnectRequested()
+{
+    if (!m_synchronizationView) return;
+
+    qDebug() << "Выход из аккаунта Tweek для пользователя" << m_currentUserId;
+
+    // 1. Очищаем данные в базе данных
+    m_dbService->clearTweekData(m_currentUserId);
+
+    // 2. Очищаем токены в текущей сессии
+    m_currentTweekTokens.reset(); // или m_currentTweekTokens = std::nullopt;
+
+    // 3. Переключаем UI обратно в состояние входа
+    m_synchronizationView->logMessage("Вы успешно вышли из аккаунта.");
+    m_synchronizationView->showState(ISynchronizationView::ViewState::Login);
+    m_synchronizationView->setControlsEnabled(true); // Разблокируем контролы
 }

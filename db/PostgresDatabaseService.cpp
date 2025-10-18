@@ -456,4 +456,23 @@ QString PostgresDatabaseService::getTweekDefaultCalendar(int userId)
     }
     return QString();
 }
+void PostgresDatabaseService::clearTweekData(int userId)
+{
+    QSqlQuery query(m_db);
+    query.prepare(R"(
+        UPDATE "User"
+        SET
+            tweek_token = NULL,
+            tweek_refresh_token = NULL,
+            tweek_default_calendar_id = NULL
+        WHERE user_id = :user_id
+    )");
+    query.bindValue(":user_id", userId);
+
+    if (!query.exec()) {
+        qCritical() << "Ошибка очистки данных Tweek для пользователя" << userId << ":" << query.lastError().text();
+    } else {
+        qDebug() << "Данные Tweek для пользователя" << userId << "успешно очищены.";
+    }
+}
 

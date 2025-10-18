@@ -29,6 +29,7 @@ public:
     bool saveTweekTaskId(int localTaskId, const QString& tweekTaskId) override;
     bool saveTweekDefaultCalendar(int userId, const QString& calendarId) override;
     QString getTweekDefaultCalendar(int userId) override;
+    void clearTweekData(int userId) override;
 
 
 private:

@@ -72,6 +72,7 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         "refreshToken",
         "onTweekAuthFailed",
         "error",
+        "onTweekDisconnectRequested",
         "onCalendarsFetchSuccess",
         "QList<TweekCalendar>",
         "calendars",
@@ -163,63 +164,65 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         QtMocHelpers::SlotData<void(const QString &)>(31, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 32 },
         }}),
+        // Slot 'onTweekDisconnectRequested'
+        QtMocHelpers::SlotData<void()>(33, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onCalendarsFetchSuccess'
-        QtMocHelpers::SlotData<void(const QVector<TweekCalendar> &)>(33, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 34, 35 },
+        QtMocHelpers::SlotData<void(const QVector<TweekCalendar> &)>(34, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 35, 36 },
         }}),
         // Slot 'onCalendarsFetchFailed'
-        QtMocHelpers::SlotData<void(const QString &)>(36, 2, QMC::AccessPrivate, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(const QString &)>(37, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 32 },
         }}),
         // Slot 'onTasksFetchSuccess'
-        QtMocHelpers::SlotData<void(const QVector<TweekTask> &)>(37, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 38, 39 },
+        QtMocHelpers::SlotData<void(const QVector<TweekTask> &)>(38, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 39, 40 },
         }}),
         // Slot 'onTasksFetchFailed'
-        QtMocHelpers::SlotData<void(const QString &)>(40, 2, QMC::AccessPrivate, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(const QString &)>(41, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 32 },
         }}),
         // Slot 'onSyncTasksSelected'
-        QtMocHelpers::SlotData<void(const QVector<TweekTask> &)>(41, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 38, 42 },
+        QtMocHelpers::SlotData<void(const QVector<TweekTask> &)>(42, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 39, 43 },
         }}),
         // Slot 'onTimerModeSelected'
-        QtMocHelpers::SlotData<void()>(43, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(44, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onPomodoroModeSelected'
-        QtMocHelpers::SlotData<void(int, int)>(44, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Int, 45 }, { QMetaType::Int, 46 },
+        QtMocHelpers::SlotData<void(int, int)>(45, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 46 }, { QMetaType::Int, 47 },
         }}),
         // Slot 'onEditTaskRequested'
-        QtMocHelpers::SlotData<void(const QString &)>(47, 2, QMC::AccessPrivate, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(const QString &)>(48, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 10 },
         }}),
         // Slot 'onEditTaskSaved'
-        QtMocHelpers::SlotData<void(const QString &, const QString &)>(48, 2, QMC::AccessPrivate, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(const QString &, const QString &)>(49, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 20 }, { QMetaType::QString, 21 },
         }}),
         // Slot 'onEditTaskDeleted'
-        QtMocHelpers::SlotData<void()>(49, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onEditTaskCancelled'
         QtMocHelpers::SlotData<void()>(50, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onEditTaskCancelled'
+        QtMocHelpers::SlotData<void()>(51, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onSyncSingleTaskToTweek'
-        QtMocHelpers::SlotData<void(const QString &)>(51, 2, QMC::AccessPrivate, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(const QString &)>(52, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 10 },
         }}),
         // Slot 'onTweekTaskCreateSuccess'
-        QtMocHelpers::SlotData<void(int, const QString &)>(52, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Int, 53 }, { QMetaType::QString, 54 },
+        QtMocHelpers::SlotData<void(int, const QString &)>(53, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 54 }, { QMetaType::QString, 55 },
         }}),
         // Slot 'onTweekTaskCreateFailed'
-        QtMocHelpers::SlotData<void(int, const QString &)>(55, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Int, 53 }, { QMetaType::QString, 32 },
+        QtMocHelpers::SlotData<void(int, const QString &)>(56, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 54 }, { QMetaType::QString, 32 },
         }}),
         // Slot 'onTweekTaskUpdateSuccess'
-        QtMocHelpers::SlotData<void(const QString &)>(56, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 57 },
+        QtMocHelpers::SlotData<void(const QString &)>(57, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 58 },
         }}),
         // Slot 'onTweekTaskUpdateFailed'
-        QtMocHelpers::SlotData<void(const QString &, const QString &)>(58, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 57 }, { QMetaType::QString, 32 },
+        QtMocHelpers::SlotData<void(const QString &, const QString &)>(59, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 58 }, { QMetaType::QString, 32 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -265,22 +268,23 @@ void ApplicationController::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 18: _t->onTweekConnectRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 19: _t->onTweekAuthSuccess((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 20: _t->onTweekAuthFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 21: _t->onCalendarsFetchSuccess((*reinterpret_cast< std::add_pointer_t<QList<TweekCalendar>>>(_a[1]))); break;
-        case 22: _t->onCalendarsFetchFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 23: _t->onTasksFetchSuccess((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
-        case 24: _t->onTasksFetchFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 25: _t->onSyncTasksSelected((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
-        case 26: _t->onTimerModeSelected(); break;
-        case 27: _t->onPomodoroModeSelected((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
-        case 28: _t->onEditTaskRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 29: _t->onEditTaskSaved((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 30: _t->onEditTaskDeleted(); break;
-        case 31: _t->onEditTaskCancelled(); break;
-        case 32: _t->onSyncSingleTaskToTweek((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 33: _t->onTweekTaskCreateSuccess((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 34: _t->onTweekTaskCreateFailed((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 35: _t->onTweekTaskUpdateSuccess((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 36: _t->onTweekTaskUpdateFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 21: _t->onTweekDisconnectRequested(); break;
+        case 22: _t->onCalendarsFetchSuccess((*reinterpret_cast< std::add_pointer_t<QList<TweekCalendar>>>(_a[1]))); break;
+        case 23: _t->onCalendarsFetchFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 24: _t->onTasksFetchSuccess((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
+        case 25: _t->onTasksFetchFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 26: _t->onSyncTasksSelected((*reinterpret_cast< std::add_pointer_t<QList<TweekTask>>>(_a[1]))); break;
+        case 27: _t->onTimerModeSelected(); break;
+        case 28: _t->onPomodoroModeSelected((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
+        case 29: _t->onEditTaskRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 30: _t->onEditTaskSaved((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 31: _t->onEditTaskDeleted(); break;
+        case 32: _t->onEditTaskCancelled(); break;
+        case 33: _t->onSyncSingleTaskToTweek((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 34: _t->onTweekTaskCreateSuccess((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 35: _t->onTweekTaskCreateFailed((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 36: _t->onTweekTaskUpdateSuccess((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 37: _t->onTweekTaskUpdateFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         default: ;
         }
     }
@@ -305,14 +309,14 @@ int ApplicationController::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 37)
+        if (_id < 38)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 37;
+        _id -= 38;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 37)
+        if (_id < 38)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 37;
+        _id -= 38;
     }
     return _id;
 }

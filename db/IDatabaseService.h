@@ -55,6 +55,7 @@ public:
 
 
     virtual bool hasTweekTokens(int userId) = 0;
+    virtual void clearTweekData(int userId) = 0;
 
 signals:
     void errorOccurred(const QString& errorMessage);
