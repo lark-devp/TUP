@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     auto dbService = std::make_unique<PostgresDatabaseService>();
     if (!dbService->connectToSource()) {
-        qCritical() << "Критическая ошибка: не удалось подключиться к базе данных!";
+        qCritical() << "Критическая ошибка: не удалось подключиться к базе данных! ";
         return -1;
     }
 
