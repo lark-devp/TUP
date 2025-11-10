@@ -68,11 +68,6 @@ void MinimalAuthorizationView::setupUi()
     m_registerLink->setCursor(Qt::PointingHandCursor);
     m_registerLink->setStyleSheet(linkButtonStyle);
 
-    // Кнопка "Забыли пароль?"
-    m_forgotPasswordLink = new QPushButton("Забыли пароль?");
-    m_forgotPasswordLink->setFlat(true);
-    m_forgotPasswordLink->setCursor(Qt::PointingHandCursor);
-    m_forgotPasswordLink->setStyleSheet(linkButtonStyle);
 
     // Кнопка "Назад ко входу"
     m_backToLoginLink = new QPushButton("Назад ко входу");
@@ -128,8 +123,7 @@ void MinimalAuthorizationView::setupUi()
     // Компоновка ссылок
     auto linksLayout = new QHBoxLayout();
     linksLayout->addWidget(m_registerLink);
-    linksLayout->addStretch();
-    linksLayout->addWidget(m_forgotPasswordLink);
+;
 
     m_linksWidget = new QWidget();
     m_linksWidget->setLayout(linksLayout);
@@ -164,15 +158,12 @@ void MinimalAuthorizationView::setupConnections()
             }
             emit registrationSubmitted(m_usernameLineEdit->text(), m_emailLineEdit->text(), m_passwordLineEdit->text());
             break;
-        case State::PasswordRecovery:
-            emit recoverySubmitted(m_emailLineEdit->text());
-            break;
         }
     });
 
     // Ссылки
     connect(m_registerLink, &QPushButton::clicked, this, [this](){ switchState(State::Register); });
-    connect(m_forgotPasswordLink, &QPushButton::clicked, this, [this](){ switchState(State::PasswordRecovery); });
+
     connect(m_backToLoginLink, &QPushButton::clicked, this, [this](){ emit backToLoginRequested(); });
 
     // Удобство для пользователя: скрываем ошибку, как только он начинает вводить новые данные
@@ -197,7 +188,7 @@ void MinimalAuthorizationView::switchState(State state)
         m_linksWidget->setVisible(true);
         m_backToLoginLink->setVisible(false);
         m_usernameLineEdit->setFocus();
-    } else if (state == State::Register) {
+    } else {
         m_titleLabel->setText("Регистрация");
         m_mainButton->setText("Зарегистрироваться");
         m_usernameLineEdit->setVisible(true);
@@ -207,16 +198,6 @@ void MinimalAuthorizationView::switchState(State state)
         m_linksWidget->setVisible(false);
         m_backToLoginLink->setVisible(true);
         m_usernameLineEdit->setFocus();
-    } else if (state == State::PasswordRecovery) {
-        m_titleLabel->setText("Восстановление пароля");
-        m_mainButton->setText("Отправить ссылку");
-        m_usernameLineEdit->setVisible(false);
-        m_passwordLineEdit->setVisible(false);
-        m_emailLineEdit->setVisible(true);
-        m_confirmPasswordLineEdit->setVisible(false);
-        m_linksWidget->setVisible(false);
-        m_backToLoginLink->setVisible(true);
-        m_emailLineEdit->setFocus();
     }
 }
 

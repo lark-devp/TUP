@@ -18,7 +18,6 @@ public:
     enum class State {
         Login,
         Register,
-        PasswordRecovery
     };
 
     explicit IAuthorizationView(QWidget * parent = nullptr) : IView(parent) {}
@@ -56,11 +55,6 @@ signals:
      */
     void registrationSubmitted(const QString& username, const QString& email, const QString& password);
 
-    /**
-     * @brief Испускается, когда пользователь отправляет форму восстановления пароля.
-     * @param email Введенная почта.
-     */
-    void recoverySubmitted(const QString& email);
 
     /**
      * @brief Испускается при нажатии на ссылку/кнопку для перехода на экран входа.

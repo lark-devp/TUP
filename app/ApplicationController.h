@@ -30,7 +30,7 @@ public:
 private slots:
     void onLoginRequested(const QString& username, const QString& password);
     void onRegistrationSubmitted(const QString& username, const QString& email, const QString& password);
-    void onRecoverySubmitted(const QString& email);
+
     void onBackToLoginRequested();
 
     void onTaskSelectedForTimer(const QString& taskId);

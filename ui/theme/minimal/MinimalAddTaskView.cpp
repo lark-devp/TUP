@@ -88,8 +88,8 @@ MinimalAddTaskView::MinimalAddTaskView(QWidget *parent)
     m_titleLineEdit->setPlaceholderText("Введите название задачи...");
 
     m_descriptionTextEdit = new QTextEdit(this);
-    m_descriptionTextEdit->setPlaceholderText("Введите подробное описание...");
-
+    m_descriptionTextEdit->setPlaceholderText("Введите описание...");
+    m_descriptionTextEdit->setMinimumHeight(200);
     m_saveButton = new QPushButton("Сохранить", this);
     m_cancelButton = new QPushButton("Отмена", this);
 
@@ -128,12 +128,11 @@ MinimalAddTaskView::MinimalAddTaskView(QWidget *parent)
     mainLayout->addWidget(m_titleLineEdit);
     mainLayout->addWidget(new QLabel("Описание:", this));
     mainLayout->addWidget(m_descriptionTextEdit);
-    mainLayout->addStretch(); // Растягиваем пространство, чтобы кнопки были внизу
     mainLayout->addLayout(buttonLayout);
 
     setLayout(mainLayout);
     setWindowTitle("Добавление задачи");
-    setMinimumSize(450, 600);
+
 
 
     // --- 5. Соединение сигналов и слотов ---

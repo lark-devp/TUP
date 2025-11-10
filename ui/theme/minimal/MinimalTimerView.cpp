@@ -113,7 +113,7 @@ QWidget* MinimalTimerView::createStopwatchPage()
     m_stopwatchTimeLabel = new QLabel("00:00:00", pageWidget);
     m_stopwatchTimeLabel->setStyleSheet("font-size: 54px; font-weight: bold; color: #333;");
 
-    auto stopButton = new QPushButton("⏹️ Стоп", pageWidget);
+    auto stopButton = new QPushButton("Завершить", pageWidget);
 
     stopButton->setMinimumSize(120, 40);
     connect(stopButton, &QPushButton::clicked, this, &ITimerView::stopClicked);
@@ -143,7 +143,7 @@ QWidget* MinimalTimerView::createPomodoroPage()
     m_pomodoroSessionLabel = new QLabel("", pageWidget);
     m_pomodoroSessionLabel->setStyleSheet("font-size: 24px;");
 
-    auto finishButton = new QPushButton("Завершить сессию", pageWidget);
+    auto finishButton = new QPushButton("Завершить", pageWidget);
 
     finishButton->setMinimumSize(150, 40);
     connect(finishButton, &QPushButton::clicked, this, &ITimerView::stopClicked);

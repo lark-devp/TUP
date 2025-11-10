@@ -97,7 +97,8 @@ MinimalEditTaskView::MinimalEditTaskView(QWidget *parent)
     m_titleLineEdit->setPlaceholderText("Название задачи...");
 
     m_descriptionTextEdit = new QTextEdit(this);
-    m_descriptionTextEdit->setPlaceholderText("Подробное описание задачи...");
+    m_descriptionTextEdit->setPlaceholderText("Описание задачи...");
+    m_descriptionTextEdit->setMinimumHeight(200);
 
     m_saveButton = new QPushButton("Сохранить", this);
     m_deleteButton = new QPushButton("Удалить", this);
@@ -140,12 +141,11 @@ MinimalEditTaskView::MinimalEditTaskView(QWidget *parent)
     mainLayout->addWidget(m_titleLineEdit);
     mainLayout->addWidget(new QLabel("Описание:", this));
     mainLayout->addWidget(m_descriptionTextEdit);
-    mainLayout->addStretch(); // Пространство, чтобы кнопки были прижаты к низу
     mainLayout->addLayout(buttonLayout);
 
     setLayout(mainLayout);
     setWindowTitle("Редактирование задачи");
-    setFixedSize(450, 600); // Устанавливаем фиксированный размер
+
 
 
     // --- 5. Соединение сигналов и слотов ---

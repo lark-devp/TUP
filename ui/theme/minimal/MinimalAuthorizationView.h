@@ -48,7 +48,6 @@ private:
     // Кнопки-ссылки
     QWidget* m_linksWidget; // Контейнер для ссылок
     QPushButton* m_registerLink;
-    QPushButton* m_forgotPasswordLink;
     QPushButton* m_backToLoginLink;
 
 

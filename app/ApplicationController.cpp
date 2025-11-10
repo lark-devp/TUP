@@ -14,16 +14,33 @@ ApplicationController::ApplicationController(std::unique_ptr<IUIFactory> factory
 
 void ApplicationController::start()
 {
+    // --- НАЧАЛО ИЗМЕНЕНИЙ: Проверка токена ---
+    QSettings settings("MyTimeTracker", "App");
+    QString token = settings.value("session/authToken").toString();
+
+    if (!token.isEmpty()) {
+        qDebug() << "Найден сохраненный токен, попытка входа...";
+        QVariantMap userData = m_dbService->findUserByToken(token);
+        if (!userData.isEmpty()) {
+            qDebug() << "Вход по токену успешен!";
+            m_currentUserId = userData["user_id"].toInt();
+            QVector<TaskDisplayData> tasks = m_dbService->getTasksForUser(m_currentUserId);
+            showMainWindow(tasks); // Сразу показываем главное окно
+            return; // Важно: выходим из функции, чтобы не показать окно входа
+        }
+        qDebug() << "Недействительный токен. Потребуется ручной вход.";
+    }
+    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
+    // Если вход по токену не удался, показываем окно авторизации (старая логика)
     m_authorizationView = m_factory->createAuthorizationWindow();
     if (!m_authorizationView) {
         qCritical() << "Критическая ошибка: не удалось создать окно авторизации!";
         return;
     }
 
-
     connect(m_authorizationView.get(), &IAuthorizationView::loginRequested, this, &ApplicationController::onLoginRequested);
     connect(m_authorizationView.get(), &IAuthorizationView::registrationSubmitted, this, &ApplicationController::onRegistrationSubmitted);
-    connect(m_authorizationView.get(), &IAuthorizationView::recoverySubmitted, this, &ApplicationController::onRecoverySubmitted);
     connect(m_authorizationView.get(), &IAuthorizationView::backToLoginRequested, this, &ApplicationController::onBackToLoginRequested);
 
     m_authorizationView->showView();
@@ -40,6 +57,22 @@ void ApplicationController::onLoginRequested(const QString& username, const QStr
     if (!userData.isEmpty()) {
         qDebug() << "Аутентификация в БД успешна!";
         m_currentUserId = userData["user_id"].toInt();
+
+        // --- НАЧАЛО ИЗМЕНЕНИЙ: Генерация и сохранение токена ---
+        // Генерируем новый уникальный токен
+        QString token = QUuid::createUuid().toString(QUuid::WithoutBraces);
+
+        // Сохраняем токен в БД
+        if (m_dbService->saveAuthToken(m_currentUserId, token)) {
+            // Сохраняем токен локально на компьютере
+            QSettings settings("MyTimeTracker", "App");
+            settings.setValue("session/authToken", token);
+            qDebug() << "Новый токен сессии сохранен для пользователя" << m_currentUserId;
+        } else {
+            qWarning() << "Не удалось сохранить токен сессии в БД!";
+        }
+        // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
         QVector<TaskDisplayData> tasks = m_dbService->getTasksForUser(m_currentUserId);
 
         m_authorizationView->hideView();
@@ -71,18 +104,6 @@ void ApplicationController::onRegistrationSubmitted(const QString& username, con
     }
 }
 
-void ApplicationController::onRecoverySubmitted(const QString& email)
-{
-    if (email.trimmed().isEmpty() || !email.contains('@')) {
-        m_authorizationView->showError("Пожалуйста, введите корректный email.");
-        return;
-    }
-
-    qDebug() << "Запрос на восстановление пароля для email:" << email;
-
-    m_authorizationView->showInfo("Если пользователь с таким email существует, ссылка для сброса пароля была отправлена на почту.");
-    m_authorizationView->switchState(IAuthorizationView::State::Login);
-}
 
 void ApplicationController::onBackToLoginRequested()
 {
@@ -861,7 +882,10 @@ void ApplicationController::onTweekDisconnectRequested()
 void ApplicationController::onLogoutRequested()
 {
     qDebug() << "Пользователь" << m_currentUserId << "выходит из системы.";
-
+    m_dbService->clearAuthToken(m_currentUserId); // Очищаем токен в БД
+    QSettings settings("MyTimeTracker", "App");
+    settings.remove("session/authToken");       // Удаляем токен с локального компьютера
+    qDebug() << "Токен сессии очищен.";
     // 1. Скрываем и уничтожаем все текущие окна, связанные с сессией пользователя
     if (m_taskSelectionView) {
         m_taskSelectionView->hideView();
