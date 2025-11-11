@@ -1,6 +1,6 @@
 debug/ApplicationController.o
 debug/TweekApiServiceImpl.o
-debug/PostgresDatabaseService.o
+debug/SqliteDatabaseService.o
 debug/main.o
 debug/mainwindow.o
 debug/BarChartView.o
@@ -18,7 +18,7 @@ debug/moc_mainwindow.o
 debug/moc_ITweekApiService.o
 debug/moc_TweekApiServiceImpl.o
 debug/moc_IDatabaseService.o
-debug/moc_PostgresDatabaseService.o
+debug/moc_SqliteDatabaseService.o
 debug/moc_IAddTaskView.o
 debug/moc_IAllTasksStatisticsView.o
 debug/moc_IAuthorizationView.o

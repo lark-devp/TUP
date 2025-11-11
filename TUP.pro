@@ -11,7 +11,7 @@ CONFIG += c++17
 SOURCES += \
     app/ApplicationController.cpp \
     calendar/TweekApiServiceImpl.cpp \
-    db/PostgresDatabaseService.cpp \
+    db/SqliteDatabaseService.cpp \
     main.cpp \
     app/mainwindow.cpp \
     ui/theme/minimal/BarChartView.cpp \
@@ -31,7 +31,7 @@ HEADERS += \
     calendar/ITweekApiService.h \
     calendar/TweekApiServiceImpl.h \
     db/IDatabaseService.h \
-    db/PostgresDatabaseService.h \
+    db/SqliteDatabaseService.h \
     ui/interfaces/IAddTaskView.h \
     ui/interfaces/IAllTasksStatisticsView.h \
     ui/interfaces/IAuthorizationView.h \

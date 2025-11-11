@@ -6,7 +6,7 @@
 class MinimalUIFactory : public IUIFactory
 {
 public:
-    MinimalUIFactory() = default;
+    MinimalUIFactory()  = default;
     ~MinimalUIFactory() override = default;
 
 

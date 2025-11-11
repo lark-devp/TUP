@@ -55,7 +55,6 @@ void MinimalAuthorizationView::setupUi()
     m_titleLabel = new QLabel("Вход в систему");
     m_usernameLineEdit = new QLineEdit();
     m_passwordLineEdit = new QLineEdit();
-    m_emailLineEdit = new QLineEdit();
     m_confirmPasswordLineEdit = new QLineEdit();
     m_mainButton = new QPushButton("Войти");
     m_errorLabel = new QLabel("");
@@ -78,7 +77,6 @@ void MinimalAuthorizationView::setupUi()
     m_usernameLineEdit->setPlaceholderText("Имя пользователя");
     m_passwordLineEdit->setPlaceholderText("Пароль");
     m_passwordLineEdit->setEchoMode(QLineEdit::Password);
-    m_emailLineEdit->setPlaceholderText("Email");
     m_confirmPasswordLineEdit->setPlaceholderText("Подтвердите пароль");
     m_confirmPasswordLineEdit->setEchoMode(QLineEdit::Password);
 
@@ -89,7 +87,6 @@ void MinimalAuthorizationView::setupUi()
     m_titleLabel->setStyleSheet(titleStyle);
     m_usernameLineEdit->setStyleSheet(lineEditStyle);
     m_passwordLineEdit->setStyleSheet(lineEditStyle);
-    m_emailLineEdit->setStyleSheet(lineEditStyle);
     m_confirmPasswordLineEdit->setStyleSheet(lineEditStyle);
     m_mainButton->setStyleSheet(linkButtonStyle);
     m_errorLabel->setStyleSheet(errorLabelStyle);
@@ -111,7 +108,6 @@ void MinimalAuthorizationView::setupUi()
     formLayout->addWidget(m_titleLabel, 0, Qt::AlignHCenter);
     formLayout->addSpacing(10);
     formLayout->addWidget(m_usernameLineEdit);
-    formLayout->addWidget(m_emailLineEdit);
     formLayout->addWidget(m_passwordLineEdit);
     formLayout->addWidget(m_confirmPasswordLineEdit);
     formLayout->addWidget(m_errorLabel);
@@ -156,7 +152,7 @@ void MinimalAuthorizationView::setupConnections()
                 showError("Пароли не совпадают!");
                 return;
             }
-            emit registrationSubmitted(m_usernameLineEdit->text(), m_emailLineEdit->text(), m_passwordLineEdit->text());
+            emit registrationSubmitted(m_usernameLineEdit->text(), m_passwordLineEdit->text());
             break;
         }
     });
@@ -169,7 +165,7 @@ void MinimalAuthorizationView::setupConnections()
     // Удобство для пользователя: скрываем ошибку, как только он начинает вводить новые данные
     connect(m_usernameLineEdit, &QLineEdit::textChanged, this, &MinimalAuthorizationView::clearForm);
     connect(m_passwordLineEdit, &QLineEdit::textChanged, this, &MinimalAuthorizationView::clearForm);
-    connect(m_emailLineEdit, &QLineEdit::textChanged, this, &MinimalAuthorizationView::clearForm);
+
     connect(m_confirmPasswordLineEdit, &QLineEdit::textChanged, this, &MinimalAuthorizationView::clearForm);
 }
 
@@ -183,7 +179,6 @@ void MinimalAuthorizationView::switchState(State state)
         m_mainButton->setText("Войти");
         m_usernameLineEdit->setVisible(true);
         m_passwordLineEdit->setVisible(true);
-        m_emailLineEdit->setVisible(false);
         m_confirmPasswordLineEdit->setVisible(false);
         m_linksWidget->setVisible(true);
         m_backToLoginLink->setVisible(false);
@@ -193,7 +188,6 @@ void MinimalAuthorizationView::switchState(State state)
         m_mainButton->setText("Зарегистрироваться");
         m_usernameLineEdit->setVisible(true);
         m_passwordLineEdit->setVisible(true);
-        m_emailLineEdit->setVisible(true);
         m_confirmPasswordLineEdit->setVisible(true);
         m_linksWidget->setVisible(false);
         m_backToLoginLink->setVisible(true);
@@ -207,7 +201,6 @@ void MinimalAuthorizationView::showLoading(bool isLoading)
 {
     m_usernameLineEdit->setEnabled(!isLoading);
     m_passwordLineEdit->setEnabled(!isLoading);
-    m_emailLineEdit->setEnabled(!isLoading);
     m_confirmPasswordLineEdit->setEnabled(!isLoading);
     m_mainButton->setEnabled(!isLoading);
     m_mainButton->setText(isLoading ? "Обработка..." : m_mainButton->text());

@@ -32,7 +32,7 @@ public:
 
     //  Пользователи
     virtual QVariantMap authenticateUser(const QString& username, const QString& password) = 0;
-    virtual bool addUser(const QString& username, const QString& email, const QString& password) = 0;
+    virtual bool addUser(const QString& username, const QString& password) = 0;
 
     //  Задачи и Время
     virtual QVector<TaskDisplayData> getTasksForUser(int userId) = 0;
@@ -46,6 +46,9 @@ public:
     virtual bool deactivateTask(int taskId) = 0;
     virtual bool saveTweekTaskId(int localTaskId, const QString& tweekTaskId) = 0;
     virtual bool saveTweekDefaultCalendar(int userId, const QString& calendarId) = 0;
+    virtual bool saveAuthToken(int userId, const QString& token) = 0;
+    virtual void clearAuthToken(int userId) = 0;
+    virtual QVariantMap findUserByToken(const QString& token) = 0;
 
     // Tweek API
     virtual bool saveTweekTokens(int userId, const QString& idToken, const QString& refreshToken) = 0;

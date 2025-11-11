@@ -44,7 +44,6 @@ template <> constexpr inline auto IAuthorizationView::qt_create_metaobjectdata<q
         "username",
         "password",
         "registrationSubmitted",
-        "email",
         "backToLoginRequested"
     };
 
@@ -54,11 +53,11 @@ template <> constexpr inline auto IAuthorizationView::qt_create_metaobjectdata<q
             { QMetaType::QString, 3 }, { QMetaType::QString, 4 },
         }}),
         // Signal 'registrationSubmitted'
-        QtMocHelpers::SignalData<void(const QString &, const QString &, const QString &)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::QString, 3 }, { QMetaType::QString, 6 }, { QMetaType::QString, 4 },
+        QtMocHelpers::SignalData<void(const QString &, const QString &)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 3 }, { QMetaType::QString, 4 },
         }}),
         // Signal 'backToLoginRequested'
-        QtMocHelpers::SignalData<void()>(7, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SignalData<void()>(6, 2, QMC::AccessPublic, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -83,7 +82,7 @@ void IAuthorizationView::qt_static_metacall(QObject *_o, QMetaObject::Call _c, i
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->loginRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 1: _t->registrationSubmitted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[3]))); break;
+        case 1: _t->registrationSubmitted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 2: _t->backToLoginRequested(); break;
         default: ;
         }
@@ -91,7 +90,7 @@ void IAuthorizationView::qt_static_metacall(QObject *_o, QMetaObject::Call _c, i
     if (_c == QMetaObject::IndexOfMethod) {
         if (QtMocHelpers::indexOfMethod<void (IAuthorizationView::*)(const QString & , const QString & )>(_a, &IAuthorizationView::loginRequested, 0))
             return;
-        if (QtMocHelpers::indexOfMethod<void (IAuthorizationView::*)(const QString & , const QString & , const QString & )>(_a, &IAuthorizationView::registrationSubmitted, 1))
+        if (QtMocHelpers::indexOfMethod<void (IAuthorizationView::*)(const QString & , const QString & )>(_a, &IAuthorizationView::registrationSubmitted, 1))
             return;
         if (QtMocHelpers::indexOfMethod<void (IAuthorizationView::*)()>(_a, &IAuthorizationView::backToLoginRequested, 2))
             return;
@@ -136,9 +135,9 @@ void IAuthorizationView::loginRequested(const QString & _t1, const QString & _t2
 }
 
 // SIGNAL 1
-void IAuthorizationView::registrationSubmitted(const QString & _t1, const QString & _t2, const QString & _t3)
+void IAuthorizationView::registrationSubmitted(const QString & _t1, const QString & _t2)
 {
-    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2, _t3);
+    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2);
 }
 
 // SIGNAL 2

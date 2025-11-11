@@ -163,10 +163,15 @@ void TweekApiServiceImpl::onTasksReplyFinished()
             task.id = obj["id"].toString();
             task.title = obj["text"].toString();
             task.description = obj["note"].toString();
+            task.done = obj["done"].toBool(); // <-- ДОБАВИТЬ ЭТУ СТРОКУ
+
+            // Можно добавить отладочный вывод, чтобы убедиться, что статус считывается
             qDebug() << "[DEBUG 1: PARSER]"
                      << "ID:" << task.id
                      << "Title:" << task.title
-                     << "Description:" << task.description;
+                     << "Description:" << task.description
+                     << "Done:" << task.done; // <-- И эту для отладки
+
             if(!task.id.isEmpty() && !task.title.isEmpty()){
                 tasks.append(task);
             }

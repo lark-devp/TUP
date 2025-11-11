@@ -13,6 +13,9 @@
 #include "db/IDatabaseService.h"
 #include "calendar/ITweekApiService.h"
 #include "ui/interfaces/IEditTaskView.h"
+#include <QSettings>
+#include <QUuid>
+#include <QCryptographicHash>
 
 
 class ApplicationController : public QObject
@@ -29,7 +32,7 @@ public:
     void showMainWindow(const QVector<TaskDisplayData>& tasks);
 private slots:
     void onLoginRequested(const QString& username, const QString& password);
-    void onRegistrationSubmitted(const QString& username, const QString& email, const QString& password);
+    void onRegistrationSubmitted(const QString& username, const QString& password);
 
     void onBackToLoginRequested();
 
@@ -120,7 +123,7 @@ private:
     std::unique_ptr<IUIFactory> m_factory;
     std::unique_ptr<IDatabaseService> m_dbService;
 
-    // Контроллер хранит указатели на текущие активные окна
+    // Указатели на текущие активные окна
     std::unique_ptr<IAuthorizationView> m_authorizationView;
     std::unique_ptr<ITaskSelectionView> m_taskSelectionView;
     std::unique_ptr<ITimerView> m_timerView;

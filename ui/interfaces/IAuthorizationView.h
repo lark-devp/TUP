@@ -53,7 +53,7 @@ signals:
      * @param email Введенная почта.
      * @param password Введенный пароль.
      */
-    void registrationSubmitted(const QString& username, const QString& email, const QString& password);
+    void registrationSubmitted(const QString& username, const QString& password);
 
 
     /**

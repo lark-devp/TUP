@@ -134,7 +134,7 @@ QWidget* MinimalTimerView::createPomodoroPage()
     layout->setAlignment(Qt::AlignCenter);
     layout->setSpacing(15);
 
-    m_pomodoroStateLabel = new QLabel("РАБОТА", pageWidget);
+    m_pomodoroStateLabel = new QLabel("УЧЁБА", pageWidget);
     m_pomodoroStateLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #e74c3c;");
 
     m_pomodoroTimeLabel = new QLabel("25:00", pageWidget);
@@ -188,7 +188,7 @@ void MinimalTimerView::displayPomodoroState(int remainingSessions, bool isWorkSe
 {
     m_mainStack->setCurrentIndex(2); // Переключаемся на экран Помодоро
     if (isWorkSession) {
-        m_pomodoroStateLabel->setText("РАБОТА");
+        m_pomodoroStateLabel->setText("УЧЁБА");
         m_pomodoroStateLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #e74c3c;");
     } else {
         m_pomodoroStateLabel->setText("ОТДЫХ");
@@ -205,7 +205,7 @@ void MinimalTimerView::displayPomodoroState(int remainingSessions, bool isWorkSe
 void MinimalTimerView::onPomodoroButtonClicked()
 {
     bool ok;
-    int workMinutes = QInputDialog::getInt(this, "Время работы", "Минут на задачу:", 25, 1, 120, 1, &ok);
+    int workMinutes = QInputDialog::getInt(this, "Время учёбы", "Минут на задачу:", 25, 1, 120, 1, &ok);
     if (!ok) { // Пользователь нажал "Отмена"
         return;
     }

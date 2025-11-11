@@ -45,7 +45,6 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         "username",
         "password",
         "onRegistrationSubmitted",
-        "email",
         "onBackToLoginRequested",
         "onTaskSelectedForTimer",
         "taskId",
@@ -66,6 +65,7 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         "onWeekChangeForStatisticsRequested",
         "weekStartDate",
         "onTweekConnectRequested",
+        "email",
         "onTweekAuthSuccess",
         "idToken",
         "refreshToken",
@@ -107,50 +107,50 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
             { QMetaType::QString, 3 }, { QMetaType::QString, 4 },
         }}),
         // Slot 'onRegistrationSubmitted'
-        QtMocHelpers::SlotData<void(const QString &, const QString &, const QString &)>(5, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 3 }, { QMetaType::QString, 6 }, { QMetaType::QString, 4 },
+        QtMocHelpers::SlotData<void(const QString &, const QString &)>(5, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 3 }, { QMetaType::QString, 4 },
         }}),
         // Slot 'onBackToLoginRequested'
-        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onTaskSelectedForTimer'
-        QtMocHelpers::SlotData<void(const QString &)>(8, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 9 },
+        QtMocHelpers::SlotData<void(const QString &)>(7, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 8 },
         }}),
         // Slot 'onStatisticsRequestedForTask'
-        QtMocHelpers::SlotData<void(const QString &)>(10, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 9 },
+        QtMocHelpers::SlotData<void(const QString &)>(9, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 8 },
         }}),
         // Slot 'onAllTasksStatisticsRequested'
-        QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onSynchronizationRequested'
-        QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onAddTaskRequested'
-        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onTimerClosed'
-        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onStatisticsClosed'
-        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onAllTasksStatisticsClosed'
-        QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onSynchronizationClosed'
-        QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onAddTaskSaved'
-        QtMocHelpers::SlotData<void(const QString &, const QString &)>(18, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 19 }, { QMetaType::QString, 20 },
+        QtMocHelpers::SlotData<void(const QString &, const QString &)>(17, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 18 }, { QMetaType::QString, 19 },
         }}),
         // Slot 'onAddTaskCancelled'
-        QtMocHelpers::SlotData<void()>(21, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onTimerStop'
-        QtMocHelpers::SlotData<void()>(22, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(21, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onTimerTick'
-        QtMocHelpers::SlotData<void()>(23, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(22, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onWeekChangeForStatisticsRequested'
-        QtMocHelpers::SlotData<void(const QDate &)>(24, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QDate, 25 },
+        QtMocHelpers::SlotData<void(const QDate &)>(23, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QDate, 24 },
         }}),
         // Slot 'onTweekConnectRequested'
-        QtMocHelpers::SlotData<void(const QString &, const QString &)>(26, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 6 }, { QMetaType::QString, 4 },
+        QtMocHelpers::SlotData<void(const QString &, const QString &)>(25, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 26 }, { QMetaType::QString, 4 },
         }}),
         // Slot 'onTweekAuthSuccess'
         QtMocHelpers::SlotData<void(const QString &, const QString &)>(27, 2, QMC::AccessPrivate, QMetaType::Void, {{
@@ -190,11 +190,11 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         }}),
         // Slot 'onEditTaskRequested'
         QtMocHelpers::SlotData<void(const QString &)>(47, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 9 },
+            { QMetaType::QString, 8 },
         }}),
         // Slot 'onEditTaskSaved'
         QtMocHelpers::SlotData<void(const QString &, const QString &)>(48, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 19 }, { QMetaType::QString, 20 },
+            { QMetaType::QString, 18 }, { QMetaType::QString, 19 },
         }}),
         // Slot 'onEditTaskDeleted'
         QtMocHelpers::SlotData<void()>(49, 2, QMC::AccessPrivate, QMetaType::Void),
@@ -202,7 +202,7 @@ template <> constexpr inline auto ApplicationController::qt_create_metaobjectdat
         QtMocHelpers::SlotData<void()>(50, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onSyncSingleTaskToTweek'
         QtMocHelpers::SlotData<void(const QString &)>(51, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 9 },
+            { QMetaType::QString, 8 },
         }}),
         // Slot 'onTweekTaskCreateSuccess'
         QtMocHelpers::SlotData<void(int, const QString &)>(52, 2, QMC::AccessPrivate, QMetaType::Void, {{
@@ -246,7 +246,7 @@ void ApplicationController::qt_static_metacall(QObject *_o, QMetaObject::Call _c
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->onLoginRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 1: _t->onRegistrationSubmitted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[3]))); break;
+        case 1: _t->onRegistrationSubmitted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 2: _t->onBackToLoginRequested(); break;
         case 3: _t->onTaskSelectedForTimer((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 4: _t->onStatisticsRequestedForTask((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;

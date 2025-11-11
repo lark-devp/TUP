@@ -15,6 +15,7 @@ struct TweekTask {
     QString id;
     QString title;
     QString description;
+    bool done;
 };
 
 

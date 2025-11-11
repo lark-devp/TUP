@@ -2,7 +2,6 @@
 
 #include <memory>
 
-// Включаем все интерфейсы окон, которые фабрика будет создавать
 #include "ITaskSelectionView.h"
 #include "ITimerView.h"
 #include "IAddTaskView.h"

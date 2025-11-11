@@ -84,16 +84,15 @@ void ApplicationController::onLoginRequested(const QString& username, const QStr
     }
 }
 
-void ApplicationController::onRegistrationSubmitted(const QString& username, const QString& email, const QString& password)
+void ApplicationController::onRegistrationSubmitted(const QString& username, const QString& password)
 {
-
-    if (username.trimmed().isEmpty() || password.isEmpty() || email.trimmed().isEmpty()) {
-        m_authorizationView->showError("Все поля должны быть заполнены.");
+    if (username.trimmed().isEmpty() || password.isEmpty()) {
+        m_authorizationView->showError("Имя пользователя и пароль должны быть заполнены.");
         return;
     }
 
     m_authorizationView->showLoading(true);
-    bool success = m_dbService->addUser(username, email, password);
+    bool success = m_dbService->addUser(username, password);
     m_authorizationView->showLoading(false);
 
     if (success) {
@@ -497,6 +496,7 @@ void ApplicationController::onSynchronizationRequested()
         m_synchronizationView->showView();
         m_synchronizationView->showState(ISynchronizationView::ViewState::Sync);
         m_synchronizationView->updateStatus("Обновление сессии...");
+        m_synchronizationView->setProgress(25);
         m_synchronizationView->setControlsEnabled(false);
         m_tweekApiService->refreshToken(savedTokens->refreshToken);
     } else {
@@ -741,11 +741,32 @@ void ApplicationController::onCalendarsFetchFailed(const QString& error) {
     m_synchronizationView->updateStatus("Ошибка загрузки календарей.");
 }
 
-void ApplicationController::onTasksFetchSuccess(const QVector<TweekTask>& tasks) {
+void ApplicationController::onTasksFetchSuccess(const QVector<TweekTask>& allTasks) {
     if (!m_synchronizationView) return;
-    m_synchronizationView->displayTasks(tasks);
+
+    // 1. Создаем новый пустой список для невыполненных задач
+    QVector<TweekTask> uncompletedTasks;
+
+    // 2. Проходим по всем полученным задачам
+    for (const auto& task : allTasks) {
+        // 3. Если задача НЕ выполнена (task.done == false), добавляем ее в наш новый список
+        if (!task.done) {
+            uncompletedTasks.append(task);
+        }
+    }
+
+    // 4. Отображаем ТОЛЬКО отфильтрованный список
+    m_synchronizationView->displayTasks(uncompletedTasks);
     m_synchronizationView->setControlsEnabled(true);
-    m_synchronizationView->updateStatus("Задачи загружены. Выберите нужные и подтвердите.");
+
+    // 5. Обновляем статус, чтобы пользователь понимал, что видит
+    if (uncompletedTasks.isEmpty() && !allTasks.isEmpty()) {
+        m_synchronizationView->updateStatus("Все задачи на сегодня уже выполнены!");
+        m_synchronizationView->logMessage("Все задачи на сегодня уже выполнены. Новых для импорта нет.");
+    } else {
+        m_synchronizationView->updateStatus("Задачи загружены. Выберите нужные и подтвердите.");
+        m_synchronizationView->logMessage(QString("Найдено %1 невыполненных задач для импорта.").arg(uncompletedTasks.size()));
+    }
 }
 
 void ApplicationController::onTasksFetchFailed(const QString& error) {
@@ -758,7 +779,7 @@ void ApplicationController::onTasksFetchFailed(const QString& error) {
 // Слот для сохранения выбранных задач в БД
 void ApplicationController::onSyncTasksSelected(const QVector<TweekTask>& selectedTasks) {
     if (!m_synchronizationView) return;
-
+    m_synchronizationView->setProgress(75);
     int successCount = 0;
     for (const auto& task : selectedTasks) {
         qDebug() << "[DEBUG 2: CONTROLLER]"
@@ -771,7 +792,8 @@ void ApplicationController::onSyncTasksSelected(const QVector<TweekTask>& select
     }
 
     m_synchronizationView->logMessage(QString("Успешно добавлено %1 из %2 задач.").arg(successCount).arg(selectedTasks.size()));
-    m_synchronizationView->updateStatus("Задачи добавлены.");
+    m_synchronizationView->updateStatus("Импорт завершен.");
+    m_synchronizationView->setProgress(100);
     m_synchronizationView->setControlsEnabled(true);
 
 

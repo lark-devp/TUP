@@ -42,7 +42,6 @@ private:
     // Поля ввода
     QLineEdit* m_usernameLineEdit;
     QLineEdit* m_passwordLineEdit;
-    QLineEdit* m_emailLineEdit;
     QLineEdit* m_confirmPasswordLineEdit;
 
     // Кнопки-ссылки

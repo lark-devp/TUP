@@ -1,6 +1,6 @@
 release/ApplicationController.o
 release/TweekApiServiceImpl.o
-release/PostgresDatabaseService.o
+release/SqliteDatabaseService.o
 release/main.o
 release/mainwindow.o
 release/BarChartView.o
@@ -18,7 +18,7 @@ release/moc_mainwindow.o
 release/moc_ITweekApiService.o
 release/moc_TweekApiServiceImpl.o
 release/moc_IDatabaseService.o
-release/moc_PostgresDatabaseService.o
+release/moc_SqliteDatabaseService.o
 release/moc_IAddTaskView.o
 release/moc_IAllTasksStatisticsView.o
 release/moc_IAuthorizationView.o
