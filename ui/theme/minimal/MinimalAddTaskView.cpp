@@ -162,12 +162,11 @@ void MinimalAddTaskView::setTaskData(const QString& title, const QString& descri
 {
     m_titleLineEdit->setText(title);
     m_descriptionTextEdit->setText(description);
-    // Меняем заголовок окна для режима редактирования
     m_titleLabel->setText("Редактирование задачи");
     setWindowTitle("Редактирование задачи");
 }
 
-// --- Реализация слотов ---
+
 
 void MinimalAddTaskView::onSaveClicked()
 {

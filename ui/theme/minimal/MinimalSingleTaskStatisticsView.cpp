@@ -104,12 +104,12 @@ void MinimalSingleTaskStatisticsView::closeEvent(QCloseEvent *event)
 void MinimalSingleTaskStatisticsView::onPrevWeekClicked()
 {
     m_currentWeekStart = m_currentWeekStart.addDays(-7);
-    emit weekChanged(m_currentWeekStart); // Отправляем сигнал с новой датой
+    emit weekChanged(m_currentWeekStart);
 }
 
 void MinimalSingleTaskStatisticsView::onNextWeekClicked()
 {
     m_currentWeekStart = m_currentWeekStart.addDays(7);
-    emit weekChanged(m_currentWeekStart); // Отправляем сигнал с новой датой
+    emit weekChanged(m_currentWeekStart);
 }
 

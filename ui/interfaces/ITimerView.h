@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IView.h" // Ваш базовый интерфейс IView
+#include "IView.h"
 #include <QWidget>
 #include <QString>
 
@@ -14,12 +14,10 @@ class ITimerView : public IView
     Q_OBJECT
 
 public:
-    // Используем конструктор QWidget
     explicit ITimerView(QWidget* parent = nullptr) : IView(parent) {}
 
     ~ITimerView() override = default;
 
-    // Методы для управления видом
     virtual void setTaskTitle(const QString& title) = 0;
     virtual void updateDisplayedTime(const QString& timeString) = 0;
     virtual QWidget* getWidget() = 0;
@@ -37,7 +35,6 @@ public:
     virtual void showStopwatchMode() = 0;
 
 signals:
-    // Сигналы о действиях пользователя
     void stopClicked();
     void closeRequested();
     /**

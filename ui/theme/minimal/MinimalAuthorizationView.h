@@ -2,7 +2,7 @@
 
 #include "ui/interfaces/IAuthorizationView.h"
 
-// Предварительные объявления классов Qt
+
 class QLineEdit;
 class QPushButton;
 class QLabel;
@@ -17,10 +17,10 @@ public:
     explicit MinimalAuthorizationView(QWidget *parent = nullptr);
     ~MinimalAuthorizationView() override = default;
 
-    // --- РЕАЛИЗАЦИЯ МЕТОДОВ ИНТЕРФЕЙСА IView ---
+
     QWidget* getWidget() override;
 
-    // --- РЕАЛИЗАЦИЯ МЕТОДОВ ИНТЕРФЕЙСА IAuthorizationView ---
+
     void showLoading(bool isLoading) override;
     void showError(const QString& message) override;
     void showInfo(const QString& message) override;
@@ -31,21 +31,19 @@ private:
     void setupUi();
     void setupConnections();
 
-    // --- Указатели на UI-элементы ---
-    // Общие
+
+
     QLabel* m_titleLabel;
     QLabel* m_errorLabel;
     QLabel* m_infoLabel;
     QWidget* m_mainContainer;
-    QPushButton* m_mainButton; // Основная кнопка (Войти / Регистрация / Отправить)
+    QPushButton* m_mainButton;
 
-    // Поля ввода
     QLineEdit* m_usernameLineEdit;
     QLineEdit* m_passwordLineEdit;
     QLineEdit* m_confirmPasswordLineEdit;
 
-    // Кнопки-ссылки
-    QWidget* m_linksWidget; // Контейнер для ссылок
+    QWidget* m_linksWidget;
     QPushButton* m_registerLink;
     QPushButton* m_backToLoginLink;
 

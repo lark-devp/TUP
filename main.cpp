@@ -1,4 +1,4 @@
-#include <QApplication>
+    #include <QApplication>
 #include <memory>
 #include <QDebug>
 #include "ui/theme/minimal/MinimalUIFactory.h"
@@ -13,10 +13,9 @@ int main(int argc, char *argv[])
 
     auto dbService = std::make_unique<SqliteDatabaseService>();
 
-    // Подключаемся к источнику данных
+
     if (!dbService->connectToSource()) {
-        // Можно показать критическую ошибку пользователю
-        return -1; // Завершаем приложение, если не удалось подключиться к БД
+        return -1;
     }
 
     auto factory = std::make_unique<MinimalUIFactory>();

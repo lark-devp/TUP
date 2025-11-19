@@ -21,13 +21,11 @@ public:
     explicit ISynchronizationView(QWidget * parent = nullptr) : IView(parent) {}
     ~ISynchronizationView() override = default;
 
-    // Методы для управления видом
     virtual void showState(ViewState state) = 0;
     virtual void updateStatus(const QString& statusMessage) = 0;
     virtual void logMessage(const QString& message) = 0;
     virtual void setProgress(int percentage) = 0;
 
-    // Новые методы для отображения данных
     virtual void displayCalendars(const QVector<TweekCalendar>& calendars) = 0;
     virtual void displayTasks(const QVector<TweekTask>& tasks) = 0;
     virtual void setControlsEnabled(bool enabled) = 0;

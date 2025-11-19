@@ -21,7 +21,6 @@ public:
     explicit MinimalSynchronizationView(QWidget *parent = nullptr);
     ~MinimalSynchronizationView() override = default;
 
-    // --- Реализация методов интерфейса ---
     QWidget* getWidget() override;
     void showState(ViewState state) override;
     void updateStatus(const QString& statusMessage) override;
@@ -44,7 +43,6 @@ private:
     void setupLoginUi();
     void setupSyncUi();
 
-    // Общие виджеты
     QWidget* m_centralWidget;
     QVBoxLayout* m_mainLayout;
     QLabel* m_statusLabel;
@@ -52,7 +50,7 @@ private:
     QTextEdit* m_logView;
     QPushButton* m_closeButton;
 
-    // Виджеты для состояния Login
+
     QWidget* m_loginWidget = nullptr;
     QLineEdit* m_emailEdit;
     QLineEdit* m_passwordEdit;
@@ -60,7 +58,6 @@ private:
     QLabel* m_loginTitle;
     QPushButton* m_closeLoginButton;
 
-    // Виджеты для состояния Sync
     QWidget* m_syncWidget = nullptr;
     QPushButton* m_disconnectButton;
     QComboBox* m_calendarCombo;
@@ -69,6 +66,5 @@ private:
     QPushButton* m_confirmButton;
     QLabel* m_syncTitle;
 
-    // Для хранения полного объекта задачи
     QMap<QString, TweekTask> m_taskMap;
 };

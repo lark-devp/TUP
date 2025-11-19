@@ -27,7 +27,7 @@ public:
 
     virtual void showLoading(bool isLoading) = 0;
     virtual void showError(const QString& message) = 0;
-    virtual void showInfo(const QString& message) = 0; // Для некритичных сообщений
+    virtual void showInfo(const QString& message) = 0;
     virtual void clearForm() = 0;
 
     /**

@@ -5557,7 +5557,9 @@ debug/SqliteDatabaseService.o: ../../db/SqliteDatabaseService.cpp ../../db/Sqlit
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qfiledevice.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qfile.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qfileinfo.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qtimezone.h
+		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qtimezone.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/QApplication \
+		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qapplication.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\SqliteDatabaseService.o ..\..\db\SqliteDatabaseService.cpp
 
 debug/main.o: ../../main.cpp ../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/QApplication \

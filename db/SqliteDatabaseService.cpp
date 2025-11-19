@@ -12,13 +12,17 @@ SqliteDatabaseService::SqliteDatabaseService(QObject* parent)
     m_db = QSqlDatabase::addDatabase("QSQLITE");
     qDebug() << "Database service for SQLite initialized.";
 
-    // Определяем безопасное место для хранения файла БД
-    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    QDir dir(dataPath);
+    // Определяем путь к папке "Загрузки" пользователя
+    QString downloadsPath = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+    QDir dir(downloadsPath);
+
+    // Проверяем, существует ли папка "Загрузки", и создаем ее, если нет
     if (!dir.exists()) {
         dir.mkpath(".");
     }
-    m_dbPath = QApplication::applicationDirPath() + "/timetracker.sqlite";
+
+    // Устанавливаем полный путь к файлу базы данных
+    m_dbPath = downloadsPath + "/timetracker.sqlite";
     qDebug() << "Database path set to:" << m_dbPath;
 }
 
