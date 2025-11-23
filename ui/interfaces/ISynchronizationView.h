@@ -27,6 +27,7 @@ public:
     virtual void setProgress(int percentage) = 0;
 
     virtual void displayCalendars(const QVector<TweekCalendar>& calendars) = 0;
+    virtual void selectCalendar(const QString& calendarId) = 0;
     virtual void displayTasks(const QVector<TweekTask>& tasks) = 0;
     virtual void setControlsEnabled(bool enabled) = 0;
 

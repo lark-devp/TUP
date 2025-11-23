@@ -9,7 +9,6 @@
 #include "ui/interfaces/ITimerView.h"
 #include "ui/interfaces/ISingleTaskStatisticsView.h"
 #include "ui/interfaces/IAddTaskView.h"
-#include "ui/interfaces/IAuthorizationView.h"
 #include "db/IDatabaseService.h"
 #include "calendar/ITweekApiService.h"
 #include "ui/interfaces/IEditTaskView.h"
@@ -31,10 +30,6 @@ public:
     void start();
     void showMainWindow(const QVector<TaskDisplayData>& tasks);
 private slots:
-    void onLoginRequested(const QString& username, const QString& password);
-    void onRegistrationSubmitted(const QString& username, const QString& password);
-
-    void onBackToLoginRequested();
 
     void onTaskSelectedForTimer(const QString& taskId);
     void onStatisticsRequestedForTask(const QString& taskId);
@@ -69,7 +64,8 @@ private slots:
     void onSyncTasksSelected(const QVector<TweekTask>& selectedTasks);
 
     void onTimerModeSelected();
-    void onPomodoroModeSelected(int workMinutes, int restMinutes);
+    void onPomodoroModeSelected(int workMinutes, int restMinutes, int sessionCount);
+    void onSkipRestRequested();
 
     void onEditTaskRequested(const QString& taskId);
     void onEditTaskSaved(const QString& title, const QString& description);
@@ -79,9 +75,8 @@ private slots:
     void onSyncSingleTaskToTweek(const QString& taskId);
     void onTweekTaskCreateSuccess(int localTaskId, const QString& newTweekTaskId);
     void onTweekTaskCreateFailed(int localTaskId, const QString& error);
-    void onTweekTaskUpdateSuccess(const QString& tweekTaskId);
-    void onTweekTaskUpdateFailed(const QString& tweekTaskId, const QString& error);
-    void onLogoutRequested();
+    void onTweekTaskUpdateSuccess(int localTaskId);
+    void onTweekTaskUpdateFailed(int localTaskId, const QString& error, int httpStatusCode);
 
 
 private:
@@ -115,16 +110,12 @@ private:
     QDateTime m_sessionStartTime;
     int m_currentTimingTaskId;
 
-    // Поля для хранения контекста окна статистики
     int m_currentStatisticsTaskId;
     QDate m_currentStatisticsWeekStart;
 
-    // Контроллер владеет фабрикой
     std::unique_ptr<IUIFactory> m_factory;
     std::unique_ptr<IDatabaseService> m_dbService;
 
-    // Указатели на текущие активные окна
-    std::unique_ptr<IAuthorizationView> m_authorizationView;
     std::unique_ptr<ITaskSelectionView> m_taskSelectionView;
     std::unique_ptr<ITimerView> m_timerView;
     std::unique_ptr<ISingleTaskStatisticsView> m_statisticsView;

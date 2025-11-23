@@ -10,105 +10,15 @@ ApplicationController::ApplicationController(std::unique_ptr<IUIFactory> factory
     , m_factory(std::move(factory))
     , m_dbService(std::move(dbService)), m_tweekApiService(std::move(calendar))
 {
+    m_currentUserId = 1;
 }
 
 void ApplicationController::start()
 {
-    // --- НАЧАЛО ИЗМЕНЕНИЙ: Проверка токена ---
-    QSettings settings("MyTimeTracker", "App");
-    QString token = settings.value("session/authToken").toString();
-
-    if (!token.isEmpty()) {
-        qDebug() << "Найден сохраненный токен, попытка входа...";
-        QVariantMap userData = m_dbService->findUserByToken(token);
-        if (!userData.isEmpty()) {
-            qDebug() << "Вход по токену успешен!";
-            m_currentUserId = userData["user_id"].toInt();
-            QVector<TaskDisplayData> tasks = m_dbService->getTasksForUser(m_currentUserId);
-            showMainWindow(tasks); // Сразу показываем главное окно
-            return; // Важно: выходим из функции, чтобы не показать окно входа
-        }
-        qDebug() << "Недействительный токен. Потребуется ручной вход.";
-    }
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-
-    // Если вход по токену не удался, показываем окно авторизации (старая логика)
-    m_authorizationView = m_factory->createAuthorizationWindow();
-    if (!m_authorizationView) {
-        qCritical() << "Критическая ошибка: не удалось создать окно авторизации!";
-        return;
-    }
-
-    connect(m_authorizationView.get(), &IAuthorizationView::loginRequested, this, &ApplicationController::onLoginRequested);
-    connect(m_authorizationView.get(), &IAuthorizationView::registrationSubmitted, this, &ApplicationController::onRegistrationSubmitted);
-    connect(m_authorizationView.get(), &IAuthorizationView::backToLoginRequested, this, &ApplicationController::onBackToLoginRequested);
-
-    m_authorizationView->showView();
+    qDebug() << "Запуск приложения для пользователя по умолчанию ID:" << m_currentUserId;
+    QVector<TaskDisplayData> tasks = m_dbService->getTasksForUser(m_currentUserId);
+    showMainWindow(tasks);
 }
-
-void ApplicationController::onLoginRequested(const QString& username, const QString& password)
-{
-    qDebug() << "Попытка входа через БД для пользователя:" << username;
-    m_authorizationView->showLoading(true);
-
-    QVariantMap userData = m_dbService->authenticateUser(username, password);
-
-    m_authorizationView->showLoading(false);
-    if (!userData.isEmpty()) {
-        qDebug() << "Аутентификация в БД успешна!";
-        m_currentUserId = userData["user_id"].toInt();
-
-        // --- НАЧАЛО ИЗМЕНЕНИЙ: Генерация и сохранение токена ---
-        // Генерируем новый уникальный токен
-        QString token = QUuid::createUuid().toString(QUuid::WithoutBraces);
-
-        // Сохраняем токен в БД
-        if (m_dbService->saveAuthToken(m_currentUserId, token)) {
-            // Сохраняем токен локально на компьютере
-            QSettings settings("MyTimeTracker", "App");
-            settings.setValue("session/authToken", token);
-            qDebug() << "Новый токен сессии сохранен для пользователя" << m_currentUserId;
-        } else {
-            qWarning() << "Не удалось сохранить токен сессии в БД!";
-        }
-        // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-
-        QVector<TaskDisplayData> tasks = m_dbService->getTasksForUser(m_currentUserId);
-
-        m_authorizationView->hideView();
-        m_authorizationView.reset();
-        showMainWindow(tasks);
-    } else {
-        qDebug() << "Ошибка аутентификации в БД!";
-        m_authorizationView->showError("Неверное имя пользователя или пароль");
-    }
-}
-
-void ApplicationController::onRegistrationSubmitted(const QString& username, const QString& password)
-{
-    if (username.trimmed().isEmpty() || password.isEmpty()) {
-        m_authorizationView->showError("Имя пользователя и пароль должны быть заполнены.");
-        return;
-    }
-
-    m_authorizationView->showLoading(true);
-    bool success = m_dbService->addUser(username, password);
-    m_authorizationView->showLoading(false);
-
-    if (success) {
-        m_authorizationView->showInfo("Регистрация прошла успешно! Теперь вы можете войти.");
-        m_authorizationView->switchState(IAuthorizationView::State::Login);
-    } else {
-        m_authorizationView->showError("Такой пользователь уже существует.");
-    }
-}
-
-
-void ApplicationController::onBackToLoginRequested()
-{
-    m_authorizationView->switchState(IAuthorizationView::State::Login);
-}
-
 
 void ApplicationController::showMainWindow(const QVector<TaskDisplayData>& tasks)
 {
@@ -127,7 +37,6 @@ void ApplicationController::showMainWindow(const QVector<TaskDisplayData>& tasks
     connect(m_taskSelectionView.get(), &ITaskSelectionView::addTaskRequested, this, &ApplicationController::onAddTaskRequested);
     connect(m_taskSelectionView.get(), &ITaskSelectionView::editTaskRequested, this, &ApplicationController::onEditTaskRequested);
     connect(m_taskSelectionView.get(), &ITaskSelectionView::syncSingleTaskRequested, this, &ApplicationController::onSyncSingleTaskToTweek);
-    connect(m_taskSelectionView.get(), &ITaskSelectionView::logoutRequested, this, &ApplicationController::onLogoutRequested);
     m_taskSelectionView->displayTasks(tasks);
 
     m_taskSelectionView->showView();
@@ -153,6 +62,7 @@ void ApplicationController::onTaskSelectedForTimer(const QString& taskId)
     connect(m_timerView.get(), &ITimerView::closeRequested, this, &ApplicationController::onTimerClosed);
     connect(m_timerView.get(), &ITimerView::timerModeSelected, this, &ApplicationController::onTimerModeSelected);
     connect(m_timerView.get(), &ITimerView::pomodoroModeSelected, this, &ApplicationController::onPomodoroModeSelected);
+    connect(m_timerView.get(), &ITimerView::skipRestRequested, this, &ApplicationController::onSkipRestRequested);
 
 
     m_timerView->showModeSelection();
@@ -180,14 +90,15 @@ void ApplicationController::onTimerModeSelected()
     m_timerView->updateDisplayedTime("00:00:00");
 }
 
-// Пользователь выбрал Помодоро
-void ApplicationController::onPomodoroModeSelected(int workMinutes, int restMinutes)
+void ApplicationController::onPomodoroModeSelected(int workMinutes, int restMinutes, int sessionCount)
 {
-    qDebug() << "Выбран режим Помодоро: " << workMinutes << "мин работа," << restMinutes << "мин отдых.";
+    qDebug() << "Выбран режим Помодоро: " << workMinutes << "мин работа," << restMinutes << "мин отдых, циклов:" << sessionCount;
     m_currentTimerMode = TimerMode::Pomodoro;
     m_pomodoroWorkDurationSecs = workMinutes * 60;
     m_pomodoroRestDurationSecs = restMinutes * 60;
+    m_pomodoroTotalSessions = sessionCount;
     m_pomodoroSessionsCompleted = 0;
+    m_currentPomodoroState = PomodoroState::Rest;
 
     if (!m_timer) {
         m_timer = std::make_unique<QTimer>(this);
@@ -197,6 +108,13 @@ void ApplicationController::onPomodoroModeSelected(int workMinutes, int restMinu
     startNextPomodoroSession();
 }
 
+void ApplicationController::onSkipRestRequested()
+{
+    if (m_currentTimerMode == TimerMode::Pomodoro && m_currentPomodoroState == PomodoroState::Rest) {
+        qDebug() << "Отдых пропущен, запуск следующей сессии работы.";
+        handlePomodoroSessionFinish();
+    }
+}
 
 void ApplicationController::onTimerTick()
 {
@@ -222,12 +140,10 @@ void ApplicationController::onTimerTick()
     }
 }
 
-// Логика завершения сессии Помодоро
 void ApplicationController::handlePomodoroSessionFinish()
 {
     if (m_timer) m_timer->stop();
 
-    // Если закончилась рабочая сессия, сохраняем ее
     if (m_currentPomodoroState == PomodoroState::Work) {
         QDateTime endTime = m_sessionStartTime.addSecs(m_pomodoroWorkDurationSecs);
         m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
@@ -235,14 +151,12 @@ void ApplicationController::handlePomodoroSessionFinish()
         m_pomodoroSessionsCompleted++;
     }
 
-    // Проверяем, не закончили ли мы все циклы
     if (m_pomodoroSessionsCompleted >= m_pomodoroTotalSessions) {
         qDebug() << "Все сессии Помодоро завершены.";
-        onTimerStop(); // Завершаем работу
+        onTimerStop();
         return;
     }
 
-    // Если не все, запускаем следующую сессию
     startNextPomodoroSession();
 }
 
@@ -254,29 +168,24 @@ void ApplicationController::startNextPomodoroSession()
         taskTitle = "текущей задачей";
     }
 
-    // Определяем, какая сессия будет следующей
-    if (m_currentPomodoroState == PomodoroState::Rest || m_pomodoroSessionsCompleted == 0) {
+    if (m_currentPomodoroState == PomodoroState::Rest) {
         m_currentPomodoroState = PomodoroState::Work;
         m_secondsRemainingInSession = m_pomodoroWorkDurationSecs;
 
-        // --- СОЗДАЕМ И НАСТРАИВАЕМ УВЕДОМЛЕНИЕ О НАЧАЛЕ РАБОТЫ ---
         QMessageBox workNotification(m_timerView ? m_timerView->getWidget() : nullptr);
         workNotification.setWindowTitle("Время работать!");
         workNotification.setText(QString("Начинается сессия работы над задачей:\n'%1'").arg(taskTitle));
         workNotification.setIcon(QMessageBox::Information);
         workNotification.setStandardButtons(QMessageBox::Ok);
 
-        // ---- САМАЯ ВАЖНАЯ СТРОКА ----
-        // Добавляем флаг, который держит окно поверх всех остальных
         workNotification.setWindowFlags(workNotification.windowFlags() | Qt::WindowStaysOnTopHint);
 
-        workNotification.exec(); // Показываем окно и ждем, пока пользователь нажмет "OK"
+        workNotification.exec();
 
-    } else { // Иначе - начинаем отдых
+    } else {
         m_currentPomodoroState = PomodoroState::Rest;
         m_secondsRemainingInSession = m_pomodoroRestDurationSecs;
 
-        // --- СОЗДАЕМ И НАСТРАИВАЕМ УВЕДОМЛЕНИЕ О НАЧАЛЕ ОТДЫХА ---
         QMessageBox restNotification(m_timerView ? m_timerView->getWidget() : nullptr);
         int restMinutes = m_pomodoroRestDurationSecs / 60;
         restNotification.setWindowTitle("Время отдохнуть!");
@@ -284,7 +193,6 @@ void ApplicationController::startNextPomodoroSession()
         restNotification.setIcon(QMessageBox::Information);
         restNotification.setStandardButtons(QMessageBox::Ok);
 
-        // ---- И ЗДЕСЬ ТОЖЕ ДОБАВЛЯЕМ ФЛАГ ----
         restNotification.setWindowFlags(restNotification.windowFlags() | Qt::WindowStaysOnTopHint);
 
         restNotification.exec();
@@ -294,7 +202,7 @@ void ApplicationController::startNextPomodoroSession()
 
     if (m_timerView) {
         bool isWork = (m_currentPomodoroState == PomodoroState::Work);
-        m_timerView->displayPomodoroState(m_pomodoroTotalSessions - m_pomodoroSessionsCompleted, isWork);
+        m_timerView->displayPomodoroState(m_pomodoroTotalSessions, m_pomodoroSessionsCompleted, isWork);
     }
 
     if (m_timer) m_timer->start(1000);
@@ -308,12 +216,10 @@ void ApplicationController::onTimerStop()
     qDebug() << "Таймер остановлен. Сохранение сессии...";
     if (m_timer) m_timer->stop();
 
-    // Сохраняем прогресс, только если таймер был запущен
     if (m_currentTimerMode == TimerMode::Stopwatch && m_elapsedSeconds > 0) {
         QDateTime endTime = QDateTime::currentDateTime();
         m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
     } else if (m_currentTimerMode == TimerMode::Pomodoro && m_currentPomodoroState == PomodoroState::Work) {
-        // Если остановили во время работы, сохраняем фактически затраченное время
         qint64 elapsed = m_pomodoroWorkDurationSecs - m_secondsRemainingInSession;
         if (elapsed > 0) {
             QDateTime endTime = m_sessionStartTime.addSecs(elapsed);
@@ -474,6 +380,8 @@ void ApplicationController::onSynchronizationRequested()
             [this](const QString& calendarId){
                 m_dbService->saveTweekDefaultCalendar(m_currentUserId, calendarId);
                 if (m_currentTweekTokens) {
+                    m_synchronizationView->updateStatus("Загрузка задач...");
+                    m_synchronizationView->setProgress(75);
                     m_tweekApiService->fetchTodayTasks(m_currentTweekTokens->idToken, calendarId);
                 }
             });
@@ -527,7 +435,6 @@ void ApplicationController::onTweekConnectRequested(const QString& email, const 
 
 
 
-// Этот слот вызовется, когда пользователь закроет окно синхронизации
 void ApplicationController::onSynchronizationClosed()
 {
     qDebug() << "Возврат к списку задач из окна синхронизации";
@@ -605,27 +512,21 @@ void ApplicationController::onEditTaskRequested(const QString& taskId)
     qDebug() << "Запрос на редактирование задачи:" << taskId;
     m_currentEditingTaskId = taskId.toInt();
 
-    // 1. Получаем текущие данные задачи из БД
     QVariantMap taskData = m_dbService->getTaskDetails(m_currentEditingTaskId);
     if (taskData.isEmpty()) {
         qWarning() << "Не удалось получить данные для задачи" << taskId;
-        // Можно показать ошибку пользователю
         return;
     }
 
-    // 2. Скрываем список задач и создаем окно редактирования
     m_taskSelectionView->hideView();
     m_editTaskView = m_factory->createEditTaskWindow();
 
-    // 3. Заполняем форму данными из БД
     m_editTaskView->setTaskData(taskData["title"].toString(), taskData["description"].toString());
 
-    // 4. Подключаем сигналы от окна редактирования
     connect(m_editTaskView.get(), &IEditTaskView::saveTaskRequested, this, &ApplicationController::onEditTaskSaved);
     connect(m_editTaskView.get(), &IEditTaskView::deleteTaskRequested, this, &ApplicationController::onEditTaskDeleted);
     connect(m_editTaskView.get(), &IEditTaskView::cancelRequested, this, &ApplicationController::onEditTaskCancelled);
 
-    // 5. Показываем окно
     m_editTaskView->showView();
 }
 
@@ -640,12 +541,11 @@ void ApplicationController::onEditTaskSaved(const QString& title, const QString&
         return;
     }
 
-    // Обновляем данные в БД
     bool success = m_dbService->updateTask(m_currentEditingTaskId, title, description);
 
     if (success) {
-        refreshTaskList();       // Обновляем список задач в главном окне
-        returnToTaskSelection(); // Возвращаемся к списку задач
+        refreshTaskList();
+        returnToTaskSelection();
     } else {
         if (m_editTaskView) {
             m_editTaskView->showValidationError("Не удалось сохранить изменения.");
@@ -699,24 +599,20 @@ void ApplicationController::onTweekAuthSuccess(const QString& idToken, const QSt
 {
     qDebug() << "Аутентификация/обновление токена Tweek успешно.";
 
-    // 1. Сохраняем свежие токены в БД и в текущую сессию
     m_dbService->saveTweekTokens(m_currentUserId, idToken, refreshToken);
     m_currentTweekTokens = TweekTokens{idToken, refreshToken};
 
-    // Проверяем, что окно синхронизации все еще открыто
     if (!m_synchronizationView) return;
 
-    // 2. Переключаем UI в режим синхронизации (если он еще не там)
     m_synchronizationView->showState(ISynchronizationView::ViewState::Sync);
     m_synchronizationView->logMessage("Аутентификация успешна. Загрузка календарей...");
     m_synchronizationView->updateStatus("Загрузка календарей...");
-    m_synchronizationView->setControlsEnabled(false); // Держим UI заблокированным
+    m_synchronizationView->setProgress(50);
+    m_synchronizationView->setControlsEnabled(false);
 
-    // 3. ИНИЦИИРУЕМ ЗАГРУЗКУ КАЛЕНДАРЕЙ, ИСПОЛЬЗУЯ СВЕЖИЙ ТОКЕН
     m_tweekApiService->fetchCalendars(m_currentTweekTokens->idToken);
 }
 
-// Слот ошибки теперь должен просто разблокировать контролы
 void ApplicationController::onTweekAuthFailed(const QString& error)
 {
     if (!m_synchronizationView) return;
@@ -729,9 +625,17 @@ void ApplicationController::onTweekAuthFailed(const QString& error)
 
 void ApplicationController::onCalendarsFetchSuccess(const QVector<TweekCalendar>& calendars) {
     if (!m_synchronizationView) return;
+
     m_synchronizationView->displayCalendars(calendars);
     m_synchronizationView->setControlsEnabled(true);
-    m_synchronizationView->updateStatus("Календари загружены. Выберите задачи.");
+
+    QString defaultCalendarId = m_dbService->getTweekDefaultCalendar(m_currentUserId);
+    if (!defaultCalendarId.isEmpty()) {
+        m_synchronizationView->selectCalendar(defaultCalendarId);
+        m_synchronizationView->updateStatus("Календарь по умолчанию выбран. Нажмите 'Получить задачи'.");
+    } else {
+        m_synchronizationView->updateStatus("Календари загружены. Выберите календарь и получите задачи.");
+    }
 }
 
 void ApplicationController::onCalendarsFetchFailed(const QString& error) {
@@ -744,22 +648,18 @@ void ApplicationController::onCalendarsFetchFailed(const QString& error) {
 void ApplicationController::onTasksFetchSuccess(const QVector<TweekTask>& allTasks) {
     if (!m_synchronizationView) return;
 
-    // 1. Создаем новый пустой список для невыполненных задач
     QVector<TweekTask> uncompletedTasks;
 
-    // 2. Проходим по всем полученным задачам
     for (const auto& task : allTasks) {
-        // 3. Если задача НЕ выполнена (task.done == false), добавляем ее в наш новый список
         if (!task.done) {
             uncompletedTasks.append(task);
         }
     }
 
-    // 4. Отображаем ТОЛЬКО отфильтрованный список
     m_synchronizationView->displayTasks(uncompletedTasks);
     m_synchronizationView->setControlsEnabled(true);
+    m_synchronizationView->setProgress(90);
 
-    // 5. Обновляем статус, чтобы пользователь понимал, что видит
     if (uncompletedTasks.isEmpty() && !allTasks.isEmpty()) {
         m_synchronizationView->updateStatus("Все задачи на сегодня уже выполнены!");
         m_synchronizationView->logMessage("Все задачи на сегодня уже выполнены. Новых для импорта нет.");
@@ -776,10 +676,12 @@ void ApplicationController::onTasksFetchFailed(const QString& error) {
     m_synchronizationView->updateStatus("Ошибка загрузки задач.");
 }
 
-// Слот для сохранения выбранных задач в БД
 void ApplicationController::onSyncTasksSelected(const QVector<TweekTask>& selectedTasks) {
     if (!m_synchronizationView) return;
-    m_synchronizationView->setProgress(75);
+
+    m_synchronizationView->updateStatus("Сохранение задач...");
+    m_synchronizationView->setProgress(95);
+
     int successCount = 0;
     for (const auto& task : selectedTasks) {
         qDebug() << "[DEBUG 2: CONTROLLER]"
@@ -803,7 +705,6 @@ void ApplicationController::onSyncSingleTaskToTweek(const QString& taskId)
 {
     qDebug() << "Запрос на синхронизацию задачи" << taskId << "с Tweek.";
 
-    // 1. Проверяем, есть ли у нас токены
     if (!m_currentTweekTokens || m_currentTweekTokens->idToken.isEmpty()) {
         auto savedTokens = m_dbService->getTweekTokens(m_currentUserId);
         if (!savedTokens) {
@@ -813,14 +714,12 @@ void ApplicationController::onSyncSingleTaskToTweek(const QString& taskId)
         m_currentTweekTokens = savedTokens;
     }
 
-    // 2. Проверяем, есть ли календарь по умолчанию
     QString calendarId = m_dbService->getTweekDefaultCalendar(m_currentUserId);
     if (calendarId.isEmpty()) {
         m_taskSelectionView->showError("Не выбран календарь для синхронизации. Пожалуйста, выполните полную синхронизацию и выберите календарь.");
         return;
     }
 
-    // 3. Получаем детали задачи
     QVariantMap taskData = m_dbService->getTaskDetails(taskId.toInt());
     if (taskData.isEmpty()) {
         m_taskSelectionView->showError("Не удалось найти информацию о задаче.");
@@ -831,24 +730,27 @@ void ApplicationController::onSyncSingleTaskToTweek(const QString& taskId)
     QString title = taskData["title"].toString();
     QString description = taskData["description"].toString();
 
-    // 4. Подключаем сигналы от API сервиса
     connect(m_tweekApiService.get(), &ITweekApiService::taskCreateSuccess, this, &ApplicationController::onTweekTaskCreateSuccess, Qt::UniqueConnection);
     connect(m_tweekApiService.get(), &ITweekApiService::taskCreateFailed, this, &ApplicationController::onTweekTaskCreateFailed, Qt::UniqueConnection);
-    connect(m_tweekApiService.get(), &ITweekApiService::taskUpdateSuccess, this, &ApplicationController::onTweekTaskUpdateSuccess, Qt::UniqueConnection);
-    connect(m_tweekApiService.get(), &ITweekApiService::taskUpdateFailed, this, &ApplicationController::onTweekTaskUpdateFailed, Qt::UniqueConnection);
+    connect(m_tweekApiService.get(),
+            static_cast<void(ITweekApiService::*)(int)>(&ITweekApiService::taskUpdateSuccess),
+            this,
+            &ApplicationController::onTweekTaskUpdateSuccess,
+            Qt::UniqueConnection);
 
+    connect(m_tweekApiService.get(),
+            static_cast<void(ITweekApiService::*)(int, const QString&, int)>(&ITweekApiService::taskUpdateFailed),
+            this,
+            &ApplicationController::onTweekTaskUpdateFailed,
+            Qt::UniqueConnection);
+    m_taskSelectionView->showLoading(true);
 
-    m_taskSelectionView->showLoading(true); // Показываем индикатор загрузки
-
-    // 5. Вызываем нужный метод API
     if (tweekId.isEmpty()) {
-        // Задачи в Tweek нет - создаем
         qDebug() << "Создание новой задачи в Tweek...";
         m_tweekApiService->createTaskInTweek(m_currentTweekTokens->idToken, calendarId, title, description, taskId.toInt());
     } else {
-        // Задача есть - обновляем
         qDebug() << "Обновление существующей задачи в Tweek:" << tweekId;
-        m_tweekApiService->updateTaskInTweek(m_currentTweekTokens->idToken, tweekId, title, description);
+        m_tweekApiService->updateTaskInTweek(m_currentTweekTokens->idToken, tweekId, title, description, taskId.toInt());
     }
 }
 
@@ -857,10 +759,8 @@ void ApplicationController::onTweekTaskCreateSuccess(int localTaskId, const QStr
     m_taskSelectionView->showLoading(false);
     qDebug() << "Задача" << localTaskId << "успешно создана в Tweek с ID:" << newTweekTaskId;
 
-    // Сохраняем новый ID в нашей базе
     m_dbService->saveTweekTaskId(localTaskId, newTweekTaskId);
 
-    // Можно показать всплывающее уведомление об успехе
     QMessageBox::information(m_taskSelectionView->getWidget(), "Успех", "Задача успешно добавлена в календарь Tweek.");
 }
 
@@ -871,18 +771,29 @@ void ApplicationController::onTweekTaskCreateFailed(int localTaskId, const QStri
     m_taskSelectionView->showError("Не удалось создать задачу в Tweek: " + error);
 }
 
-void ApplicationController::onTweekTaskUpdateSuccess(const QString& tweekTaskId)
+void ApplicationController::onTweekTaskUpdateSuccess(int localTaskId)
 {
     m_taskSelectionView->showLoading(false);
-    qDebug() << "Задача" << tweekTaskId << "успешно обновлена в Tweek.";
+    qDebug() << "Задача" << localTaskId << "успешно обновлена в Tweek.";
     QMessageBox::information(m_taskSelectionView->getWidget(), "Успех", "Задача успешно обновлена в календаре Tweek.");
 }
 
-void ApplicationController::onTweekTaskUpdateFailed(const QString& tweekTaskId, const QString& error)
+void ApplicationController::onTweekTaskUpdateFailed(int localTaskId, const QString& error, int httpStatusCode)
 {
     m_taskSelectionView->showLoading(false);
-    qWarning() << "Ошибка обновления задачи" << tweekTaskId << "в Tweek:" << error;
-    m_taskSelectionView->showError("Не удалось обновить задачу в Tweek: " + error);
+
+
+    if (httpStatusCode == 404) {
+        qWarning() << "Задача " << localTaskId << " не найдена в Tweek (404). Разрываем связь.";
+        m_dbService->clearTweekTaskId(localTaskId);
+        QMessageBox::warning(m_taskSelectionView->getWidget(),
+                             "Задача не найдена",
+                             "Похоже, эта задача была удалена в Tweek. Связь с календарем была разорвана. Нажмите обновить ещё раз");
+        refreshTaskList();
+    } else {
+        qWarning() << "Ошибка обновления задачи" << localTaskId << "в Tweek:" << error << "(Код: " << httpStatusCode << ")";
+        m_taskSelectionView->showError("Не удалось обновить задачу в Tweek: " + error);
+    }
 }
 void ApplicationController::onTweekDisconnectRequested()
 {
@@ -890,41 +801,11 @@ void ApplicationController::onTweekDisconnectRequested()
 
     qDebug() << "Выход из аккаунта Tweek для пользователя" << m_currentUserId;
 
-    // 1. Очищаем данные в базе данных
     m_dbService->clearTweekData(m_currentUserId);
 
-    // 2. Очищаем токены в текущей сессии
-    m_currentTweekTokens.reset(); // или m_currentTweekTokens = std::nullopt;
-
-    // 3. Переключаем UI обратно в состояние входа
-    m_synchronizationView->logMessage("Вы успешно вышли из аккаунта.");
-    m_synchronizationView->showState(ISynchronizationView::ViewState::Login);
-    m_synchronizationView->setControlsEnabled(true); // Разблокируем контролы
-}
-void ApplicationController::onLogoutRequested()
-{
-    qDebug() << "Пользователь" << m_currentUserId << "выходит из системы.";
-    m_dbService->clearAuthToken(m_currentUserId); // Очищаем токен в БД
-    QSettings settings("MyTimeTracker", "App");
-    settings.remove("session/authToken");       // Удаляем токен с локального компьютера
-    qDebug() << "Токен сессии очищен.";
-    // 1. Скрываем и уничтожаем все текущие окна, связанные с сессией пользователя
-    if (m_taskSelectionView) {
-        m_taskSelectionView->hideView();
-        m_taskSelectionView.reset();
-    }
-    if (m_timerView) m_timerView.reset();
-    if (m_statisticsView) m_statisticsView.reset();
-    if (m_allTasksStatisticsView) m_allTasksStatisticsView.reset();
-    if (m_synchronizationView) m_synchronizationView.reset();
-    if (m_addTaskView) m_addTaskView.reset();
-    if (m_editTaskView) m_editTaskView.reset();
-    if (m_timer) m_timer.reset();
-
-    // 2. Сбрасываем данные о текущем пользователе
-    m_currentUserId = 0;
     m_currentTweekTokens.reset();
 
-    // 3. Запускаем процесс авторизации заново
-    start();
+    m_synchronizationView->logMessage("Вы успешно вышли из аккауунта.");
+    m_synchronizationView->showState(ISynchronizationView::ViewState::Login);
+    m_synchronizationView->setControlsEnabled(true);
 }

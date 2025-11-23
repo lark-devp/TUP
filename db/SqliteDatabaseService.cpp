@@ -12,16 +12,13 @@ SqliteDatabaseService::SqliteDatabaseService(QObject* parent)
     m_db = QSqlDatabase::addDatabase("QSQLITE");
     qDebug() << "Database service for SQLite initialized.";
 
-    // Определяем путь к папке "Загрузки" пользователя
     QString downloadsPath = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
     QDir dir(downloadsPath);
 
-    // Проверяем, существует ли папка "Загрузки", и создаем ее, если нет
     if (!dir.exists()) {
         dir.mkpath(".");
     }
 
-    // Устанавливаем полный путь к файлу базы данных
     m_dbPath = downloadsPath + "/timetracker.sqlite";
     qDebug() << "Database path set to:" << m_dbPath;
 }
@@ -43,7 +40,7 @@ bool SqliteDatabaseService::connectToSource()
     }
 
     qDebug() << "Successfully connected to SQLite database:" << m_db.databaseName();
-    initializeDatabase(); // Создаем таблицы, если их нет
+    initializeDatabase();
     return true;
 }
 
@@ -51,27 +48,23 @@ void SqliteDatabaseService::initializeDatabase()
 {
     QSqlQuery query(m_db);
 
-    // Включаем поддержку внешних ключей
     if (!query.exec("PRAGMA foreign_keys = ON;")) {
         qWarning() << "Could not enable foreign keys:" << query.lastError().text();
     }
 
-    // Создание таблицы User
     if (!query.exec(R"(
         CREATE TABLE IF NOT EXISTS "User" (
-            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-            password_hash TEXT NOT NULL,
+            user_id INTEGER PRIMARY KEY,
             tweek_token TEXT,
             tweek_refresh_token TEXT,
-            tweek_default_calendar_id TEXT,
-            auth_token TEXT UNIQUE
+            tweek_default_calendar_id TEXT
         )
     )")) {
         qCritical() << "Failed to create User table:" << query.lastError().text();
+    } else {
+        query.exec(R"(INSERT OR IGNORE INTO "User" (user_id) VALUES (1))");
     }
 
-    // Создание таблицы Task
     if (!query.exec(R"(
         CREATE TABLE IF NOT EXISTS "Task" (
             task_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -86,7 +79,6 @@ void SqliteDatabaseService::initializeDatabase()
         qCritical() << "Failed to create Task table:" << query.lastError().text();
     }
 
-    // Создание таблицы TimeTracking
     if (!query.exec(R"(
         CREATE TABLE IF NOT EXISTS "TimeTracking" (
             tracking_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -106,43 +98,6 @@ void SqliteDatabaseService::disconnectFromSource()
 {
     m_db.close();
     qDebug() << "Database connection closed.";
-}
-
-QVariantMap SqliteDatabaseService::authenticateUser(const QString& username, const QString& password)
-{
-    QSqlQuery query;
-    query.prepare(R"(SELECT user_id FROM "User" WHERE username = :username AND password_hash = :password)");
-    query.bindValue(":username", username);
-    query.bindValue(":password", password);
-
-    if (!query.exec()) {
-        qCritical() << "Authentication error:" << query.lastError().text();
-        return QVariantMap();
-    }
-    if (query.next()) {
-        QVariantMap userData;
-        userData["user_id"] = query.value("user_id").toInt();
-        return userData;
-    }
-    return QVariantMap();
-}
-
-bool SqliteDatabaseService::addUser(const QString& username, const QString& password)
-{
-    QSqlQuery query(m_db);
-    query.prepare(R"(
-        INSERT INTO "User" (username, password_hash)
-        VALUES (:username, :password)
-    )");
-    query.bindValue(":username", username);
-    query.bindValue(":password", password);
-
-    if (!query.exec()) {
-        qCritical() << "User registration error:" << query.lastError().text();
-        emit errorOccurred("User with this name already exists.");
-        return false;
-    }
-    return true;
 }
 
 QVector<TaskDisplayData> SqliteDatabaseService::getTasksForUser(int userId)
@@ -231,7 +186,7 @@ bool SqliteDatabaseService::addTask(const QString& title, const QString& descrip
         )");
     } else {
         query.prepare(R"(
-            INSERT INTO "Task" (user_id, title, description, tweek_task_id)
+            INSERT OR IGNORE INTO "Task" (user_id, title, description, tweek_task_id)
             VALUES (:user_id, :title, :description, :tweek_id)
         )");
         query.bindValue(":tweek_id", tweekId);
@@ -265,6 +220,11 @@ QString SqliteDatabaseService::getTaskTitle(int taskId)
 
 bool SqliteDatabaseService::addTimeTrackingEntry(int taskId, const QDateTime& startTime, const QDateTime& endTime)
 {
+    if (startTime >= endTime) {
+        qDebug() << "Skipping zero or negative duration time entry.";
+        return true;
+    }
+
     QSqlQuery query(m_db);
     query.prepare(R"(
         INSERT INTO "TimeTracking" (task_id, start_time, end_time)
@@ -289,7 +249,7 @@ QVector<qint64> SqliteDatabaseService::getWeeklyTaskStats(int taskId, const QDat
     query.prepare(R"(
         SELECT
             strftime('%w', start_time) as day_of_week,
-            CAST(SUM(strftime('%s', end_time) - strftime('%s', start_time)) / 60.0 AS INTEGER) as total_minutes
+            CAST((SUM(strftime('%s', end_time) - strftime('%s', start_time)) + 59) / 60 AS INTEGER) as total_minutes
         FROM "TimeTracking"
         WHERE
             task_id = :task_id AND
@@ -299,10 +259,8 @@ QVector<qint64> SqliteDatabaseService::getWeeklyTaskStats(int taskId, const QDat
     )");
 
     query.bindValue(":task_id", taskId);
-    // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
     query.bindValue(":start_date", weekStartDate.startOfDay().toString(Qt::ISODate));
     query.bindValue(":end_date", weekStartDate.addDays(7).startOfDay().toString(Qt::ISODate));
-    // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
 
     if (!query.exec()) {
         qCritical() << "Error getting weekly stats:" << query.lastError().text();
@@ -310,8 +268,8 @@ QVector<qint64> SqliteDatabaseService::getWeeklyTaskStats(int taskId, const QDat
     }
 
     while (query.next()) {
-        int dayOfWeek = query.value("day_of_week").toInt(); // 0=Вс, 1=Пн, ...
-        if (dayOfWeek == 0) { dayOfWeek = 7; } // Воскресенье делаем 7-м днем
+        int dayOfWeek = query.value("day_of_week").toInt();
+        if (dayOfWeek == 0) { dayOfWeek = 7; }
 
         qint64 minutes = query.value("total_minutes").toLongLong();
         if (dayOfWeek >= 1 && dayOfWeek <= 7) {
@@ -329,7 +287,7 @@ QVector<TaskTimeSummary> SqliteDatabaseService::getTaskTimeSummaries(int userId)
     query.prepare(R"(
         SELECT
             T.title,
-            SUM(CAST((strftime('%s', TT.end_time) - strftime('%s', TT.start_time)) / 60.0 AS INTEGER)) as total_minutes
+            SUM(CAST(((strftime('%s', TT.end_time) - strftime('%s', TT.start_time)) + 59) / 60.0 AS INTEGER)) as total_minutes
         FROM "Task" T
         LEFT JOIN "TimeTracking" TT ON T.task_id = TT.task_id
         WHERE T.user_id = :user_id AND TT.tracking_id IS NOT NULL
@@ -369,27 +327,6 @@ bool SqliteDatabaseService::saveTweekTokens(int userId, const QString& idToken, 
         return false;
     }
     return true;
-}
-
-bool SqliteDatabaseService::hasTweekTokens(int userId)
-{
-    QSqlQuery query(m_db);
-    query.prepare(R"(
-        SELECT tweek_token, tweek_refresh_token FROM "User"
-        WHERE user_id = :user_id
-    )");
-    query.bindValue(":user_id", userId);
-
-    if (!query.exec()) {
-        qCritical() << "Error checking Tweek tokens:" << query.lastError().text();
-        return false;
-    }
-
-    if (query.next()) {
-        return !query.value("tweek_token").toString().isEmpty() &&
-               !query.value("tweek_refresh_token").toString().isEmpty();
-    }
-    return false;
 }
 
 std::optional<TweekTokens> SqliteDatabaseService::getTweekTokens(int userId)
@@ -461,9 +398,28 @@ QString SqliteDatabaseService::getTweekDefaultCalendar(int userId)
     }
     return QString();
 }
-void SqliteDatabaseService::clearTweekData(int userId)
+bool SqliteDatabaseService::clearTweekTaskId(int localTaskId)
 {
     QSqlQuery query(m_db);
+    query.prepare(R"(UPDATE "Task" SET tweek_task_id = NULL WHERE task_id = :local_id)");
+    query.bindValue(":local_id", localTaskId);
+
+    if (!query.exec()) {
+        qCritical() << "Error clearing Tweek Task ID:" << query.lastError().text();
+        return false;
+    }
+    return true;
+}
+void SqliteDatabaseService::clearTweekData(int userId)
+{
+    if (!m_db.transaction()) {
+        qCritical() << "Failed to start transaction for clearing Tweek data.";
+        return;
+    }
+
+    QSqlQuery query(m_db);
+    bool success = true;
+
     query.prepare(R"(
         UPDATE "User"
         SET tweek_token = NULL, tweek_refresh_token = NULL, tweek_default_calendar_id = NULL
@@ -472,49 +428,29 @@ void SqliteDatabaseService::clearTweekData(int userId)
     query.bindValue(":user_id", userId);
 
     if (!query.exec()) {
-        qCritical() << "Error clearing Tweek data for user" << userId << ":" << query.lastError().text();
-    } else {
+        qCritical() << "Error clearing Tweek user data for user" << userId << ":" << query.lastError().text();
+        success = false;
+    }
+
+    if (success) {
+        query.prepare(R"(
+            UPDATE "Task"
+            SET tweek_task_id = NULL
+            WHERE user_id = :user_id
+        )");
+        query.bindValue(":user_id", userId);
+
+        if (!query.exec()) {
+            qCritical() << "Error clearing Tweek task IDs for user" << userId << ":" << query.lastError().text();
+            success = false;
+        }
+    }
+
+    if (success) {
+        m_db.commit();
         qDebug() << "Tweek data for user" << userId << "cleared successfully.";
+    } else {
+        m_db.rollback();
+        qWarning() << "Rolling back transaction for clearing Tweek data due to an error.";
     }
-}
-
-bool SqliteDatabaseService::saveAuthToken(int userId, const QString& token)
-{
-    QSqlQuery query(m_db);
-    query.prepare(R"(UPDATE "User" SET auth_token = :token WHERE user_id = :user_id)");
-    query.bindValue(":token", token);
-    query.bindValue(":user_id", userId);
-    if (!query.exec()) {
-        qCritical() << "Error saving auth token:" << query.lastError().text();
-        return false;
-    }
-    return true;
-}
-
-void SqliteDatabaseService::clearAuthToken(int userId)
-{
-    QSqlQuery query(m_db);
-    query.prepare(R"(UPDATE "User" SET auth_token = NULL WHERE user_id = :user_id)");
-    query.bindValue(":user_id", userId);
-    if (!query.exec()) {
-        qCritical() << "Error clearing auth token:" << query.lastError().text();
-    }
-}
-
-QVariantMap SqliteDatabaseService::findUserByToken(const QString& token)
-{
-    if (token.isEmpty()) return QVariantMap();
-    QSqlQuery query;
-    query.prepare(R"(SELECT user_id FROM "User" WHERE auth_token = :token)");
-    query.bindValue(":token", token);
-    if (!query.exec()) {
-        qCritical() << "Error finding user by token:" << query.lastError().text();
-        return QVariantMap();
-    }
-    if (query.next()) {
-        QVariantMap userData;
-        userData["user_id"] = query.value("user_id").toInt();
-        return userData;
-    }
-    return QVariantMap();
 }

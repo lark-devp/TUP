@@ -5,17 +5,11 @@
 #include <QString>
 #include <QVector>
 
-/**
- * @brief Структура для отображения задачи в списке.
- */
 struct TaskDisplayData {
     QString id;
     QString title;
 };
 
-/**
- * @brief Интерфейс для окна выбора задач.
- */
 class ITaskSelectionView : public IView
 {
     Q_OBJECT
@@ -41,5 +35,4 @@ signals:
     void synchronizationRequested();
     void syncSingleTaskRequested(const QString& taskId);
     void refreshRequested();
-    void logoutRequested();
 };

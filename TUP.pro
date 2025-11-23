@@ -10,11 +10,9 @@ SOURCES += \
     calendar/TweekApiServiceImpl.cpp \
     db/SqliteDatabaseService.cpp \
     main.cpp \
-    app/mainwindow.cpp \
     ui/theme/minimal/BarChartView.cpp \
     ui/theme/minimal/MinimalAddTaskView.cpp \
     ui/theme/minimal/MinimalAllTasksStatisticsView.cpp \
-    ui/theme/minimal/MinimalAuthorizationView.cpp \
     ui/theme/minimal/MinimalEditTaskView.cpp \
     ui/theme/minimal/MinimalSingleTaskStatisticsView.cpp \
     ui/theme/minimal/MinimalSynchronizationView.cpp \
@@ -24,14 +22,12 @@ SOURCES += \
 
 HEADERS += \
     app/ApplicationController.h \
-    app/mainwindow.h \
     calendar/ITweekApiService.h \
     calendar/TweekApiServiceImpl.h \
     db/IDatabaseService.h \
     db/SqliteDatabaseService.h \
     ui/interfaces/IAddTaskView.h \
     ui/interfaces/IAllTasksStatisticsView.h \
-    ui/interfaces/IAuthorizationView.h \
     ui/interfaces/IEditTaskView.h \
     ui/interfaces/ISingleTaskStatisticsView.h \
     ui/interfaces/ISynchronizationView.h \
@@ -42,7 +38,6 @@ HEADERS += \
     ui/theme/minimal/BarChartView.h \
     ui/theme/minimal/MinimalAddTaskView.h \
     ui/theme/minimal/MinimalAllTasksStatisticsView.h \
-    ui/theme/minimal/MinimalAuthorizationView.h \
     ui/theme/minimal/MinimalEditTaskView.h \
     ui/theme/minimal/MinimalSingleTaskStatisticsView.h \
     ui/theme/minimal/MinimalSynchronizationView.h \
@@ -50,8 +45,7 @@ HEADERS += \
     ui/theme/minimal/MinimalTimerView.h \
     ui/theme/minimal/MinimalUIFactory.h
 
-FORMS += \
-    mainwindow.ui
+FORMS +=
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

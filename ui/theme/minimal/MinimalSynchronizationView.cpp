@@ -1,6 +1,11 @@
 #include "MinimalSynchronizationView.h"
 #include <QVBoxLayout>
-#include <QGridLayout> // Используем GridLayout для красивого выравнивания
+#include <QGridLayout>
+#include <QAction>
+#include <QPainter>
+#include <QPainterPath>
+#include <QPixmap>
+#include <QColor>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTextEdit>
@@ -10,13 +15,12 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QEvent>
-#include <QGraphicsDropShadowEffect> // Для теней
+#include <QGraphicsDropShadowEffect>
 #include <QTime>
 
 MinimalSynchronizationView::MinimalSynchronizationView(QWidget *parent)
     : ISynchronizationView(parent)
 {
-    // --- 1. Стили ---
     this->setStyleSheet("background-color: #f4f7fa;");
 
     const QString titleStyle = R"(
@@ -72,7 +76,6 @@ MinimalSynchronizationView::MinimalSynchronizationView(QWidget *parent)
         QPushButton:pressed { background-color: #5a6268; }
     )";
 
-    // --- 2. Создание виджетов ---
     m_mainLayout = new QVBoxLayout(this);
     m_mainLayout->setContentsMargins(25, 25, 25, 25);
     m_mainLayout->setSpacing(20);
@@ -87,9 +90,8 @@ MinimalSynchronizationView::MinimalSynchronizationView(QWidget *parent)
     m_logView = new QTextEdit(this);
     m_logView->setReadOnly(true);
     m_logView->setStyleSheet(logStyle);
-    m_logView->setFixedHeight(100); // Ограничим высоту лога
+    m_logView->setFixedHeight(100);
 
-    // --- 3. Компоновка ---
     m_mainLayout->addWidget(m_loginWidget);
     m_mainLayout->addWidget(m_syncWidget);
     m_mainLayout->addWidget(m_statusLabel);
@@ -97,7 +99,6 @@ MinimalSynchronizationView::MinimalSynchronizationView(QWidget *parent)
     m_mainLayout->addWidget(new QLabel("Лог операций:", this));
     m_mainLayout->addWidget(m_logView);
 
-    // Применение стилей и эффектов
     for (auto* button : findChildren<QPushButton*>()) {
         button->setCursor(Qt::PointingHandCursor);
         auto shadow = new QGraphicsDropShadowEffect(this);
@@ -115,12 +116,11 @@ MinimalSynchronizationView::MinimalSynchronizationView(QWidget *parent)
     m_tasksList->setStyleSheet(listStyle);
     m_loginTitle->setStyleSheet(titleStyle);
     m_syncTitle->setStyleSheet(titleStyle);
-     m_closeLoginButton->setStyleSheet(secondaryButtonStyle);
+    m_closeLoginButton->setStyleSheet(secondaryButtonStyle);
 
     setMinimumSize(500, 700);
     setWindowTitle("Синхронизация с Tweek");
 
-    // --- 4. Соединение сигналов ---
     connect(m_closeButton, &QPushButton::clicked, this, &ISynchronizationView::closeRequested);
     showState(ViewState::Login);
 }
@@ -138,21 +138,18 @@ void MinimalSynchronizationView::setupLoginUi() {
     m_passwordEdit->setPlaceholderText("••••••••");
     m_connectButton = new QPushButton("Войти", this);
 
-    // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+    m_passwordVisibilityAction = m_passwordEdit->addAction(createEyeIcon(true), QLineEdit::TrailingPosition);
+    m_passwordVisibilityAction->setToolTip("Показать/скрыть пароль");
+    connect(m_passwordVisibilityAction, &QAction::triggered, this, &MinimalSynchronizationView::onPasswordVisibilityToggled);
 
-    // 1. Создаем нашу новую кнопку "Закрыть"
     m_closeLoginButton = new QPushButton("Закрыть", this);
 
-    // 2. Соединяем ее сигнал с тем же сигналом интерфейса, что и у другой кнопки "Закрыть"
     connect(m_closeLoginButton, &QPushButton::clicked, this, &ISynchronizationView::closeRequested);
 
-    // 3. Создаем горизонтальный layout для кнопок
     auto buttonLayout = new QHBoxLayout();
-    buttonLayout->addWidget(m_closeLoginButton); // Кнопка "Закрыть" слева
-    buttonLayout->addStretch();                  // Растягивающаяся пружина посередине
-    buttonLayout->addWidget(m_connectButton);    // Кнопка "Войти" справа
-
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+    buttonLayout->addWidget(m_closeLoginButton);
+    buttonLayout->addStretch();
+    buttonLayout->addWidget(m_connectButton);
 
     layout->addWidget(m_loginTitle, 0, Qt::AlignCenter);
     layout->addWidget(new QLabel("Email:", this));
@@ -161,7 +158,6 @@ void MinimalSynchronizationView::setupLoginUi() {
     layout->addWidget(m_passwordEdit);
     layout->addStretch();
 
-    // 4. Добавляем в основной layout наш новый layout с кнопками
     layout->addLayout(buttonLayout);
 
     connect(m_connectButton, &QPushButton::clicked, this, &MinimalSynchronizationView::onConnectClicked);
@@ -181,7 +177,6 @@ void MinimalSynchronizationView::setupSyncUi() {
     m_tasksList->setSelectionMode(QAbstractItemView::MultiSelection);
     m_confirmButton = new QPushButton("Импортировать выбранные", this);
 
-    // Кнопки управления аккаунтом
     auto buttonLayout = new QHBoxLayout();
     m_disconnectButton = new QPushButton("Сменить аккаунт", this);
     m_closeButton = new QPushButton("Закрыть", this);
@@ -212,7 +207,7 @@ void MinimalSynchronizationView::showState(ViewState state) {
         m_calendarCombo->clear();
         m_tasksList->clear();
         m_logView->clear();
-        m_emailEdit->clear();       // Очищаем поле email
+        m_emailEdit->clear();
         m_passwordEdit->clear();
         setProgress(0);
     } else {
@@ -222,7 +217,6 @@ void MinimalSynchronizationView::showState(ViewState state) {
     }
 }
 
-// --- Остальные методы остаются без изменений ---
 QWidget* MinimalSynchronizationView::getWidget() { return this; }
 void MinimalSynchronizationView::updateStatus(const QString& status) { m_statusLabel->setText(status); }
 void MinimalSynchronizationView::logMessage(const QString& msg) { m_logView->append(QString("[%1] %2").arg(QTime::currentTime().toString("hh:mm:ss")).arg(msg)); }
@@ -235,6 +229,14 @@ void MinimalSynchronizationView::displayCalendars(const QVector<TweekCalendar>& 
         m_calendarCombo->addItem(calendar.name, calendar.id);
     }
     logMessage(QString("Найдено %1 календарей.").arg(calendars.size()));
+}
+
+void MinimalSynchronizationView::selectCalendar(const QString& calendarId)
+{
+    int index = m_calendarCombo->findData(calendarId);
+    if (index != -1) {
+        m_calendarCombo->setCurrentIndex(index);
+    }
 }
 
 void MinimalSynchronizationView::displayTasks(const QVector<TweekTask>& tasks) {
@@ -258,8 +260,6 @@ void MinimalSynchronizationView::setControlsEnabled(bool enabled) {
 
 void MinimalSynchronizationView::onConnectClicked() {
     setControlsEnabled(false);
-    updateStatus("Подключение...");
-    setProgress(25);
     emit connectRequested(m_emailEdit->text(), m_passwordEdit->text());
 }
 
@@ -270,8 +270,6 @@ void MinimalSynchronizationView::onGetTasksClicked() {
         return;
     }
     setControlsEnabled(false);
-    updateStatus("Загрузка задач...");
-    setProgress(50);
     emit tasksRequested(calendarId);
 }
 
@@ -288,8 +286,6 @@ void MinimalSynchronizationView::onConfirmClicked() {
         return;
     }
     setControlsEnabled(false);
-    updateStatus("Сохранение задач...");
-    setProgress(75);
     emit tasksSelected(selectedTasks);
 }
 
@@ -301,4 +297,44 @@ bool MinimalSynchronizationView::eventFilter(QObject* watched, QEvent* event)
         updateStatus("Выберите календарь и нажмите 'Получить задачи'.");
     }
     return QObject::eventFilter(watched, event);
+}
+
+void MinimalSynchronizationView::onPasswordVisibilityToggled()
+{
+    if (m_passwordEdit->echoMode() == QLineEdit::Password) {
+        m_passwordEdit->setEchoMode(QLineEdit::Normal);
+        m_passwordVisibilityAction->setIcon(createEyeIcon(false));
+    } else {
+        m_passwordEdit->setEchoMode(QLineEdit::Password);
+        m_passwordVisibilityAction->setIcon(createEyeIcon(true));
+    }
+}
+
+QIcon MinimalSynchronizationView::createEyeIcon(bool shown)
+{
+    QPixmap pixmap(16, 16);
+    pixmap.fill(Qt::transparent);
+
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QColor penColor = palette().color(QPalette::Text);
+    painter.setPen(penColor);
+
+    QPainterPath path;
+    path.moveTo(1, 8);
+    path.quadTo(8, 2, 15, 8);
+    path.quadTo(8, 14, 1, 8);
+    painter.drawPath(path);
+
+    painter.setBrush(penColor);
+    painter.drawEllipse(6, 6, 4, 4);
+    painter.setBrush(Qt::NoBrush);
+
+    if (!shown) {
+        painter.setPen(QPen(penColor, 1.5));
+        painter.drawLine(2, 2, 14, 14);
+    }
+
+    return QIcon(pixmap);
 }

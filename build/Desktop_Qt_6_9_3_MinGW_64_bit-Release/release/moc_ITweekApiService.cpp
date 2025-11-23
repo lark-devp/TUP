@@ -60,7 +60,8 @@ template <> constexpr inline auto ITweekApiService::qt_create_metaobjectdata<qt_
         "taskCreateFailed",
         "taskUpdateSuccess",
         "tweekTaskId",
-        "taskUpdateFailed"
+        "taskUpdateFailed",
+        "httpStatusCode"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -104,6 +105,14 @@ template <> constexpr inline auto ITweekApiService::qt_create_metaobjectdata<qt_
         QtMocHelpers::SignalData<void(const QString &, const QString &)>(21, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 20 }, { QMetaType::QString, 6 },
         }}),
+        // Signal 'taskUpdateSuccess'
+        QtMocHelpers::SignalData<void(int)>(19, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::Int, 16 },
+        }}),
+        // Signal 'taskUpdateFailed'
+        QtMocHelpers::SignalData<void(int, const QString &, int)>(21, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::Int, 16 }, { QMetaType::QString, 6 }, { QMetaType::Int, 22 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -137,6 +146,8 @@ void ITweekApiService::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         case 7: _t->taskCreateFailed((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 8: _t->taskUpdateSuccess((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 9: _t->taskUpdateFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
+        case 10: _t->taskUpdateSuccess((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 11: _t->taskUpdateFailed((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[3]))); break;
         default: ;
         }
     }
@@ -161,6 +172,10 @@ void ITweekApiService::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
             return;
         if (QtMocHelpers::indexOfMethod<void (ITweekApiService::*)(const QString & , const QString & )>(_a, &ITweekApiService::taskUpdateFailed, 9))
             return;
+        if (QtMocHelpers::indexOfMethod<void (ITweekApiService::*)(int )>(_a, &ITweekApiService::taskUpdateSuccess, 10))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ITweekApiService::*)(int , const QString & , int )>(_a, &ITweekApiService::taskUpdateFailed, 11))
+            return;
     }
 }
 
@@ -183,14 +198,14 @@ int ITweekApiService::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 10)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 10;
+        _id -= 12;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 10)
+        if (_id < 12)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 10;
+        _id -= 12;
     }
     return _id;
 }
@@ -253,5 +268,17 @@ void ITweekApiService::taskUpdateSuccess(const QString & _t1)
 void ITweekApiService::taskUpdateFailed(const QString & _t1, const QString & _t2)
 {
     QMetaObject::activate<void>(this, &staticMetaObject, 9, nullptr, _t1, _t2);
+}
+
+// SIGNAL 10
+void ITweekApiService::taskUpdateSuccess(int _t1)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 10, nullptr, _t1);
+}
+
+// SIGNAL 11
+void ITweekApiService::taskUpdateFailed(int _t1, const QString & _t2, int _t3)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 11, nullptr, _t1, _t2, _t3);
 }
 QT_WARNING_POP

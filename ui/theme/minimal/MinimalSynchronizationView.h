@@ -1,11 +1,13 @@
 #pragma once
 
 #include "ui/interfaces/ISynchronizationView.h"
+#include <QIcon>
 #include <QMap>
 #include <QVBoxLayout>
 
 class QLineEdit;
 class QPushButton;
+class QAction;
 class QTextEdit;
 class QProgressBar;
 class QLabel;
@@ -27,6 +29,7 @@ public:
     void logMessage(const QString& message) override;
     void setProgress(int percentage) override;
     void displayCalendars(const QVector<TweekCalendar>& calendars) override;
+    void selectCalendar(const QString& calendarId) override;
     void displayTasks(const QVector<TweekTask>& tasks) override;
     void setControlsEnabled(bool enabled) override;
 
@@ -37,11 +40,13 @@ private slots:
     void onConnectClicked();
     void onGetTasksClicked();
     void onConfirmClicked();
+    void onPasswordVisibilityToggled();
 
 
 private:
     void setupLoginUi();
     void setupSyncUi();
+    QIcon createEyeIcon(bool shown);
 
     QWidget* m_centralWidget;
     QVBoxLayout* m_mainLayout;
@@ -57,6 +62,7 @@ private:
     QPushButton* m_connectButton;
     QLabel* m_loginTitle;
     QPushButton* m_closeLoginButton;
+    QAction* m_passwordVisibilityAction;
 
     QWidget* m_syncWidget = nullptr;
     QPushButton* m_disconnectButton;

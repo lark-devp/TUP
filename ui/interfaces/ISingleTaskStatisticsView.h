@@ -5,7 +5,7 @@
 #include <QString>
 #include <QVariantMap>
 #include <QDate>
-#include <QVector> // Добавили
+#include <QVector>
 
 class ISingleTaskStatisticsView : public IView
 {

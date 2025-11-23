@@ -49,5 +49,4 @@ private:
     QPushButton* m_addTaskButton;
     QPushButton* m_syncButton;
     QPushButton* m_refreshButton;
-    QPushButton* m_logoutButton;
 };

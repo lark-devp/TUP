@@ -44,7 +44,7 @@ public:
      */
     virtual void fetchTodayTasks(const QString& idToken, const QString& calendarId) = 0;
     virtual void createTaskInTweek(const QString& idToken, const QString& calendarId, const QString& title, const QString& description, int localTaskId) = 0;
-    virtual void updateTaskInTweek(const QString& idToken, const QString& tweekTaskId, const QString& title, const QString& description) = 0;
+    virtual void updateTaskInTweek(const QString& idToken, const QString& tweekTaskId, const QString& title, const QString& description, int localTaskId) = 0;
 
 signals:
 
@@ -61,4 +61,6 @@ signals:
     void taskCreateFailed(int localTaskId, const QString& errorMessage);
     void taskUpdateSuccess(const QString& tweekTaskId);
     void taskUpdateFailed(const QString& tweekTaskId, const QString& errorMessage);
+    void taskUpdateSuccess(int localTaskId);
+    void taskUpdateFailed(int localTaskId, const QString& errorMessage, int httpStatusCode);
 };

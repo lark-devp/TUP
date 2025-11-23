@@ -8,7 +8,7 @@
 #include <QStackedWidget>
 #include <QMessageBox>
 #include <QFont>
-#include <QGraphicsDropShadowEffect> // Необходимо для тени
+#include <QGraphicsDropShadowEffect>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmap>
@@ -16,7 +16,6 @@
 MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     : ITaskSelectionView(parent)
 {
-    // --- 1. Определение стилей ---
     this->setStyleSheet("background-color: #f4f7fa;");
     const QString titleStyle = "font-size: 24px; font-weight: bold; color: #333;";
     const QString listWidgetStyle = R"(
@@ -62,23 +61,7 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
            color: #a0a0a0;
         }
     )";
-    const QString iconButtonStyle = R"(
-        QPushButton {
-            background-color: transparent;
-            border: none;
-            padding: 4px;
-            border-radius: 13px; /* Делаем круглой */
-        }
-        QPushButton:hover {
-            background-color: #e0e8f0;
-        }
-        QPushButton:pressed {
-            background-color: #d0d8e0;
-        }
-    )";
 
-
-    // --- 2. Создание виджетов ---
     m_titleLabel = new QLabel("Выберите задачу", this);
     m_listWidget = new QListWidget(this);
 
@@ -92,7 +75,6 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     m_stackedWidget->addWidget(m_listWidget);
     m_stackedWidget->addWidget(loadingWidget);
 
-    // Кнопки действий
     m_startTimerButton = new QPushButton("▶️ Старт", this);
     m_statsButton = new QPushButton("📊 Статистика", this);
     m_allStatsButton = new QPushButton("Статистика (все)", this);
@@ -100,44 +82,6 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     m_syncButton = new QPushButton("🔄 Синхронизация", this);
     m_refreshButton = new QPushButton("Обновить календарь", this);
 
-    // --- ИЗМЕНЕНИЕ: Создание кнопки и кастомной иконки ---
-    m_logoutButton = new QPushButton(this);
-
-    // Создаем pixmap для рисования
-    QPixmap pixmap(64, 64); // Рисуем в высоком разрешении для четкости
-    pixmap.fill(Qt::transparent); // Прозрачный фон
-
-    QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing); // Включаем сглаживание
-    QPen pen(QColor("#555555")); // Темно-серый цвет
-    pen.setWidth(6);
-    pen.setCapStyle(Qt::RoundCap);
-    pen.setJoinStyle(Qt::RoundJoin);
-    painter.setPen(pen);
-
-    // Рисуем "дверной проем"
-    QPainterPath doorPath;
-    doorPath.moveTo(45, 10);
-    doorPath.lineTo(20, 10);
-    doorPath.arcTo(10, 10, 10, 10, 90, 90);
-    doorPath.lineTo(10, 54);
-    doorPath.arcTo(10, 44, 10, 10, 180, 90);
-    doorPath.lineTo(45, 54);
-    painter.drawPath(doorPath);
-
-    // Рисуем стрелку
-    painter.drawLine(30, 32, 54, 32);
-    painter.drawLine(44, 22, 54, 32);
-    painter.drawLine(44, 42, 54, 32);
-
-    QIcon logoutIcon(pixmap);
-    m_logoutButton->setIcon(logoutIcon); // Устанавливаем нашу иконку
-    m_logoutButton->setFixedSize(26, 26); // <-- ИЗМЕНЕНИЕ: Уменьшили размер кнопки
-    m_logoutButton->setIconSize(QSize(18, 18)); // <-- ИЗМЕНЕНИЕ: Уменьшили размер самой иконки
-    m_logoutButton->setToolTip("Выйти из аккаунта");
-
-
-    // --- 3. Применение стилей и эффектов ---
     m_titleLabel->setStyleSheet(titleStyle);
     m_listWidget->setStyleSheet(listWidgetStyle);
 
@@ -154,22 +98,15 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
         shadow->setColor(QColor(0, 0, 0, 80));
         button->setGraphicsEffect(shadow);
     }
-    m_logoutButton->setStyleSheet(iconButtonStyle);
-    m_logoutButton->setCursor(Qt::PointingHandCursor);
 
     m_startTimerButton->setEnabled(false);
     m_statsButton->setEnabled(false);
     m_refreshButton->setEnabled(false);
 
 
-    // --- 4. Компоновка ---
     auto mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(30, 20, 30, 30);
+    mainLayout->setContentsMargins(30, 30, 30, 30);
     mainLayout->setSpacing(20);
-
-    auto topBarLayout = new QHBoxLayout();
-    topBarLayout->addStretch();
-    topBarLayout->addWidget(m_logoutButton);
 
     auto buttonLayout = new QGridLayout();
     buttonLayout->setSpacing(15);
@@ -180,7 +117,6 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     buttonLayout->addWidget(m_syncButton, 2, 0);
     buttonLayout->addWidget(m_allStatsButton, 2, 1);
 
-    mainLayout->addLayout(topBarLayout);
     mainLayout->addWidget(m_titleLabel, 0, Qt::AlignHCenter);
     mainLayout->addWidget(m_stackedWidget, 1);
     mainLayout->addSpacing(10);
@@ -191,7 +127,6 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     setMinimumSize(450, 600);
 
 
-    // --- 5. Соединение сигналов и слотов ---
     connect(m_listWidget, &QListWidget::currentItemChanged, this, &MinimalTaskSelectionView::onTaskSelectionChanged);
     connect(m_startTimerButton, &QPushButton::clicked, this, &MinimalTaskSelectionView::onStartTimerClicked);
     connect(m_statsButton, &QPushButton::clicked, this, &MinimalTaskSelectionView::onShowStatsClicked);
@@ -199,7 +134,6 @@ MinimalTaskSelectionView::MinimalTaskSelectionView(QWidget *parent)
     connect(m_addTaskButton, &QPushButton::clicked, this, &ITaskSelectionView::addTaskRequested);
     connect(m_syncButton, &QPushButton::clicked, this, &ITaskSelectionView::synchronizationRequested);
     connect(m_listWidget, &QListWidget::itemDoubleClicked, this, &MinimalTaskSelectionView::onItemDoubleClicked);
-    connect(m_logoutButton, &QPushButton::clicked, this, &ITaskSelectionView::logoutRequested);
     connect(m_refreshButton, &QPushButton::clicked, this, [this](){
         if (auto* item = m_listWidget->currentItem()) {
             emit syncSingleTaskRequested(item->data(Qt::UserRole).toString());
@@ -221,7 +155,6 @@ void MinimalTaskSelectionView::displayTasks(const QVector<TaskDisplayData>& task
         auto item = new QListWidgetItem(task.title, m_listWidget);
         item->setData(Qt::UserRole, task.id);
     }
-    // Сбрасываем выбор, чтобы кнопки снова стали неактивными
     m_listWidget->setCurrentItem(nullptr);
     onTaskSelectionChanged(nullptr, nullptr);
 }
@@ -266,20 +199,14 @@ void MinimalTaskSelectionView::onShowStatsClicked()
 }
 void MinimalTaskSelectionView::setupConnections()
 {
-    // Предположим, у вас есть кнопка m_startButton и список m_taskListWidget
     connect(m_startTimerButton, &QPushButton::clicked, this, [this](){
-        // 1. Получаем выбранный элемент из списка
         QListWidgetItem* selectedItem = m_listWidget->currentItem();
 
         if (selectedItem) {
-            // 2. Извлекаем ID задачи (мы его сохраняли ранее через setData)
             QString taskId = selectedItem->data(Qt::UserRole).toString();
 
-            // 3. ИСПУСКАЕМ СИГНАЛ ИНТЕРФЕЙСА
-            // Окно не знает, кто его слушает. Оно просто кричит: "Выбрана задача для таймера!"
             emit taskSelectedForTimer(taskId);
         } else {
-            // Показать сообщение, что нужно выбрать задачу
             showError("Пожалуйста, выберите задачу из списка.");
         }
     });
@@ -288,7 +215,6 @@ void MinimalTaskSelectionView::setupConnections()
         QListWidgetItem* selectedItem = m_listWidget->currentItem();
         if (selectedItem) {
             QString taskId = selectedItem->data(Qt::UserRole).toString();
-            // ИСПУСКАЕМ НОВЫЙ СИГНАЛ
             emit statisticsRequestedForTask(taskId);
         } else {
             showError("Пожалуйста, выберите задачу из списка.");
@@ -307,7 +233,6 @@ void MinimalTaskSelectionView::onItemDoubleClicked(QListWidgetItem* item)
 {
     if (item) {
         QString taskId = item->data(Qt::UserRole).toString();
-        // Отправляем сигнал "наружу", что пользователь хочет редактировать задачу
         emit editTaskRequested(taskId);
     }
 }
@@ -315,6 +240,6 @@ void MinimalTaskSelectionView::onRefreshClicked()
 {
     if (auto currentItem = m_listWidget->currentItem()) {
         QString taskId = currentItem->data(Qt::UserRole).toString();
-        emit syncSingleTaskRequested(taskId); // Будем использовать существующий сигнал с перегрузкой
+        emit syncSingleTaskRequested(taskId);
     }
 }

@@ -342,32 +342,32 @@ void TweekApiServiceImpl::createTaskInTweek(const QString& idToken, const QStrin
     });
 }
 
-void TweekApiServiceImpl::updateTaskInTweek(const QString& idToken, const QString& tweekTaskId, const QString& title, const QString& description)
+void TweekApiServiceImpl::updateTaskInTweek(const QString& idToken, const QString& tweekTaskId, const QString& title, const QString& description, int localTaskId)
 {
     QJsonObject taskObject;
     taskObject["text"] = title;
     taskObject["note"] = description;
 
-
     QJsonDocument doc(taskObject);
     QByteArray jsonData = doc.toJson();
 
-    QUrl updateUrl(m_tasksUrl.toString() + "/" + tweekTaskId); // Endpoint: /tasks/{taskId}
+    QUrl updateUrl(m_tasksUrl.toString() + "/" + tweekTaskId);
 
     QNetworkRequest request = createAuthorizedRequest(updateUrl, idToken);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     QNetworkReply* reply = m_networkManager->sendCustomRequest(request, "PATCH", jsonData);
 
-    // Используем лямбду для обработки
-    connect(reply, &QNetworkReply::finished, this, [this, reply, tweekTaskId](){
+    // --- ИЗМЕНЕНИЯ В ЛЯМБДЕ ---
+    connect(reply, &QNetworkReply::finished, this, [this, reply, localTaskId](){
         if (!reply) return;
 
-        // PATCH возвращает 204 No Content при успехе, так что ошибка - это главное, на что смотрим
         if (reply->error() != QNetworkReply::NoError) {
-            emit taskUpdateFailed(tweekTaskId, "Ошибка обновления: " + reply->errorString());
+            int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            QString errorString = "Ошибка обновления: " + reply->errorString() + " " + reply->readAll();
+            emit taskUpdateFailed(localTaskId, errorString, httpStatusCode);
         } else {
-            emit taskUpdateSuccess(tweekTaskId);
+            emit taskUpdateSuccess(localTaskId);
         }
         reply->deleteLater();
     });

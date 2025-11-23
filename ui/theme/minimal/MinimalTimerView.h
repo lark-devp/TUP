@@ -21,7 +21,7 @@ public:
     void setTaskTitle(const QString& title) override;
     void updateDisplayedTime(const QString& timeString) override;
     void showModeSelection() override;
-    void displayPomodoroState(int remainingSessions, bool isWorkSession) override;
+    void displayPomodoroState(int totalSessions, int completedSessions, bool isWorkSession) override;
     void showStopwatchMode() override;
 
 protected:
@@ -46,6 +46,7 @@ private:
     QLabel* m_pomodoroTimeLabel;
     QLabel* m_pomodoroStateLabel;
     QLabel* m_pomodoroSessionLabel;
+    QPushButton* m_skipRestButton;
     QWidget* createPomodoroPage();
 
 };
