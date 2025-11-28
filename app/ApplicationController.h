@@ -15,7 +15,7 @@
 #include <QSettings>
 #include <QUuid>
 #include <QCryptographicHash>
-
+#include <QLocale>
 
 class ApplicationController : public QObject
 {
@@ -52,11 +52,11 @@ private slots:
 
     void onTweekConnectRequested(const QString& email, const QString& password);
     void onTweekAuthSuccess(const QString& idToken, const QString& refreshToken);
-    void onTweekAuthFailed(const QString& error);
+    void onTweekAuthFailed();
     void onTweekDisconnectRequested();
 
     void onCalendarsFetchSuccess(const QVector<TweekCalendar>& calendars);
-    void onCalendarsFetchFailed(const QString& error);
+    void onCalendarsFetchFailed();
 
     void onTasksFetchSuccess(const QVector<TweekTask>& tasks);
     void onTasksFetchFailed(const QString& error);
@@ -83,6 +83,7 @@ private:
 
 
     void returnToTaskSelection();
+    void saveCurrentSession();
     void refreshTaskList();
     void loadAndDisplayWeeklyStats();
     void startNextPomodoroSession();

@@ -197,38 +197,6 @@ void MinimalTaskSelectionView::onShowStatsClicked()
         emit statisticsRequestedForTask(taskId);
     }
 }
-void MinimalTaskSelectionView::setupConnections()
-{
-    connect(m_startTimerButton, &QPushButton::clicked, this, [this](){
-        QListWidgetItem* selectedItem = m_listWidget->currentItem();
-
-        if (selectedItem) {
-            QString taskId = selectedItem->data(Qt::UserRole).toString();
-
-            emit taskSelectedForTimer(taskId);
-        } else {
-            showError("Пожалуйста, выберите задачу из списка.");
-        }
-    });
-
-    connect(m_statsButton, &QPushButton::clicked, this, [this](){
-        QListWidgetItem* selectedItem = m_listWidget->currentItem();
-        if (selectedItem) {
-            QString taskId = selectedItem->data(Qt::UserRole).toString();
-            emit statisticsRequestedForTask(taskId);
-        } else {
-            showError("Пожалуйста, выберите задачу из списка.");
-        }
-    });
-    connect(m_allStatsButton, &QPushButton::clicked,
-            this, &MinimalTaskSelectionView::allTasksStatisticsRequested);
-
-    connect(m_syncButton, &QPushButton::clicked,
-            this, &MinimalTaskSelectionView::synchronizationRequested);
-
-    connect(m_addTaskButton, &QPushButton::clicked,
-            this, &MinimalTaskSelectionView::addTaskRequested);
-}
 void MinimalTaskSelectionView::onItemDoubleClicked(QListWidgetItem* item)
 {
     if (item) {

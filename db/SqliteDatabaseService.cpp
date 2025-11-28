@@ -66,15 +66,16 @@ void SqliteDatabaseService::initializeDatabase()
     }
 
     if (!query.exec(R"(
-        CREATE TABLE IF NOT EXISTS "Task" (
-            task_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            title TEXT NOT NULL,
-            description TEXT,
-            is_active INTEGER NOT NULL DEFAULT 1,
-            tweek_task_id TEXT,
-            FOREIGN KEY (user_id) REFERENCES "User" (user_id)
-        )
+    CREATE TABLE IF NOT EXISTS "Task" (
+        task_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        tweek_task_id TEXT,
+        FOREIGN KEY (user_id) REFERENCES "User" (user_id),
+        UNIQUE (user_id, tweek_task_id)
+    )
     )")) {
         qCritical() << "Failed to create Task table:" << query.lastError().text();
     }
@@ -186,9 +187,13 @@ bool SqliteDatabaseService::addTask(const QString& title, const QString& descrip
         )");
     } else {
         query.prepare(R"(
-            INSERT OR IGNORE INTO "Task" (user_id, title, description, tweek_task_id)
-            VALUES (:user_id, :title, :description, :tweek_id)
-        )");
+            INSERT INTO "Task" (user_id, title, description, tweek_task_id, is_active)
+            VALUES (:user_id, :title, :description, :tweek_id, 1)
+            ON CONFLICT(user_id, tweek_task_id) DO UPDATE SET
+                title = excluded.title,
+                description = excluded.description,
+                is_active = 1
+    )");
         query.bindValue(":tweek_id", tweekId);
     }
     query.bindValue(":user_id", userId);

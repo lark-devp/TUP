@@ -10,6 +10,7 @@
 #include <QStackedWidget>
 #include <QInputDialog>
 
+
 MinimalTimerView::MinimalTimerView(QWidget *parent)
     : ITimerView(parent)
 {
@@ -60,7 +61,7 @@ MinimalTimerView::MinimalTimerView(QWidget *parent)
 
     setLayout(mainLayout);
     setWindowTitle("Таймер");
-    setMinimumSize(450, 600);
+    setMinimumSize(465, 600);
 }
 
 
@@ -216,13 +217,13 @@ void MinimalTimerView::displayPomodoroState(int totalSessions, int completedSess
 void MinimalTimerView::onPomodoroButtonClicked()
 {
     bool ok;
-    int workMinutes = QInputDialog::getInt(this, "Время учёбы", "Минут на задачу:", 25, 1, 120, 1, &ok);
+    int workMinutes = QInputDialog::getInt(this, "Время учёбы", "Минут на учебную сессию:", 25, 1, 120, 1, &ok);
     if (!ok) return;
 
     int restMinutes = QInputDialog::getInt(this, "Время отдыха", "Минут на отдых:", 5, 1, 60, 1, &ok);
     if (!ok) return;
 
-    int sessionCount = QInputDialog::getInt(this, "Количество сессий", "Всего рабочих циклов:", 4, 1, 9, 1, &ok);
+    int sessionCount = QInputDialog::getInt(this, "Количество сессий", "Количество сессий:", 4, 1, 10, 1, &ok);
     if (!ok) return;
 
 

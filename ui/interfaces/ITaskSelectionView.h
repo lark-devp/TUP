@@ -23,7 +23,7 @@ public:
     virtual void displayTasks(const QVector<TaskDisplayData>& tasks) = 0;
     virtual void showLoading(bool isLoading) = 0;
     virtual void showError(const QString& message) = 0;
-    virtual void setupConnections() = 0;
+
 
 signals:
 

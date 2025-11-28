@@ -214,26 +214,14 @@ void ApplicationController::startNextPomodoroSession()
 void ApplicationController::onTimerStop()
 {
     qDebug() << "Таймер остановлен. Сохранение сессии...";
-    if (m_timer) m_timer->stop();
-
-    if (m_currentTimerMode == TimerMode::Stopwatch && m_elapsedSeconds > 0) {
-        QDateTime endTime = QDateTime::currentDateTime();
-        m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
-    } else if (m_currentTimerMode == TimerMode::Pomodoro && m_currentPomodoroState == PomodoroState::Work) {
-        qint64 elapsed = m_pomodoroWorkDurationSecs - m_secondsRemainingInSession;
-        if (elapsed > 0) {
-            QDateTime endTime = m_sessionStartTime.addSecs(elapsed);
-            m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
-        }
+    if (m_timer) {
+        m_timer->stop();
     }
-
+        saveCurrentSession();
 
     m_currentTimerMode = TimerMode::None;
     onTimerClosed();
 }
-
-
-
 void ApplicationController::onTimerClosed()
 {
     qDebug() << "Возврат к списку задач";
@@ -299,10 +287,14 @@ void ApplicationController::loadAndDisplayWeeklyStats()
 
     QVector<qint64> weeklyData = m_dbService->getWeeklyTaskStats(m_currentStatisticsTaskId, m_currentStatisticsWeekStart);
 
+    QLocale russianLocale(QLocale::Russian, QLocale::Russia);
     QDate weekEndDate = m_currentStatisticsWeekStart.addDays(6);
-    QString weekRangeLabel = QString("%1 - %2")
-                                 .arg(m_currentStatisticsWeekStart.toString("dd MMM"))
-                                 .arg(weekEndDate.toString("dd MMM yyyy"));
+
+
+    QString startStr = russianLocale.toString(m_currentStatisticsWeekStart, "dd MMM");
+    QString endStr = russianLocale.toString(weekEndDate, "dd MMM yyyy");
+
+    QString weekRangeLabel = QString("%1 - %2").arg(startStr).arg(endStr);
 
     m_statisticsView->displayWeeklyChart(weeklyData, weekRangeLabel);
 
@@ -613,10 +605,10 @@ void ApplicationController::onTweekAuthSuccess(const QString& idToken, const QSt
     m_tweekApiService->fetchCalendars(m_currentTweekTokens->idToken);
 }
 
-void ApplicationController::onTweekAuthFailed(const QString& error)
+void ApplicationController::onTweekAuthFailed()
 {
     if (!m_synchronizationView) return;
-    m_synchronizationView->logMessage("Ошибка: " + error);
+    m_synchronizationView->logMessage("Ошибка: неверный логин или пароль.");
     m_synchronizationView->updateStatus("Не удалось подключиться.");
     m_synchronizationView->setProgress(0);
     m_synchronizationView->setControlsEnabled(true);
@@ -638,11 +630,11 @@ void ApplicationController::onCalendarsFetchSuccess(const QVector<TweekCalendar>
     }
 }
 
-void ApplicationController::onCalendarsFetchFailed(const QString& error) {
+void ApplicationController::onCalendarsFetchFailed() {
     if (!m_synchronizationView) return;
-    m_synchronizationView->logMessage("Ошибка загрузки календарей: " + error);
+    m_synchronizationView->logMessage("Ошибка: Tweek API не активирован (список календарей пуст).");
+    m_synchronizationView->updateStatus("Не найдено ни одного календаря.");
     m_synchronizationView->setControlsEnabled(true);
-    m_synchronizationView->updateStatus("Ошибка загрузки календарей.");
 }
 
 void ApplicationController::onTasksFetchSuccess(const QVector<TweekTask>& allTasks) {
@@ -660,9 +652,14 @@ void ApplicationController::onTasksFetchSuccess(const QVector<TweekTask>& allTas
     m_synchronizationView->setControlsEnabled(true);
     m_synchronizationView->setProgress(90);
 
-    if (uncompletedTasks.isEmpty() && !allTasks.isEmpty()) {
-        m_synchronizationView->updateStatus("Все задачи на сегодня уже выполнены!");
-        m_synchronizationView->logMessage("Все задачи на сегодня уже выполнены. Новых для импорта нет.");
+    if (uncompletedTasks.isEmpty()) {
+        if (allTasks.isEmpty()) {
+            m_synchronizationView->updateStatus("На сегодня нет запланированных задач.");
+            m_synchronizationView->logMessage("Нет невыполненных задач на сегодня (список пуст).");
+        } else {
+            m_synchronizationView->updateStatus("Все задачи на сегодня уже выполнены!");
+            m_synchronizationView->logMessage("Нет невыполненных задач на сегодня (все выполнены).");
+        }
     } else {
         m_synchronizationView->updateStatus("Задачи загружены. Выберите нужные и подтвердите.");
         m_synchronizationView->logMessage(QString("Найдено %1 невыполненных задач для импорта.").arg(uncompletedTasks.size()));
@@ -808,4 +805,29 @@ void ApplicationController::onTweekDisconnectRequested()
     m_synchronizationView->logMessage("Вы успешно вышли из аккауунта.");
     m_synchronizationView->showState(ISynchronizationView::ViewState::Login);
     m_synchronizationView->setControlsEnabled(true);
+}
+void ApplicationController::saveCurrentSession()
+{
+    switch (m_currentTimerMode) {
+    case TimerMode::Stopwatch:
+        if (m_elapsedSeconds > 0) {
+            QDateTime endTime = QDateTime::currentDateTime();
+            m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
+        }
+        break;
+
+    case TimerMode::Pomodoro:
+        if (m_currentPomodoroState == PomodoroState::Work) {
+            qint64 elapsedInSession = m_pomodoroWorkDurationSecs - m_secondsRemainingInSession;
+            if (elapsedInSession > 0) {
+                QDateTime endTime = m_sessionStartTime.addSecs(elapsedInSession);
+                m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
+            }
+        }
+        break;
+
+    case TimerMode::None:
+    default:
+        break;
+    }
 }
