@@ -3,7 +3,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql network
 
 CONFIG += c++17
 
-
+win32 {
+    RC_FILE = app.rc
+}
 
 SOURCES += \
     app/ApplicationController.cpp \
@@ -47,7 +49,8 @@ HEADERS += \
 
 FORMS +=
 
-# Default rules for deployment.
+
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+

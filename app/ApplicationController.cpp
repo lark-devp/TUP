@@ -92,7 +92,7 @@ void ApplicationController::onTimerModeSelected()
 
 void ApplicationController::onPomodoroModeSelected(int workMinutes, int restMinutes, int sessionCount)
 {
-    qDebug() << "Выбран режим Помодоро: " << workMinutes << "мин работа," << restMinutes << "мин отдых, циклов:" << sessionCount;
+    qDebug() << "Выбран режим Помидоро: " << workMinutes << "мин работа," << restMinutes << "мин отдых, циклов:" << sessionCount;
     m_currentTimerMode = TimerMode::Pomodoro;
     m_pomodoroWorkDurationSecs = workMinutes * 60;
     m_pomodoroRestDurationSecs = restMinutes * 60;
@@ -147,12 +147,12 @@ void ApplicationController::handlePomodoroSessionFinish()
     if (m_currentPomodoroState == PomodoroState::Work) {
         QDateTime endTime = m_sessionStartTime.addSecs(m_pomodoroWorkDurationSecs);
         m_dbService->addTimeTrackingEntry(m_currentTimingTaskId, m_sessionStartTime, endTime);
-        qDebug() << "Рабочая сессия Помодоро сохранена.";
+        qDebug() << "Рабочая сессия Помидоро сохранена.";
         m_pomodoroSessionsCompleted++;
     }
 
     if (m_pomodoroSessionsCompleted >= m_pomodoroTotalSessions) {
-        qDebug() << "Все сессии Помодоро завершены.";
+        qDebug() << "Все сессии Помидоро завершены.";
         onTimerStop();
         return;
     }

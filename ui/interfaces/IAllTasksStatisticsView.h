@@ -10,9 +10,7 @@ struct TaskTimeSummary {
     qint64 totalMinutes;
 };
 
-/**
- * @brief Интерфейс для окна общей статистики по всем задачам.
- */
+
 class IAllTasksStatisticsView : public IView
 {
     Q_OBJECT

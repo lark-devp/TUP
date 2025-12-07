@@ -295,7 +295,7 @@ QVector<TaskTimeSummary> SqliteDatabaseService::getTaskTimeSummaries(int userId)
             SUM(CAST(((strftime('%s', TT.end_time) - strftime('%s', TT.start_time)) + 59) / 60.0 AS INTEGER)) as total_minutes
         FROM "Task" T
         LEFT JOIN "TimeTracking" TT ON T.task_id = TT.task_id
-        WHERE T.user_id = :user_id AND TT.tracking_id IS NOT NULL
+        WHERE T.user_id = :user_id AND TT.tracking_id IS NOT NULL AND T.is_active=1
         GROUP BY T.task_id, T.title
         ORDER BY total_minutes DESC
     )");

@@ -4,9 +4,7 @@
 #include <QObject>
 #include <QString>
 
-/**
- * @brief Интерфейс для окна редактирования/удаления задачи.
- */
+
 class IEditTaskView : public IView
 {
     Q_OBJECT

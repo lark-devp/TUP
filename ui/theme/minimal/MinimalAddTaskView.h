@@ -8,9 +8,7 @@ class QTextEdit;
 class QPushButton;
 class QLabel;
 
-/**
- * @brief Минималистичная реализация вида для добавления/редактирования задачи.
- */
+
 class MinimalAddTaskView : public IAddTaskView
 {
     Q_OBJECT
@@ -38,7 +36,6 @@ private:
     QLineEdit* m_titleLineEdit;
     QTextEdit* m_descriptionTextEdit;
 
-    // Кнопки
     QPushButton* m_saveButton;
     QPushButton* m_cancelButton;
 };

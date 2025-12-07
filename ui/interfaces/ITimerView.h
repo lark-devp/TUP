@@ -15,7 +15,7 @@ public:
 
     virtual void setTaskTitle(const QString& title) = 0;
     virtual void updateDisplayedTime(const QString& timeString) = 0;
-    virtual QWidget* getWidget() = 0;
+    virtual QWidget* getWidget()  = 0;
 
     virtual void showModeSelection() = 0;
     virtual void displayPomodoroState(int totalSessions, int completedSessions, bool isWorkSession) = 0;

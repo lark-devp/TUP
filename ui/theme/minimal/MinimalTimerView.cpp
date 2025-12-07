@@ -85,7 +85,7 @@ QWidget* MinimalTimerView::createModeSelectionPage()
     connect(stopwatchButton, &QPushButton::clicked, this, &ITimerView::timerModeSelected);
 
 
-    auto pomodoroButton = new QPushButton("🍅 Таймер Помодоро", pageWidget);
+    auto pomodoroButton = new QPushButton("🍅 Таймер Помидоро", pageWidget);
 
     pomodoroButton->setMinimumHeight(40);
     connect(pomodoroButton, &QPushButton::clicked, this, &MinimalTimerView::onPomodoroButtonClicked);

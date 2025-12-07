@@ -7,9 +7,7 @@ class QTextEdit;
 class QPushButton;
 class QLabel;
 
-/**
- * @brief Минималистичная реализация вида для редактирования/удаления задачи.
- */
+
 class MinimalEditTaskView : public IEditTaskView
 {
     Q_OBJECT

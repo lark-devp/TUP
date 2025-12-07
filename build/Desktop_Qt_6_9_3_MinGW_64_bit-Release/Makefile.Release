@@ -19,7 +19,7 @@ CXXFLAGS      = -fno-keep-inline-dllexport -O2 -std=gnu++1z -Wall -Wextra -Wextr
 INCPATH       = -I../../../tup -I. -I../../../Qt/6.9.3/mingw_64/include -I../../../Qt/6.9.3/mingw_64/include/QtWidgets -I../../../Qt/6.9.3/mingw_64/include/QtGui -I../../../Qt/6.9.3/mingw_64/include/QtSql -I../../../Qt/6.9.3/mingw_64/include/QtNetwork -I../../../Qt/6.9.3/mingw_64/include/QtCore -Irelease -I/include -I../../../Qt/6.9.3/mingw_64/mkspecs/win32-g++ 
 LINKER      =        g++
 LFLAGS        =        -Wl,-s -Wl,-subsystem,windows -mthreads
-LIBS        =        C:\Qt\6.9.3\mingw_64\lib\libQt6Widgets.a C:\Qt\6.9.3\mingw_64\lib\libQt6Gui.a C:\Qt\6.9.3\mingw_64\lib\libQt6Sql.a C:\Qt\6.9.3\mingw_64\lib\libQt6Network.a C:\Qt\6.9.3\mingw_64\lib\libQt6Core.a -lmingw32 C:\Qt\6.9.3\mingw_64\lib\libQt6EntryPoint.a -lshell32  
+LIBS        =        C:\Qt\6.9.3\mingw_64\lib\libQt6Widgets.a C:\Qt\6.9.3\mingw_64\lib\libQt6Gui.a C:\Qt\6.9.3\mingw_64\lib\libQt6Sql.a C:\Qt\6.9.3\mingw_64\lib\libQt6Network.a C:\Qt\6.9.3\mingw_64\lib\libQt6Core.a release\app_res.o -lmingw32 C:\Qt\6.9.3\mingw_64\lib\libQt6EntryPoint.a -lshell32  
 QMAKE         = C:\Qt\6.9.3\mingw_64\bin\qmake.exe
 DEL_FILE      = del
 CHK_DIR_EXISTS= if not exist
@@ -40,7 +40,7 @@ IDC           = idc
 IDL           = midl
 ZIP           = zip -r -9
 DEF_FILE      = 
-RES_FILE      = 
+RES_FILE      = release\app_res.o
 SED           = $(QMAKE) -install sed
 MOVE          = move
 
@@ -161,8 +161,11 @@ DESTDIR_TARGET = release\TUP.exe
 first: all
 all: Makefile.Release  release/TUP.exe
 
-release/TUP.exe: C:/Qt/6.9.3/mingw_64/lib/libQt6Widgets.a C:/Qt/6.9.3/mingw_64/lib/libQt6Gui.a C:/Qt/6.9.3/mingw_64/lib/libQt6Sql.a C:/Qt/6.9.3/mingw_64/lib/libQt6Network.a C:/Qt/6.9.3/mingw_64/lib/libQt6Core.a C:/Qt/6.9.3/mingw_64/lib/libQt6EntryPoint.a $(OBJECTS) 
+release/TUP.exe: C:/Qt/6.9.3/mingw_64/lib/libQt6Widgets.a C:/Qt/6.9.3/mingw_64/lib/libQt6Gui.a C:/Qt/6.9.3/mingw_64/lib/libQt6Sql.a C:/Qt/6.9.3/mingw_64/lib/libQt6Network.a C:/Qt/6.9.3/mingw_64/lib/libQt6Core.a C:/Qt/6.9.3/mingw_64/lib/libQt6EntryPoint.a $(OBJECTS) release/app_res.o
 	$(LINKER) $(LFLAGS) -o $(DESTDIR_TARGET) @release\object_script.TUP.Release $(LIBS)
+
+release/app_res.o: ../../app.rc
+	windres -i ..\..\app.rc -o release\app_res.o --include-dir=./../.. $(DEFINES)
 
 qmake: FORCE
 	@$(QMAKE) -o Makefile.Release ..\..\TUP.pro -spec win32-g++ "CONFIG+=qtquickcompiler"
@@ -174,6 +177,7 @@ dist:
 
 clean: compiler_clean 
 	-$(DEL_FILE) release\ApplicationController.o release\TweekApiServiceImpl.o release\SqliteDatabaseService.o release\main.o release\BarChartView.o release\MinimalAddTaskView.o release\MinimalAllTasksStatisticsView.o release\MinimalEditTaskView.o release\MinimalSingleTaskStatisticsView.o release\MinimalSynchronizationView.o release\MinimalTaskSelectionView.o release\MinimalTimerView.o release\MinimalUIFactory.o release\moc_ApplicationController.o release\moc_ITweekApiService.o release\moc_TweekApiServiceImpl.o release\moc_IDatabaseService.o release\moc_SqliteDatabaseService.o release\moc_IAddTaskView.o release\moc_IAllTasksStatisticsView.o release\moc_IEditTaskView.o release\moc_ISingleTaskStatisticsView.o release\moc_ISynchronizationView.o release\moc_ITaskSelectionView.o release\moc_ITimerView.o release\moc_BarChartView.o release\moc_MinimalAddTaskView.o release\moc_MinimalAllTasksStatisticsView.o release\moc_MinimalEditTaskView.o release\moc_MinimalSingleTaskStatisticsView.o release\moc_MinimalSynchronizationView.o release\moc_MinimalTaskSelectionView.o release\moc_MinimalTimerView.o
+	-$(DEL_FILE) release\app_res.o
 
 distclean: clean 
 	-$(DEL_FILE) .qmake.stash
@@ -429,6 +433,7 @@ release/moc_ApplicationController.cpp: ../../app/ApplicationController.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/quuid.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QCryptographicHash \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qcryptographichash.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QLocale \
 		release/moc_predefs.h \
 		../../../Qt/6.9.3/mingw_64/bin/moc.exe
 	C:\Qt\6.9.3\mingw_64\bin\moc.exe $(DEFINES) --include C:/tup/build/Desktop_Qt_6_9_3_MinGW_64_bit-Release/release/moc_predefs.h -IC:/Qt/6.9.3/mingw_64/mkspecs/win32-g++ -IC:/tup -IC:/Qt/6.9.3/mingw_64/include -IC:/Qt/6.9.3/mingw_64/include/QtWidgets -IC:/Qt/6.9.3/mingw_64/include/QtGui -IC:/Qt/6.9.3/mingw_64/include/QtSql -IC:/Qt/6.9.3/mingw_64/include/QtNetwork -IC:/Qt/6.9.3/mingw_64/include/QtCore -I. -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++ -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32 -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed -IC:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include ..\..\app\ApplicationController.h -o release\moc_ApplicationController.cpp
@@ -3834,6 +3839,7 @@ release/moc_MinimalSynchronizationView.cpp: ../../ui/theme/minimal/MinimalSynchr
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QVector \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qvector.h \
 		../../../../../tup/calendar/ITweekApiService.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QIcon \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QMap \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/QVBoxLayout \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qboxlayout.h \
@@ -4502,6 +4508,7 @@ release/ApplicationController.o: ../../app/ApplicationController.cpp ../../app/A
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/quuid.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QCryptographicHash \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qcryptographichash.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QLocale \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QDebug \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/QMessageBox \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qmessagebox.h \
@@ -5097,8 +5104,28 @@ release/main.o: ../../main.cpp ../../../../../Qt/6.9.3/mingw_64/include/QtWidget
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qinputmethod.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qlocale.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qguiapplication_platform.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QDebug \
-		../../ui/theme/minimal/MinimalUIFactory.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QIcon \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qicon.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QPixmap \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QPainter \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qpainter.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qtextoption.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qpen.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qbrush.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qfontinfo.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qfont.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qendian.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qfontvariableaxis.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qfontmetrics.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QFont \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QColor \
+		../../app/ApplicationController.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QObject \
+		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QTimer \
+		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qtimer.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QDateTime \
+		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qdatetime.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qcalendar.h \
 		../../../../../tup/ui/interfaces/IUIFactory.h \
 		../../../../../tup/ui/interfaces/ITaskSelectionView.h \
 		../../../../../tup/ui/interfaces/IView.h \
@@ -5106,14 +5133,7 @@ release/main.o: ../../main.cpp ../../../../../Qt/6.9.3/mingw_64/include/QtWidget
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qwidget.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qaction.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qkeysequence.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qicon.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qpalette.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qbrush.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qfont.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qendian.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qfontmetrics.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qfontinfo.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qfontvariableaxis.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qsizepolicy.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qevent.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qiodevice.h \
@@ -5125,7 +5145,6 @@ release/main.o: ../../main.cpp ../../../../../Qt/6.9.3/mingw_64/include/QtWidget
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qinputdevice.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qscreen.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QList \
-		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QObject \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QRect \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QSize \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QSizeF \
@@ -5142,16 +5161,10 @@ release/main.o: ../../main.cpp ../../../../../Qt/6.9.3/mingw_64/include/QtWidget
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QMap \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QVariant \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QDate \
-		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qdatetime.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qcalendar.h \
 		../../../../../tup/ui/interfaces/IAllTasksStatisticsView.h \
 		../../../../../tup/ui/interfaces/ISynchronizationView.h \
 		../../../../../tup/calendar/ITweekApiService.h \
 		../../../../../tup/ui/interfaces/IEditTaskView.h \
-		../../app/ApplicationController.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QTimer \
-		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qtimer.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QDateTime \
 		../../../../../tup/db/IDatabaseService.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QSettings \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qsettings.h \
@@ -5159,6 +5172,7 @@ release/main.o: ../../main.cpp ../../../../../Qt/6.9.3/mingw_64/include/QtWidget
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/quuid.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QCryptographicHash \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qcryptographichash.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QLocale \
 		../../db/SqliteDatabaseService.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtSql/QSqlDatabase \
 		../../../../../Qt/6.9.3/mingw_64/include/QtSql/qsqldatabase.h \
@@ -5166,6 +5180,7 @@ release/main.o: ../../main.cpp ../../../../../Qt/6.9.3/mingw_64/include/QtWidget
 		../../../../../Qt/6.9.3/mingw_64/include/QtSql/qtsql-config.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtSql/qtsqlexports.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qmetaobject.h \
+		../../ui/theme/minimal/MinimalUIFactory.h \
 		../../calendar/TweekApiServiceImpl.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtNetwork/QNetworkAccessManager \
 		../../../../../Qt/6.9.3/mingw_64/include/QtNetwork/qnetworkaccessmanager.h \
@@ -6340,7 +6355,9 @@ release/MinimalSingleTaskStatisticsView.o: ../../ui/theme/minimal/MinimalSingleT
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qpicture.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qtextdocument.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/QStackedWidget \
-		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qstackedwidget.h
+		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qstackedwidget.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/QGraphicsDropShadowEffect \
+		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qgraphicseffect.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\MinimalSingleTaskStatisticsView.o ..\..\ui\theme\minimal\MinimalSingleTaskStatisticsView.cpp
 
 release/MinimalSynchronizationView.o: ../../ui/theme/minimal/MinimalSynchronizationView.cpp ../../ui/theme/minimal/MinimalSynchronizationView.h \
@@ -6547,6 +6564,7 @@ release/MinimalSynchronizationView.o: ../../ui/theme/minimal/MinimalSynchronizat
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QVector \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/qvector.h \
 		../../../../../tup/calendar/ITweekApiService.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QIcon \
 		../../../../../Qt/6.9.3/mingw_64/include/QtCore/QMap \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/QVBoxLayout \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qboxlayout.h \
@@ -6554,14 +6572,21 @@ release/MinimalSynchronizationView.o: ../../ui/theme/minimal/MinimalSynchronizat
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qlayoutitem.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qgridlayout.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/QGridLayout \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QAction \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QPainter \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qpainter.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qtextoption.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qpen.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QPainterPath \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qpainterpath.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QPixmap \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QColor \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/QLineEdit \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qlineedit.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qframe.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qtextcursor.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qtextdocument.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qtextformat.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qpen.h \
-		../../../../../Qt/6.9.3/mingw_64/include/QtGui/qtextoption.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/QPushButton \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qpushbutton.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qabstractbutton.h \
@@ -7309,6 +7334,7 @@ release/MinimalUIFactory.o: ../../ui/theme/minimal/MinimalUIFactory.cpp ../../ui
 		../../../../../tup/ui/theme/minimal/BarChartView.h \
 		../../../../../tup/ui/theme/minimal/MinimalAllTasksStatisticsView.h \
 		../../../../../tup/ui/theme/minimal/MinimalSynchronizationView.h \
+		../../../../../Qt/6.9.3/mingw_64/include/QtGui/QIcon \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/QVBoxLayout \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qboxlayout.h \
 		../../../../../Qt/6.9.3/mingw_64/include/QtWidgets/qlayout.h \

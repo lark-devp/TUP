@@ -16,19 +16,15 @@
 MinimalAllTasksStatisticsView::MinimalAllTasksStatisticsView(QWidget *parent)
     : IAllTasksStatisticsView(parent)
 {
-    // --- 1. Определение стилей ---
 
-    // Стиль для всего окна
     this->setStyleSheet("background-color: #f4f7fa;");
 
-    // Стиль для заголовка
     const QString titleStyle = R"(
         font-size: 24px;
         font-weight: bold;
         color: #333;
     )";
 
-    // Стиль для таблицы
     const QString tableViewStyle = R"(
         QTableView {
             border: 1px solid #dcdcdc;
@@ -69,21 +65,17 @@ MinimalAllTasksStatisticsView::MinimalAllTasksStatisticsView(QWidget *parent)
         }
     )";
 
-    // --- 1. Создание виджетов ---
     m_titleLabel = new QLabel("Общее время по задачам", this);
     m_closeButton = new QPushButton("Закрыть", this);
 
-    // Экран загрузки
     auto loadingWidget = new QWidget(this);
     auto loadingLayout = new QVBoxLayout(loadingWidget);
     auto loadingLabel = new QLabel("Загрузка данных...", loadingWidget);
     loadingLabel->setAlignment(Qt::AlignCenter);
     loadingWidget->setLayout(loadingLayout);
 
-    // Таблица для статистики
     m_statsTableView = new QTableView(this);
     m_model = new QStandardItemModel(0, 2, this);
-    // НОВЫЕ ЗАГОЛОВКИ
     m_model->setHorizontalHeaderLabels({"Задача", "Затраченное время"});
     m_statsTableView->setModel(m_model);
 
