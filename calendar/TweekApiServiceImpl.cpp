@@ -19,7 +19,6 @@ TweekApiServiceImpl::TweekApiServiceImpl(QObject *parent)
     m_networkManager = new QNetworkAccessManager(this);
 }
 
-// Вспомогательный метод для создания запросов с авторизацией
 QNetworkRequest TweekApiServiceImpl::createAuthorizedRequest(const QUrl& url, const QString& idToken)
 {
     QNetworkRequest request(url);
@@ -41,7 +40,6 @@ void TweekApiServiceImpl::fetchCalendars(const QString& idToken)
     connect(reply, &QNetworkReply::finished, this, &TweekApiServiceImpl::onCalendarsReplyFinished);
 }
 
-// ----- ОБНОВЛЕННЫЙ СЛОТ ДЛЯ КАЛЕНДАРЕЙ -----
 void TweekApiServiceImpl::onCalendarsReplyFinished()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
@@ -54,15 +52,13 @@ void TweekApiServiceImpl::onCalendarsReplyFinished()
         qDebug() << "Redirecting calendar request to:" << newUrl;
 
         QNetworkRequest newRequest(newUrl);
-        // ВАЖНО: Копируем заголовок авторизации из старого запроса в новый
         newRequest.setRawHeader("Authorization", reply->request().rawHeader("Authorization"));
 
         QNetworkReply* newReply = m_networkManager->get(newRequest);
-        // Подключаем новый ответ к этому же слоту для рекурсивной обработки
         connect(newReply, &QNetworkReply::finished, this, &TweekApiServiceImpl::onCalendarsReplyFinished);
 
         reply->deleteLater();
-        return; // Завершаем обработку старого ответа
+        return;
     }
 
 
@@ -163,14 +159,13 @@ void TweekApiServiceImpl::onTasksReplyFinished()
             task.id = obj["id"].toString();
             task.title = obj["text"].toString();
             task.description = obj["note"].toString();
-            task.done = obj["done"].toBool(); // <-- ДОБАВИТЬ ЭТУ СТРОКУ
+            task.done = obj["done"].toBool();
 
-            // Можно добавить отладочный вывод, чтобы убедиться, что статус считывается
             qDebug() << "[DEBUG 1: PARSER]"
                      << "ID:" << task.id
                      << "Title:" << task.title
                      << "Description:" << task.description
-                     << "Done:" << task.done; // <-- И эту для отладки
+                     << "Done:" << task.done;
 
             if(!task.id.isEmpty() && !task.title.isEmpty()){
                 tasks.append(task);
@@ -239,11 +234,8 @@ void TweekApiServiceImpl::refreshToken(const QString &token)
     QNetworkRequest request(m_refreshUrl);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
-    // Создаем ответ и сразу же подключаем к нему слот onRefreshTokenReplyFinished
     QNetworkReply* reply = m_networkManager->post(request, postData);
 
-    // Используем this в качестве контекста, чтобы соединение автоматически разорвалось,
-    // если TweekApiServiceImpl будет уничтожен до получения ответа.
     connect(reply, &QNetworkReply::finished, this, &TweekApiServiceImpl::onRefreshTokenReplyFinished);
 }
 
@@ -255,9 +247,8 @@ void TweekApiServiceImpl::onRefreshTokenReplyFinished()
     if (reply->error() != QNetworkReply::NoError) {
 
         int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        QByteArray responseData = reply->readAll(); // Читаем тело ответа при ошибке
+        QByteArray responseData = reply->readAll();
 
-        // Выводим расширенную информацию в лог
         qCritical() << "Refresh token network error:" << reply->errorString()
                     << "| HTTP Status:" << httpStatusCode
                     << "| Server Response:" << responseData;
@@ -268,7 +259,7 @@ void TweekApiServiceImpl::onRefreshTokenReplyFinished()
             errorMessage = "Ошибка обновления токена: " + responseData;
         }
 
-        emit authenticationFailed("Ошибка обновления токена: " + responseData); // Отправляем тело ответа
+        emit authenticationFailed("Ошибка обновления токена: " + responseData);
 
 
         reply->deleteLater();
@@ -298,7 +289,7 @@ void TweekApiServiceImpl::createTaskInTweek(const QString& idToken, const QStrin
     QJsonObject taskObject;
     taskObject["text"] = title;
     taskObject["note"] = description;
-    taskObject["date"] = QDate::currentDate().toString(Qt::ISODate); // Создаем на сегодня
+    taskObject["date"] = QDate::currentDate().toString(Qt::ISODate);
     taskObject["calendarId"] = calendarId;
     taskObject["done"] = false;
     taskObject["gcal"] = false;
@@ -311,17 +302,14 @@ void TweekApiServiceImpl::createTaskInTweek(const QString& idToken, const QStrin
 
     QNetworkReply* reply = m_networkManager->post(request, jsonData);
 
-    // Используем лямбду, чтобы передать localTaskId в обработчик
     connect(reply, &QNetworkReply::finished, this, [this, reply, localTaskId](){
         if (!reply) return;
 
 
         if (reply->error() != QNetworkReply::NoError) {
-            // Читаем тело ответа, в котором содержится детальная ошибка от Tweek
             QByteArray errorBody = reply->readAll();
             int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-            // Формируем подробное сообщение об ошибке
             QString detailedError = QString("Сетевая ошибка: %1 (Код: %2). Ответ сервера: %3")
                                         .arg(reply->errorString())
                                         .arg(httpStatusCode)
@@ -358,7 +346,6 @@ void TweekApiServiceImpl::updateTaskInTweek(const QString& idToken, const QStrin
 
     QNetworkReply* reply = m_networkManager->sendCustomRequest(request, "PATCH", jsonData);
 
-    // --- ИЗМЕНЕНИЯ В ЛЯМБДЕ ---
     connect(reply, &QNetworkReply::finished, this, [this, reply, localTaskId](){
         if (!reply) return;
 

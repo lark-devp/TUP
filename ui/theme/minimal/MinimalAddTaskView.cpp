@@ -14,10 +14,8 @@ MinimalAddTaskView::MinimalAddTaskView(QWidget *parent)
 {
 
 
-    // Стиль для всего виджета
     this->setStyleSheet("background-color: #f4f7fa;");
 
-    // Стиль для заголовка
     const QString titleStyle = R"(
         font-size: 22px;
         font-weight: bold;
@@ -25,7 +23,6 @@ MinimalAddTaskView::MinimalAddTaskView(QWidget *parent)
         margin-bottom: 10px;
     )";
 
-    // Стиль для полей ввода
     const QString lineEditStyle = R"(
         QLineEdit {
             border: 1px solid #dcdcdc;
@@ -52,7 +49,6 @@ MinimalAddTaskView::MinimalAddTaskView(QWidget *parent)
         }
     )";
 
-    // Стиль для кнопок
     const QString saveButtonStyle = R"(
         QPushButton {
            background-color: #4CAF50; /* Зеленый */
@@ -82,7 +78,6 @@ MinimalAddTaskView::MinimalAddTaskView(QWidget *parent)
     )";
 
 
-    // --- 2. Создание виджетов ---
     m_titleLabel = new QLabel("Новая задача", this);
     m_titleLineEdit = new QLineEdit(this);
     m_titleLineEdit->setPlaceholderText("Введите название задачи...");
@@ -94,14 +89,12 @@ MinimalAddTaskView::MinimalAddTaskView(QWidget *parent)
     m_cancelButton = new QPushButton("Отмена", this);
 
 
-    // --- 3. Применение стилей и эффектов ---
     m_titleLabel->setStyleSheet(titleStyle);
     m_titleLineEdit->setStyleSheet(lineEditStyle);
     m_descriptionTextEdit->setStyleSheet(textEditStyle);
     m_saveButton->setStyleSheet(saveButtonStyle);
     m_cancelButton->setStyleSheet(cancelButtonStyle);
 
-    // Добавляем тени и курсор к кнопкам
     for (auto* button : {m_saveButton, m_cancelButton}) {
         button->setCursor(Qt::PointingHandCursor);
         auto shadow = new QGraphicsDropShadowEffect(this);
@@ -112,14 +105,13 @@ MinimalAddTaskView::MinimalAddTaskView(QWidget *parent)
     }
 
 
-    // --- 4. Компоновка ---
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(15);
     mainLayout->setContentsMargins(30, 30, 30, 30);
 
     auto buttonLayout = new QHBoxLayout();
     buttonLayout->setSpacing(10);
-    buttonLayout->addStretch(); // Добавляем растягивающееся пространство слева
+    buttonLayout->addStretch();
     buttonLayout->addWidget(m_saveButton);
     buttonLayout->addWidget(m_cancelButton);
 
@@ -135,12 +127,10 @@ MinimalAddTaskView::MinimalAddTaskView(QWidget *parent)
 
 
 
-    // --- 5. Соединение сигналов и слотов ---
     connect(m_saveButton, &QPushButton::clicked, this, &MinimalAddTaskView::onSaveClicked);
     connect(m_cancelButton, &QPushButton::clicked, this, &MinimalAddTaskView::onCancelClicked);
 }
 
-// --- Реализация методов интерфейсов ---
 
 QWidget* MinimalAddTaskView::getWidget()
 {
@@ -170,11 +160,9 @@ void MinimalAddTaskView::setTaskData(const QString& title, const QString& descri
 
 void MinimalAddTaskView::onSaveClicked()
 {
-    // Получаем данные из полей ввода
     QString title = m_titleLineEdit->text();
     QString description = m_descriptionTextEdit->toPlainText();
 
-    // Отправляем сигнал "наружу" с данными
     emit saveTaskRequested(title, description);
 }
 

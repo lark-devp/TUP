@@ -1,6 +1,5 @@
 #include "MinimalAllTasksStatisticsView.h"
 
-// Включаем все необходимые заголовки для реализации
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -46,7 +45,6 @@ MinimalAllTasksStatisticsView::MinimalAllTasksStatisticsView(QWidget *parent)
         }
     )";
 
-    // Общий стиль для кнопок
     const QString buttonStyle = R"(
         QPushButton {
            background-color: #4a90e2;
@@ -83,44 +81,38 @@ MinimalAllTasksStatisticsView::MinimalAllTasksStatisticsView(QWidget *parent)
     m_stackedWidget->addWidget(m_statsTableView);
     m_stackedWidget->addWidget(loadingWidget);
 
-    // --- 2. Применение стилей ---
     m_titleLabel->setStyleSheet(titleStyle);
     m_statsTableView->setStyleSheet(tableViewStyle);
     m_closeButton->setStyleSheet(buttonStyle);
     m_closeButton->setCursor(Qt::PointingHandCursor);
 
-    // Настройка таблицы
     m_statsTableView->verticalHeader()->hide();
     m_statsTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     m_statsTableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     m_statsTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    // --- 3. Компоновка ---
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(20);
     mainLayout->setContentsMargins(30, 30, 30, 30);
 
     mainLayout->addWidget(m_titleLabel, 0, Qt::AlignHCenter);
-    mainLayout->addWidget(m_stackedWidget); // Добавляем виджет-переключатель
+    mainLayout->addWidget(m_stackedWidget);
     mainLayout->addWidget(m_closeButton, 0, Qt::AlignRight);
 
     setLayout(mainLayout);
     setWindowTitle("Общая статистика");
     setMinimumSize(450, 600);
 
-    // --- 4. Соединение сигналов ---
     connect(m_closeButton, &QPushButton::clicked, this, &IAllTasksStatisticsView::closeRequested);
 }
 
 QWidget* MinimalAllTasksStatisticsView::getWidget() { return this; }
 
-// НОВАЯ РЕАЛИЗАЦИЯ
 void MinimalAllTasksStatisticsView::displayTaskSummaries(const QVector<TaskTimeSummary>& summaries)
 {
     m_model->removeRows(0, m_model->rowCount());
 
     if (summaries.isEmpty()) {
-        // Можно добавить сообщение, если нет данных
         auto titleItem = new QStandardItem("Нет данных для отображения");
         m_model->appendRow(titleItem);
         return;
@@ -137,9 +129,9 @@ void MinimalAllTasksStatisticsView::displayTaskSummaries(const QVector<TaskTimeS
 void MinimalAllTasksStatisticsView::showLoading(bool isLoading)
 {
     if (isLoading) {
-        m_stackedWidget->setCurrentIndex(1); // Показываем загрузку
+        m_stackedWidget->setCurrentIndex(1);
     } else {
-        m_stackedWidget->setCurrentIndex(0); // Показываем таблицу
+        m_stackedWidget->setCurrentIndex(0);
     }
 }
 

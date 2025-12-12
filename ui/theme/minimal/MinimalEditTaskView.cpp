@@ -12,7 +12,6 @@
 MinimalEditTaskView::MinimalEditTaskView(QWidget *parent)
     : IEditTaskView(parent)
 {
-    // --- 1. Стили ---
     this->setStyleSheet("background-color: #f4f7fa;");
 
     const QString titleStyle = R"(
@@ -91,7 +90,6 @@ MinimalEditTaskView::MinimalEditTaskView(QWidget *parent)
     )";
 
 
-    // --- 2. Создание виджетов ---
     m_titleLabel = new QLabel("Редактирование задачи", this);
     m_titleLineEdit = new QLineEdit(this);
     m_titleLineEdit->setPlaceholderText("Название задачи...");
@@ -105,7 +103,6 @@ MinimalEditTaskView::MinimalEditTaskView(QWidget *parent)
     m_cancelButton = new QPushButton("Отмена", this);
 
 
-    // --- 3. Применение стилей и эффектов ---
     m_titleLabel->setStyleSheet(titleStyle);
     m_titleLineEdit->setStyleSheet(lineEditStyle);
     m_descriptionTextEdit->setStyleSheet(textEditStyle);
@@ -113,7 +110,6 @@ MinimalEditTaskView::MinimalEditTaskView(QWidget *parent)
     m_deleteButton->setStyleSheet(deleteButtonStyle);
     m_cancelButton->setStyleSheet(cancelButtonStyle);
 
-    // Тени и курсор для кнопок
     for (auto* button : {m_saveButton, m_deleteButton, m_cancelButton}) {
         button->setCursor(Qt::PointingHandCursor);
         auto shadow = new QGraphicsDropShadowEffect(this);
@@ -124,15 +120,14 @@ MinimalEditTaskView::MinimalEditTaskView(QWidget *parent)
     }
 
 
-    // --- 4. Компоновка ---
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(15);
     mainLayout->setContentsMargins(30, 30, 30, 30);
 
     auto buttonLayout = new QHBoxLayout();
     buttonLayout->setSpacing(10);
-    buttonLayout->addWidget(m_deleteButton); // Кнопка удаления слева
-    buttonLayout->addStretch(); // Растягивающееся пространство
+    buttonLayout->addWidget(m_deleteButton);
+    buttonLayout->addStretch();
     buttonLayout->addWidget(m_saveButton);
     buttonLayout->addWidget(m_cancelButton);
 
@@ -148,13 +143,12 @@ MinimalEditTaskView::MinimalEditTaskView(QWidget *parent)
 
 
 
-    // --- 5. Соединение сигналов и слотов ---
+
     connect(m_saveButton, &QPushButton::clicked, this, &MinimalEditTaskView::onSaveClicked);
     connect(m_deleteButton, &QPushButton::clicked, this, &MinimalEditTaskView::onDeleteClicked);
     connect(m_cancelButton, &QPushButton::clicked, this, &MinimalEditTaskView::onCancelClicked);
 }
 
-// --- Реализация методов интерфейсов ---
 
 QWidget* MinimalEditTaskView::getWidget()
 {
@@ -173,7 +167,6 @@ void MinimalEditTaskView::showValidationError(const QString& message)
 }
 
 
-// --- Реализация слотов ---
 
 void MinimalEditTaskView::onSaveClicked()
 {
@@ -182,7 +175,6 @@ void MinimalEditTaskView::onSaveClicked()
 
 void MinimalEditTaskView::onDeleteClicked()
 {
-    // Добавляем диалог подтверждения для защиты от случайного удаления
     auto reply = QMessageBox::question(this, "Подтверждение удаления",
                                        "Вы уверены, что хотите удалить эту задачу?",
                                        QMessageBox::Yes | QMessageBox::No);

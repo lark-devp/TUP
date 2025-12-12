@@ -608,7 +608,7 @@ void ApplicationController::onTweekAuthSuccess(const QString& idToken, const QSt
 void ApplicationController::onTweekAuthFailed()
 {
     if (!m_synchronizationView) return;
-    m_synchronizationView->logMessage("Ошибка: неверный логин или пароль.");
+    m_synchronizationView->logMessage("Проверьте подключение к интернету, правильность логина и пароля");
     m_synchronizationView->updateStatus("Не удалось подключиться.");
     m_synchronizationView->setProgress(0);
     m_synchronizationView->setControlsEnabled(true);
@@ -765,7 +765,7 @@ void ApplicationController::onTweekTaskCreateFailed(int localTaskId, const QStri
 {
     m_taskSelectionView->showLoading(false);
     qWarning() << "Ошибка создания задачи" << localTaskId << "в Tweek:" << error;
-    m_taskSelectionView->showError("Не удалось создать задачу в Tweek: " + error);
+    m_taskSelectionView->showError("Не удалось создать задачу в Tweek, проверьте подключение к интернету: " + error);
 }
 
 void ApplicationController::onTweekTaskUpdateSuccess(int localTaskId)
